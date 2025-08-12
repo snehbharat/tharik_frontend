@@ -1,4 +1,5 @@
 // Authentication Service with JWT and Session Management
+import axios from 'axios';
 
 import Cookies from "js-cookie";
 import { MOCK_USERS } from "../types/auth";
@@ -17,104 +18,45 @@ export class AuthService {
   static MAX_LOGIN_ATTEMPTS = 5;
   static LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes
 
-  static async login(credentials) {
-    try {
-      console.log("Attempting login for user:", credentials.username);
+  static async login(Credentials) {
+  
+  let email, pwd;
+  
+    email = Credentials.username || Credentials.email;
+    pwd = Credentials.password;
+   
 
-      const rateLimitCheck = this.checkRateLimit(credentials.username);
-      if (!rateLimitCheck.allowed) {
-        console.warn("Login rate limited for user:", credentials.username);
-        return {
-          success: false,
-          message: `Too many login attempts. Please try again in ${Math.ceil(
-            rateLimitCheck.timeRemaining / 60000
-          )} minutes.`,
-          errors: ["RATE_LIMITED"],
-        };
-      }
+  try {
+    const response = await fetch("/api/auth/user/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password: pwd }),
+    });
 
-      const validation = this.validateCredentials(credentials);
-      if (!validation.valid) {
-        this.recordFailedAttempt(credentials.username);
-        console.warn(
-          "Login validation failed for user:",
-          credentials.username,
-          validation.errors
-        );
-        return {
-          success: false,
-          message: "Invalid credentials provided",
-          errors: validation.errors,
-        };
-      }
+    const data = await response.json();
 
-      await this.simulateNetworkDelay(500, 1500);
-
-      const mockUser = MOCK_USERS.find(
-        (user) =>
-          user.username === credentials.username &&
-          user.password === credentials.password
-      );
-
-      if (!mockUser || !mockUser.isActive) {
-        this.recordFailedAttempt(credentials.username);
-        console.warn(
-          "Login failed - invalid credentials or inactive user:",
-          credentials.username
-        );
-        return {
-          success: false,
-          message: "Invalid username or password",
-          errors: ["INVALID_CREDENTIALS"],
-        };
-      }
-
-      const user = {
-        ...mockUser,
-        id: `user_${Date.now()}`,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        lastLogin: new Date(),
-      };
-
-      const token = this.generateJWT(user);
-      const refreshToken = this.generateRefreshToken(user);
-      const expiresIn = this.SESSION_CONFIG.maxAge;
-      const sessionExpiry = new Date(Date.now() + expiresIn);
-
-      this.storeSession(
-        user,
-        token,
-        refreshToken,
-        sessionExpiry,
-        credentials.rememberMe
-      );
-
-      this.clearFailedAttempts(credentials.username);
-
-      console.log(
-        `User ${
-          user.username
-        } logged in successfully at ${new Date().toISOString()}`
-      );
-
-      return {
-        success: true,
-        user,
-        token,
-        refreshToken,
-        expiresIn,
-        message: "Login successful",
-      };
-    } catch (error) {
-      console.error("Login error:", error);
-      return {
-        success: false,
-        message: "An error occurred during login. Please try again.",
-        errors: ["SYSTEM_ERROR"],
-      };
+    if (!response.ok || !data.response) {
+      throw new Error(data.message || "Login failed");
     }
+
+    this.storeSession({
+      token: data.data.loginResponse.token,
+      refreshToken: data.data.loginResponse.refreshToken,
+      user: data.data.userDetails,
+      expiry: Date.now() + this.SESSION_CONFIG.maxAge,
+    });
+
+    return { success: true, user: data.data.userDetails, token: data.data.loginResponse.token };
+
+  } catch (error) {
+    console.error("Login error:", error);
+    return { success: false, message: error.message };
   }
+}
+
+
 
   static async logout() {
     try {
