@@ -15,10 +15,12 @@ export const AuthProvider = ({ children }) => {
   const [authState, setAuthState] = useState({
     user: null,
     token: null,
+    refreshToken: null,
     isAuthenticated: false,
     isLoading: true,
     error: null,
     sessionExpiry: null,
+    refreshTokenExpiry: null,
   });
 
   // Initialize authentication state
@@ -27,20 +29,24 @@ export const AuthProvider = ({ children }) => {
       try {
         const user = AuthService.getCurrentUser();
         const token = AuthService.getToken();
+        const refreshToken = AuthService.getRefreshToken();
         const sessionExpiry = AuthService.getSessionExpiry();
+        const refreshTokenExpiry = AuthService.getRefreshTokenExpiry();
         const isAuthenticated = AuthService.isAuthenticated();
 
         setAuthState({
           user,
           token,
+          refreshToken,
           isAuthenticated,
           isLoading: false,
           error: null,
           sessionExpiry,
+          refreshTokenExpiry,
         });
 
         if (isAuthenticated && AuthService.needsTokenRefresh()) {
-          await refreshToken();
+          await refreshTokenHandler();
         }
       } catch (error) {
         console.error("Auth initialization error:", error);
@@ -60,13 +66,19 @@ export const AuthProvider = ({ children }) => {
     if (!authState.isAuthenticated || !authState.sessionExpiry) return;
 
     const checkTokenExpiry = () => {
-      if (AuthService.needsTokenRefresh()) {
-        refreshToken();
+      if (AuthService.isRefreshTokenExpired()) {
+        // Refresh token expired, logout user
+        logout();
+      } else if (AuthService.needsTokenRefresh()) {
+        // Token needs refresh
+        refreshTokenHandler();
       } else if (AuthService.isSessionExpired()) {
+        // Session expired, logout user
         logout();
       }
     };
 
+    // Check every minute
     const interval = setInterval(checkTokenExpiry, 60000);
     return () => clearInterval(interval);
   }, [authState.isAuthenticated, authState.sessionExpiry]);
@@ -78,19 +90,19 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await AuthService.login(credentials);
 
-      console.log(response);
-
       if (response.success && response.user && response.token) {
-        setAuthState({
+        const newAuthState = {
           user: response.user,
           token: response.token,
+          refreshToken: response.refreshToken,
           isAuthenticated: true,
           isLoading: false,
           error: null,
-          sessionExpiry: new Date(
-            Date.now() + (response.expiresIn || 8 * 60 * 60 * 1000)
-          ),
-        });
+          sessionExpiry: response.tokenExpiry ? new Date(response.tokenExpiry) : null,
+          refreshTokenExpiry: response.refreshTokenExpiry ? new Date(response.refreshTokenExpiry) : null,
+        };
+
+        setAuthState(newAuthState);
 
         console.log("Login successful for user:", response.user.username);
         return true;
@@ -130,10 +142,12 @@ export const AuthProvider = ({ children }) => {
       setAuthState({
         user: null,
         token: null,
+        refreshToken: null,
         isAuthenticated: false,
         isLoading: false,
         error: null,
         sessionExpiry: null,
+        refreshTokenExpiry: null,
       });
 
       if (currentUser) {
@@ -144,17 +158,20 @@ export const AuthProvider = ({ children }) => {
       setAuthState({
         user: null,
         token: null,
+        refreshToken: null,
         isAuthenticated: false,
         isLoading: false,
         error: error instanceof Error ? error.message : "Logout failed",
         sessionExpiry: null,
+        refreshTokenExpiry: null,
       });
     }
   }, [authState.user]);
 
   // Refresh token function
-  const refreshToken = useCallback(async () => {
+  const refreshTokenHandler = useCallback(async () => {
     try {
+      console.log("Attempting to refresh token...");
       const response = await AuthService.refreshToken();
 
       if (response.success && response.user && response.token) {
@@ -162,14 +179,16 @@ export const AuthProvider = ({ children }) => {
           ...prev,
           user: response.user,
           token: response.token,
-          sessionExpiry: new Date(
-            Date.now() + (response.expiresIn || 8 * 60 * 60 * 1000)
-          ),
+          refreshToken: response.refreshToken,
+          sessionExpiry: response.tokenExpiry ? new Date(response.tokenExpiry) : prev.sessionExpiry,
+          refreshTokenExpiry: response.refreshTokenExpiry ? new Date(response.refreshTokenExpiry) : prev.refreshTokenExpiry,
           error: null,
         }));
 
+        console.log("Token refreshed successfully");
         return true;
       } else {
+        console.log("Token refresh failed, logging out...");
         await logout();
         return false;
       }
@@ -200,7 +219,7 @@ export const AuthProvider = ({ children }) => {
     ...authState,
     login,
     logout,
-    refreshToken,
+    refreshToken: refreshTokenHandler,
     hasPermission,
     hasRole,
   };
@@ -249,35 +268,54 @@ export const useRequireAuth = (requiredPermissions, requiredRole) => {
 export const useSession = () => {
   const auth = useAuth();
   const [timeUntilExpiry, setTimeUntilExpiry] = useState(0);
+  const [refreshTimeUntilExpiry, setRefreshTimeUntilExpiry] = useState(0);
 
   useEffect(() => {
     if (!auth.sessionExpiry) return;
 
     const updateTimer = () => {
       const now = new Date();
+      
+      // Main token expiry
       const expiry = new Date(auth.sessionExpiry);
       const timeLeft = Math.max(0, expiry.getTime() - now.getTime());
       setTimeUntilExpiry(timeLeft);
+
+      // Refresh token expiry
+      if (auth.refreshTokenExpiry) {
+        const refreshExpiry = new Date(auth.refreshTokenExpiry);
+        const refreshTimeLeft = Math.max(0, refreshExpiry.getTime() - now.getTime());
+        setRefreshTimeUntilExpiry(refreshTimeLeft);
+      }
     };
 
     updateTimer();
     const interval = setInterval(updateTimer, 1000);
 
     return () => clearInterval(interval);
-  }, [auth.sessionExpiry]);
+  }, [auth.sessionExpiry, auth.refreshTokenExpiry]);
 
   const formatTimeRemaining = (milliseconds) => {
-    const minutes = Math.floor(milliseconds / 60000);
+    const hours = Math.floor(milliseconds / (60 * 60 * 1000));
+    const minutes = Math.floor((milliseconds % (60 * 60 * 1000)) / 60000);
     const seconds = Math.floor((milliseconds % 60000) / 1000);
+    
+    if (hours > 0) {
+      return `${hours}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+    }
     return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
 
   const isExpiringSoon = timeUntilExpiry <= 5 * 60 * 1000; // 5 minutes
+  const isRefreshExpiringSoon = refreshTimeUntilExpiry <= 30 * 60 * 1000; // 30 minutes
 
   return {
     timeUntilExpiry,
+    refreshTimeUntilExpiry,
     timeRemainingFormatted: formatTimeRemaining(timeUntilExpiry),
+    refreshTimeRemainingFormatted: formatTimeRemaining(refreshTimeUntilExpiry),
     isExpiringSoon,
+    isRefreshExpiringSoon,
     extendSession: auth.refreshToken,
   };
 };

@@ -1,8 +1,6 @@
 // Authentication Service with JWT and Session Management
 import axios from 'axios';
-
 import Cookies from "js-cookie";
-import { MOCK_USERS } from "../types/auth";
 
 export class AuthService {
   static SESSION_CONFIG = {
@@ -10,22 +8,24 @@ export class AuthService {
     refreshTokenKey: "amoagc_refresh_token",
     userKey: "amoagc_user",
     expiryKey: "amoagc_expiry",
+    refreshExpiryKey: "amoagc_refresh_expiry",
     maxAge: 8 * 60 * 60 * 1000, // 8 hours
-    refreshThreshold: 30 * 60 * 1000, // 30 minutes
+    refreshThreshold: 30 * 60 * 1000, // 30 minutes before expiry
   };
 
   static LOGIN_ATTEMPTS_KEY = "amoagc_login_attempts";
   static MAX_LOGIN_ATTEMPTS = 5;
   static LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes
 
-  static async login(Credentials) {
-
+  /**
+   * Login user with credentials
+   */
+  static async login(credentials) {
     let email, pwd, role;
 
-    email = Credentials.username || Credentials.email;
-    pwd = Credentials.password;
-    role = Credentials.role;
-
+    email = credentials.username || credentials.email;
+    pwd = credentials.password;
+    role = credentials.role;
 
     try {
       const response = await fetch("/api/auth/user/login", {
@@ -42,14 +42,25 @@ export class AuthService {
         throw new Error(data.message || "Login failed");
       }
 
-      // this.storeSession({
-      //   token: data.data.loginResponse.token,
-      //   refreshToken: data.data.loginResponse.refreshToken,
-      //   user: data.data.userDetails,
-      //   expiry: Date.now() + this.SESSION_CONFIG.maxAge,
-      // });
+      const loginResponse = data.data.loginResponse;
+      
+      // Store session data
+      this.storeSession({
+        token: loginResponse.token,
+        refreshToken: loginResponse.refreshToken,
+        user: loginResponse.userDetails,
+        tokenExpiry: new Date(loginResponse.tokenExpiery),
+        refreshTokenExpiry: new Date(loginResponse.refreshTokenExpiery),
+      });
 
-      return { success: true, user: data.data.loginResponse.userDetails, token: data.data.loginResponse.token };
+      return { 
+        success: true, 
+        user: loginResponse.userDetails, 
+        token: loginResponse.token,
+        refreshToken: loginResponse.refreshToken,
+        tokenExpiry: loginResponse.tokenExpiery,
+        refreshTokenExpiry: loginResponse.refreshTokenExpiery,
+      };
 
     } catch (error) {
       console.error("Login error:", error);
@@ -57,13 +68,30 @@ export class AuthService {
     }
   }
 
-
-
+  /**
+   * Logout user and clear session
+   */
   static async logout() {
     try {
       const user = this.getCurrentUser();
-
       console.log("Logging out user:", user?.username);
+
+      // Call logout API if needed
+      try {
+        const token = this.getToken();
+        if (token) {
+          await fetch("/api/auth/user/logout", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+          });
+        }
+      } catch (error) {
+        console.warn("Logout API call failed:", error);
+        // Continue with local logout even if API fails
+      }
 
       this.clearSession();
 
@@ -80,6 +108,9 @@ export class AuthService {
     }
   }
 
+  /**
+   * Refresh authentication token
+   */
   static async refreshToken() {
     try {
       const refreshToken = this.getRefreshToken();
@@ -93,30 +124,50 @@ export class AuthService {
         };
       }
 
-      if (!this.validateRefreshToken(refreshToken)) {
+      if (this.isRefreshTokenExpired()) {
         this.clearSession();
         return {
           success: false,
-          message: "Invalid refresh token",
-          errors: ["INVALID_REFRESH_TOKEN"],
+          message: "Refresh token expired",
+          errors: ["REFRESH_TOKEN_EXPIRED"],
         };
       }
 
-      const newToken = this.generateJWT(user);
-      const newRefreshToken = this.generateRefreshToken(user);
-      const expiresIn = this.SESSION_CONFIG.maxAge;
-      const sessionExpiry = new Date(Date.now() + expiresIn);
+      // Call refresh token API
+      const response = await fetch("/api/auth/user/refresh-token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ refreshToken }),
+      });
 
-      this.storeSession(user, newToken, newRefreshToken, sessionExpiry, true);
+      const data = await response.json();
+
+      if (!response.ok || !data.response) {
+        throw new Error(data.message || "Token refresh failed");
+      }
+
+      const refreshResponse = data.data.refreshResponse || data.data.loginResponse;
+      
+      // Update session with new tokens
+      this.storeSession({
+        token: refreshResponse.token,
+        refreshToken: refreshResponse.refreshToken,
+        user: refreshResponse.userDetails || user,
+        tokenExpiry: new Date(refreshResponse.tokenExpiery),
+        refreshTokenExpiry: new Date(refreshResponse.refreshTokenExpiery),
+      });
 
       console.log(`Token refreshed for user ${user.username}`);
 
       return {
         success: true,
-        user,
-        token: newToken,
-        refreshToken: newRefreshToken,
-        expiresIn,
+        user: refreshResponse.userDetails || user,
+        token: refreshResponse.token,
+        refreshToken: refreshResponse.refreshToken,
+        tokenExpiry: refreshResponse.tokenExpiery,
+        refreshTokenExpiry: refreshResponse.refreshTokenExpiery,
         message: "Token refreshed successfully",
       };
     } catch (error) {
@@ -162,6 +213,13 @@ export class AuthService {
   }
 
   /**
+   * Get refresh token
+   */
+  static getRefreshToken() {
+    return Cookies.get(this.SESSION_CONFIG.refreshTokenKey) || null;
+  }
+
+  /**
    * Check if user is authenticated
    */
   static isAuthenticated() {
@@ -182,6 +240,17 @@ export class AuthService {
   }
 
   /**
+   * Check if refresh token is expired
+   */
+  static isRefreshTokenExpired() {
+    const refreshExpiryStr = localStorage.getItem(this.SESSION_CONFIG.refreshExpiryKey);
+    if (!refreshExpiryStr) return true;
+
+    const refreshExpiry = new Date(refreshExpiryStr);
+    return new Date() >= refreshExpiry;
+  }
+
+  /**
    * Check if token needs refresh
    */
   static needsTokenRefresh() {
@@ -192,6 +261,7 @@ export class AuthService {
     const now = new Date();
     const timeUntilExpiry = expiry.getTime() - now.getTime();
 
+    // Refresh if less than 30 minutes remaining
     return timeUntilExpiry <= this.SESSION_CONFIG.refreshThreshold;
   }
 
@@ -202,20 +272,20 @@ export class AuthService {
     const user = this.getCurrentUser();
     if (!user) return false;
 
+    // Check if user has permissions array
+    if (!user.permissions && !user.role?.permissions) return false;
+
+    // Get user permissions from API response structure
+    const userPermissions = user.permissions || [];
+    const rolePermissions = user.role?.permissions || [];
+    const allPermissions = [...userPermissions, ...rolePermissions];
+
     // Admin has all permissions
-    if (user.role.permissions.includes("*")) return true;
+    if (allPermissions.includes("*") || user.role === "admin") return true;
 
     // Check specific permissions
-    return user.permissions.some(
-      (perm) =>
-        perm.resource === "*" ||
-        perm.resource === permission.split(".")[0] ||
-        user.role.permissions.some(
-          (rolePerm) =>
-            rolePerm === permission ||
-            rolePerm === permission.split(".")[0] + ".*"
-        )
-    );
+    return allPermissions.includes(permission) || 
+           allPermissions.some(perm => perm === permission.split(".")[0] + ".*");
   }
 
   /**
@@ -223,7 +293,7 @@ export class AuthService {
    */
   static hasRole(roleId) {
     const user = this.getCurrentUser();
-    return user?.role.id === roleId;
+    return user?.role === roleId;
   }
 
   /**
@@ -234,8 +304,60 @@ export class AuthService {
     return expiryStr ? new Date(expiryStr) : null;
   }
 
+  /**
+   * Get refresh token expiry time
+   */
+  static getRefreshTokenExpiry() {
+    const refreshExpiryStr = localStorage.getItem(this.SESSION_CONFIG.refreshExpiryKey);
+    return refreshExpiryStr ? new Date(refreshExpiryStr) : null;
+  }
+
   // ==================== PRIVATE METHODS ====================
 
+  /**
+   * Store session data in localStorage and cookies
+   */
+  static storeSession({ token, refreshToken, user, tokenExpiry, refreshTokenExpiry }, persistent = false) {
+    const cookieOptions = {
+      expires: persistent ? 30 : undefined, // 30 days if remember me
+      secure: window.location.protocol === "https:",
+      sameSite: "strict",
+      path: "/",
+    };
+
+    // Store tokens in cookies
+    Cookies.set(this.SESSION_CONFIG.tokenKey, token, cookieOptions);
+    Cookies.set(this.SESSION_CONFIG.refreshTokenKey, refreshToken, cookieOptions);
+
+    // Store user data and expiry in localStorage
+    localStorage.setItem(this.SESSION_CONFIG.userKey, JSON.stringify(user));
+    localStorage.setItem(this.SESSION_CONFIG.expiryKey, tokenExpiry.toISOString());
+    localStorage.setItem(this.SESSION_CONFIG.refreshExpiryKey, refreshTokenExpiry.toISOString());
+
+    console.log("Session stored successfully");
+    console.log("Token expires:", tokenExpiry.toISOString());
+    console.log("Refresh token expires:", refreshTokenExpiry.toISOString());
+  }
+
+  /**
+   * Clear all session data
+   */
+  static clearSession() {
+    // Remove cookies
+    Cookies.remove(this.SESSION_CONFIG.tokenKey);
+    Cookies.remove(this.SESSION_CONFIG.refreshTokenKey);
+
+    // Remove localStorage items
+    localStorage.removeItem(this.SESSION_CONFIG.userKey);
+    localStorage.removeItem(this.SESSION_CONFIG.expiryKey);
+    localStorage.removeItem(this.SESSION_CONFIG.refreshExpiryKey);
+
+    console.log("Session cleared");
+  }
+
+  /**
+   * Validate user credentials
+   */
   static validateCredentials(credentials) {
     const errors = [];
 
@@ -269,71 +391,9 @@ export class AuthService {
     };
   }
 
-  static generateJWT(user) {
-    // In production, use a proper JWT library like jsonwebtoken
-    const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
-    const payload = btoa(
-      JSON.stringify({
-        sub: user.id,
-        username: user.username,
-        role: user.role.id,
-        iat: Math.floor(Date.now() / 1000),
-        exp: Math.floor((Date.now() + this.SESSION_CONFIG.maxAge) / 1000),
-      })
-    );
-    const signature = btoa(`signature_${user.id}_${Date.now()}`);
-
-    return `${header}.${payload}.${signature}`;
-  }
-
-  static generateRefreshToken(user) {
-    return btoa(`refresh_${user.id}_${Date.now()}_${Math.random()}`);
-  }
-
-  static validateRefreshToken(token) {
-    try {
-      const decoded = atob(token);
-      return decoded.startsWith("refresh_") && decoded.length > 20;
-    } catch {
-      return false;
-    }
-  }
-
-  static storeSession(user, token, refreshToken, expiry, persistent = false) {
-    const cookieOptions = {
-      expires: persistent ? 30 : undefined, // 30 days if remember me
-      secure: window.location.protocol === "https:",
-      sameSite: "strict",
-      path: "/",
-    };
-
-    // Store tokens in httpOnly-like cookies (simulated)
-    Cookies.set(this.SESSION_CONFIG.tokenKey, token, cookieOptions);
-    Cookies.set(
-      this.SESSION_CONFIG.refreshTokenKey,
-      refreshToken,
-      cookieOptions
-    );
-
-    // Store user data and expiry in localStorage
-    localStorage.setItem(this.SESSION_CONFIG.userKey, JSON.stringify(user));
-    //localStorage.setItem(this.SESSION_CONFIG.expiryKey, expiry.toISOString());
-  }
-
-  static clearSession() {
-    // Remove cookies
-    Cookies.remove(this.SESSION_CONFIG.tokenKey);
-    Cookies.remove(this.SESSION_CONFIG.refreshTokenKey);
-
-    // Remove localStorage items
-    localStorage.removeItem(this.SESSION_CONFIG.userKey);
-    localStorage.removeItem(this.SESSION_CONFIG.expiryKey);
-  }
-
-  static getRefreshToken() {
-    return Cookies.get(this.SESSION_CONFIG.refreshTokenKey) || null;
-  }
-
+  /**
+   * Check rate limiting for login attempts
+   */
   static checkRateLimit(username) {
     const attemptsKey = `${this.LOGIN_ATTEMPTS_KEY}_${username}`;
     const attemptsData = localStorage.getItem(attemptsKey);
@@ -361,6 +421,9 @@ export class AuthService {
     return { allowed: true, timeRemaining: 0 };
   }
 
+  /**
+   * Record failed login attempt
+   */
   static recordFailedAttempt(username) {
     const attemptsKey = `${this.LOGIN_ATTEMPTS_KEY}_${username}`;
     const attemptsData = localStorage.getItem(attemptsKey);
@@ -380,13 +443,43 @@ export class AuthService {
     );
   }
 
+  /**
+   * Clear failed login attempts
+   */
   static clearFailedAttempts(username) {
     const attemptsKey = `${this.LOGIN_ATTEMPTS_KEY}_${username}`;
     localStorage.removeItem(attemptsKey);
   }
 
+  /**
+   * Simulate network delay for testing
+   */
   static async simulateNetworkDelay(min, max) {
     const delay = Math.random() * (max - min) + min;
     return new Promise((resolve) => setTimeout(resolve, delay));
+  }
+
+  /**
+   * Get time until token expires (in milliseconds)
+   */
+  static getTimeUntilExpiry() {
+    const expiryStr = localStorage.getItem(this.SESSION_CONFIG.expiryKey);
+    if (!expiryStr) return 0;
+
+    const expiry = new Date(expiryStr);
+    const now = new Date();
+    return Math.max(0, expiry.getTime() - now.getTime());
+  }
+
+  /**
+   * Get time until refresh token expires (in milliseconds)
+   */
+  static getTimeUntilRefreshExpiry() {
+    const refreshExpiryStr = localStorage.getItem(this.SESSION_CONFIG.refreshExpiryKey);
+    if (!refreshExpiryStr) return 0;
+
+    const refreshExpiry = new Date(refreshExpiryStr);
+    const now = new Date();
+    return Math.max(0, refreshExpiry.getTime() - now.getTime());
   }
 }
