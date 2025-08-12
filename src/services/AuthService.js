@@ -19,42 +19,43 @@ export class AuthService {
   static LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes
 
   static async login(Credentials) {
-  
-  let email, pwd;
-  
+
+    let email, pwd, role;
+
     email = Credentials.username || Credentials.email;
     pwd = Credentials.password;
-   
+    role = Credentials.role;
 
-  try {
-    const response = await fetch("/api/auth/user/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password: pwd }),
-    });
 
-    const data = await response.json();
+    try {
+      const response = await fetch("/api/auth/user/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password: pwd, role }),
+      });
 
-    if (!response.ok || !data.response) {
-      throw new Error(data.message || "Login failed");
+      const data = await response.json();
+
+      if (!response.ok || !data.response) {
+        throw new Error(data.message || "Login failed");
+      }
+
+      // this.storeSession({
+      //   token: data.data.loginResponse.token,
+      //   refreshToken: data.data.loginResponse.refreshToken,
+      //   user: data.data.userDetails,
+      //   expiry: Date.now() + this.SESSION_CONFIG.maxAge,
+      // });
+
+      return { success: true, user: data.data.loginResponse.userDetails, token: data.data.loginResponse.token };
+
+    } catch (error) {
+      console.error("Login error:", error);
+      return { success: false, message: error.message };
     }
-
-    this.storeSession({
-      token: data.data.loginResponse.token,
-      refreshToken: data.data.loginResponse.refreshToken,
-      user: data.data.userDetails,
-      expiry: Date.now() + this.SESSION_CONFIG.maxAge,
-    });
-
-    return { success: true, user: data.data.userDetails, token: data.data.loginResponse.token };
-
-  } catch (error) {
-    console.error("Login error:", error);
-    return { success: false, message: error.message };
   }
-}
 
 
 
@@ -316,7 +317,7 @@ export class AuthService {
 
     // Store user data and expiry in localStorage
     localStorage.setItem(this.SESSION_CONFIG.userKey, JSON.stringify(user));
-    localStorage.setItem(this.SESSION_CONFIG.expiryKey, expiry.toISOString());
+    //localStorage.setItem(this.SESSION_CONFIG.expiryKey, expiry.toISOString());
   }
 
   static clearSession() {

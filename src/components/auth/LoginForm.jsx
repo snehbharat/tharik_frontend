@@ -24,16 +24,20 @@ export const LoginForm = ({
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [credentials, setCredentials] = useState({
-    username: "",
-    password: "",
-    rememberMe: false,
-  });
-
   const [showPassword, setShowPassword] = useState(false);
   const [validationErrors, setValidationErrors] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loginSuccess, setLoginSuccess] = useState(false);
+
+
+  const [credentials, setCredentials] = useState({
+    username: "",
+    password: "",
+    role: "",
+    rememberMe: false,
+  });
+
+  console.log(credentials)
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -85,17 +89,18 @@ export const LoginForm = ({
     }
   };
 
-  const fillDemoCredentials = (role) => {
+  const fillDemoCredentials = (userRole) => {
+
     const demoCredentials = {
-      admin: { username: "admin", password: "admin123" },
-      hr: { username: "hr.manager", password: "hr123" },
-      ops: { username: "ops.supervisor", password: "ops123" },
-      finance: { username: "finance.clerk", password: "finance123" },
+      admin: { username: "kousik@gmail.com", password: "Kousik1234@", role: userRole },
+      hr: { username: "hr.manager", password: "hr123", role: userRole },
+      operation: { username: "ops.supervisor", password: "ops123", role: userRole },
+      finance: { username: "finance.clerk", password: "finance123", role: userRole },
     };
 
     setCredentials((prev) => ({
       ...prev,
-      ...demoCredentials[role],
+      ...demoCredentials[userRole],
     }));
   };
 
@@ -141,9 +146,8 @@ export const LoginForm = ({
 
   return (
     <div
-      className={`min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 flex items-center justify-center p-4 ${
-        isArabic ? "rtl" : "ltr"
-      }`}
+      className={`min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 flex items-center justify-center p-4 ${isArabic ? "rtl" : "ltr"
+        }`}
       onKeyDown={handleKeyDown}
     >
       <div className="w-full max-w-md">
@@ -211,9 +215,8 @@ export const LoginForm = ({
               </label>
               <div className="relative">
                 <User
-                  className={`w-5 h-5 absolute top-1/2 transform -translate-y-1/2 text-gray-400 ${
-                    isArabic ? "right-3" : "left-3"
-                  }`}
+                  className={`w-5 h-5 absolute top-1/2 transform -translate-y-1/2 text-gray-400 ${isArabic ? "right-3" : "left-3"
+                    }`}
                 />
                 <input
                   type="text"
@@ -221,9 +224,8 @@ export const LoginForm = ({
                   onChange={(e) =>
                     handleInputChange("username", e.target.value)
                   }
-                  className={`w-full border border-gray-300 rounded-lg py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
-                    isArabic ? "pr-10 pl-4 text-right" : "pl-10 pr-4 text-left"
-                  }`}
+                  className={`w-full border border-gray-300 rounded-lg py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${isArabic ? "pr-10 pl-4 text-right" : "pl-10 pr-4 text-left"
+                    }`}
                   placeholder={
                     isArabic ? "أدخل اسم المستخدم" : "Enter your username"
                   }
@@ -241,9 +243,8 @@ export const LoginForm = ({
               </label>
               <div className="relative">
                 <Lock
-                  className={`w-5 h-5 absolute top-1/2 transform -translate-y-1/2 text-gray-400 ${
-                    isArabic ? "right-3" : "left-3"
-                  }`}
+                  className={`w-5 h-5 absolute top-1/2 transform -translate-y-1/2 text-gray-400 ${isArabic ? "right-3" : "left-3"
+                    }`}
                 />
                 <input
                   type={showPassword ? "text" : "password"}
@@ -251,11 +252,10 @@ export const LoginForm = ({
                   onChange={(e) =>
                     handleInputChange("password", e.target.value)
                   }
-                  className={`w-full border border-gray-300 rounded-lg py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
-                    isArabic
-                      ? "pr-10 pl-10 text-right"
-                      : "pl-10 pr-10 text-left"
-                  }`}
+                  className={`w-full border border-gray-300 rounded-lg py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${isArabic
+                    ? "pr-10 pl-10 text-right"
+                    : "pl-10 pr-10 text-left"
+                    }`}
                   placeholder={
                     isArabic ? "أدخل كلمة المرور" : "Enter your password"
                   }
@@ -266,9 +266,8 @@ export const LoginForm = ({
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className={`absolute top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 ${
-                    isArabic ? "left-3" : "right-3"
-                  }`}
+                  className={`absolute top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 ${isArabic ? "left-3" : "right-3"
+                    }`}
                   disabled={isSubmitting || loginSuccess || isLoading}
                   tabIndex={-1}
                 >
@@ -294,9 +293,8 @@ export const LoginForm = ({
                   disabled={isSubmitting || loginSuccess || isLoading}
                 />
                 <span
-                  className={`text-sm text-gray-600 ${
-                    isArabic ? "mr-2" : "ml-2"
-                  }`}
+                  className={`text-sm text-gray-600 ${isArabic ? "mr-2" : "ml-2"
+                    }`}
                 >
                   {isArabic ? "تذكرني" : "Remember me"}
                 </span>
@@ -364,7 +362,7 @@ export const LoginForm = ({
                 {isArabic ? "الموارد البشرية" : "HR Manager"}
               </button>
               <button
-                onClick={() => fillDemoCredentials("ops")}
+                onClick={() => fillDemoCredentials("operation")}
                 className="text-xs bg-green-100 text-green-800 px-3 py-2 rounded-lg hover:bg-green-200 transition-colors"
                 disabled={isSubmitting || loginSuccess || isLoading}
               >

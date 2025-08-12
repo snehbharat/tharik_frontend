@@ -78,6 +78,8 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await AuthService.login(credentials);
 
+      console.log(response);
+
       if (response.success && response.user && response.token) {
         setAuthState({
           user: response.user,
