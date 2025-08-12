@@ -43,6 +43,7 @@ import { IntegrationControlPanel } from "./components/integrations/IntegrationCo
 import { AttendanceTracking } from "./components/attendance/AttendanceTracking";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { useApiIntegration } from "./hooks/useApiIntegration";
+import PermissionsPage from "./components/PermissionPage";
 
 const AppContent = () => {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -129,6 +130,9 @@ const AppContent = () => {
       case "attendance-tracking":
         console.log("Rendering attendance tracking");
         return <AttendanceTracking isArabic={isArabic} />;
+      case "permissions":
+        console.log("Rendering permissions management");
+        return <PermissionsPage isArabic={isArabic}/>;  
       default:
         console.log(
           "Rendering default dashboard for unknown module:",

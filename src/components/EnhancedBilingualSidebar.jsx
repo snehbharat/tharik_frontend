@@ -35,6 +35,7 @@ import {
   Home,
   Mail,
   Phone,
+  KeyIcon
 } from "lucide-react";
 import { useBilingual, BilingualText } from "./BilingualLayout";
 import { useAuth } from "../hooks/useAuth";
@@ -124,6 +125,14 @@ export const EnhancedBilingualSidebar = ({
           nameAr: "إدارة الأسطول",
           requiresAuth: true,
           permission: "fleet.read",
+        },
+        {
+          id: "permissions",
+          icon: KeyIcon,
+          nameEn: "Permissions",
+          nameAr: " إذن",
+          requiresAuth: true,
+          permission: "permissions.read",
         },
       ],
     },
