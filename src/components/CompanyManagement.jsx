@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Building2,
   Users,
@@ -16,55 +16,63 @@ import {
   Download,
   Upload,
 } from "lucide-react";
+import { useAuth } from "../hooks/useAuth";
+import axios from "axios";
+import Cookies from "js-cookie";
 
 export const CompanyManagement = ({ isArabic }) => {
   const [activeTab, setActiveTab] = useState("profile");
   const [showAddClient, setShowAddClient] = useState(false);
   const [editingClient, setEditingClient] = useState(null);
-  const [clients, setClients] = useState([
-    {
-      id: 1,
-      nameEn: "Saudi Aramco",
-      nameAr: "أرامكو السعودية",
-      type: "Corporate",
-      contractValue: "1.2M SAR",
-      status: "Active",
-      expiryDate: "2025-06-15",
-      manpower: 45,
-      vehicles: 12,
-      contactPerson: "Ahmed Al-Mansouri",
-      email: "ahmed@aramco.com",
-      phone: "+966501234567",
-    },
-    {
-      id: 2,
-      nameEn: "SABIC Industries",
-      nameAr: "صناعات سابك",
-      type: "Government",
-      contractValue: "850K SAR",
-      status: "Active",
-      expiryDate: "2025-03-20",
-      manpower: 32,
-      vehicles: 8,
-      contactPerson: "Fatima Al-Zahra",
-      email: "fatima@sabic.com",
-      phone: "+966502345678",
-    },
-    {
-      id: 3,
-      nameEn: "NEOM Development",
-      nameAr: "تطوير نيوم",
-      type: "Corporate",
-      contractValue: "2.1M SAR",
-      status: "Pending",
-      expiryDate: "2025-12-01",
-      manpower: 78,
-      vehicles: 20,
-      contactPerson: "Mohammad Hassan",
-      email: "mohammad@neom.sa",
-      phone: "+966503456789",
-    },
-  ]);
+  const [clients, setClients] = useState([]);
+  const [viewClient, setViewClient] = useState(null);
+  console.log(clients);
+
+  const [pagination, setPagination] = useState({
+    total: 0,
+    page: 1,
+    limit: 10,
+    totalPages: 1,
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchClients = async (page = 1) => {
+    try {
+      setLoading(true);
+      const token = Cookies.get("amoagc_token");
+      if (!token) {
+        throw new Error("Token not found in cookies");
+      }
+
+      const res = await axios.get(
+        `http://localhost:3001/api/client/getAll?page=${page}&limit=${pagination.limit}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log(res.data);
+
+      setClients(res.data.data.data || []);
+      setPagination({
+        total: res.data.data.total,
+        page: res.data.data.page,
+        limit: res.data.data.limit,
+        totalPages: res.data.data.totalPages,
+      });
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchClients(1);
+  }, []);
 
   const [newClient, setNewClient] = useState({
     nameEn: "",
@@ -90,7 +98,7 @@ export const CompanyManagement = ({ isArabic }) => {
     activeContracts: 24,
   };
 
-  const handleAddClient = () => {
+  const handleAddClient = async () => {
     if (!newClient.nameEn || !newClient.contractValue) {
       alert(
         isArabic ? "يرجى ملء الحقول المطلوبة" : "Please fill in required fields"
@@ -98,63 +106,206 @@ export const CompanyManagement = ({ isArabic }) => {
       return;
     }
 
-    const client = {
-      ...newClient,
-      id: Math.max(...clients.map((c) => c.id)) + 1,
-    };
+    try {
+      const token = Cookies.get("amoagc_token");
+      if (!token) {
+        throw new Error("Token not found in cookies");
+      }
 
-    setClients([...clients, client]);
-    setNewClient({
-      nameEn: "",
-      nameAr: "",
-      type: "Corporate",
-      contractValue: "",
-      status: "Active",
-      expiryDate: "",
-      manpower: 0,
-      vehicles: 0,
-      contactPerson: "",
-      email: "",
-      phone: "",
-    });
-    setShowAddClient(false);
+      const payload = {
+        client_email: newClient.email,
+        client_mobile_number: newClient.phone,
+        client_name_eng: newClient.nameEn,
+        client_name_arb: newClient.nameAr,
+        client_type: newClient.type.toLowerCase(), // API expects lowercase
+        contract_value: Number(newClient.contractValue),
+        contract_expiery_date: newClient.expiryDate || null,
+        status: newClient.status.toLowerCase(),
+        manpower_count: Number(newClient.manpower) || 0,
+        vehicle_count: Number(newClient.vehicles) || 0,
+        contact_person: newClient.contactPerson,
+      };
 
-    alert(isArabic ? "تم إضافة العميل بنجاح!" : "Client added successfully!");
-    console.log("Client added successfully:", client);
+      const res = await axios.post(
+        "http://localhost:3001/api/client/create",
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (res.data?.status === 200) {
+        alert(
+          isArabic ? "تم إضافة العميل بنجاح!" : "Client added successfully!"
+        );
+
+        fetchClients(1);
+
+        // Reset form
+        setNewClient({
+          nameEn: "",
+          nameAr: "",
+          type: "Corporate",
+          contractValue: "",
+          status: "Active",
+          expiryDate: "",
+          manpower: 0,
+          vehicles: 0,
+          contactPerson: "",
+          email: "",
+          phone: "",
+        });
+        setShowAddClient(false);
+        setActiveTab("clients");
+      } else {
+        alert(res.data?.message || "Failed to add client");
+      }
+    } catch (error) {
+      console.error(error);
+      alert(isArabic ? "حدث خطأ أثناء إضافة العميل" : "Error adding client");
+    }
   };
 
   const handleEditClient = (id) => {
-    setEditingClient(id);
-    console.log("Editing client:", id);
+    // Find client to edit
+    const client = clients.find((c) => c._id === id);
+    if (!client) return;
+
+    // Store in state for editing (could be modal or inline form)
+    setEditingClient(client);
   };
 
-  const handleSaveClient = (id) => {
-    setEditingClient(null);
-    alert(isArabic ? "تم حفظ التغييرات بنجاح!" : "Changes saved successfully!");
-    console.log("Client saved:", id);
+  const handleSaveClient = async () => {
+    if (!editingClient) return;
+
+    try {
+      const token = Cookies.get("amoagc_token");
+      if (!token) throw new Error("Token not found");
+
+      // Map your editingClient state to API format
+      const payload = {
+        client_email: editingClient.client_email,
+        client_mobile_number: editingClient.client_mobile_number,
+        client_name_eng: editingClient.client_name_eng,
+        client_name_arb: editingClient.client_name_arb,
+        client_type: editingClient.client_type.toLowerCase(),
+        contract_value: Number(
+          editingClient.contract_value?.$numberDecimal ||
+            editingClient.contract_value
+        ),
+        contract_expiery_date: editingClient.contract_expiery_date,
+        status: editingClient.status.toLowerCase(),
+        manpower_count: Number(editingClient.manpower_count),
+        vehicle_count: Number(editingClient.vehicle_count),
+        contact_person: editingClient.contact_person,
+      };
+
+      const res = await axios.put(
+        `http://localhost:3001/api/client/${editingClient._id}`,
+        payload,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (res.data?.status === 200) {
+        alert(
+          isArabic ? "تم حفظ التغييرات بنجاح!" : "Changes saved successfully!"
+        );
+
+        // Update client in local state
+        setClients((prev) =>
+          prev.map((c) =>
+            c._id === editingClient._id ? res.data.data.clientDetails : c
+          )
+        );
+        setEditingClient(null);
+      } else {
+        alert(res.data?.message || "Failed to save client");
+      }
+    } catch (error) {
+      console.error(error);
+      alert(isArabic ? "حدث خطأ أثناء حفظ التغييرات" : "Error saving client");
+    }
   };
 
-  const handleDeleteClient = (id) => {
+  const handleDeleteClient = async (id) => {
     if (
-      window.confirm(
+      !window.confirm(
         isArabic
           ? "هل أنت متأكد من حذف هذا العميل؟"
           : "Are you sure you want to delete this client?"
       )
-    ) {
-      setClients(clients.filter((client) => client.id !== id));
-      alert(isArabic ? "تم حذف العميل بنجاح!" : "Client deleted successfully!");
-      console.log("Client deleted:", id);
+    )
+      return;
+
+    try {
+      const token = Cookies.get("amoagc_token");
+      if (!token) throw new Error("Token not found");
+
+      const res = await axios.delete(`http://localhost:3001/api/client/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (res.data?.status === 200 || res.status === 200) {
+        alert(
+          isArabic ? "تم حذف العميل بنجاح!" : "Client deleted successfully!"
+        );
+
+        setClients((prev) => {
+          const updatedClients = prev.filter((c) => c._id !== id);
+
+          // Recalculate pagination
+          const newTotal = updatedClients.length;
+          const newTotalPages = Math.ceil(newTotal / pagination.limit);
+          const newPage = Math.min(pagination.page, newTotalPages || 1);
+
+          setPagination((prevPagination) => ({
+            ...prevPagination,
+            total: newTotal,
+            totalPages: newTotalPages,
+            page: newPage,
+          }));
+
+          return updatedClients;
+        });
+      } else {
+        alert(res.data?.message || "Failed to delete client");
+      }
+    } catch (error) {
+      console.error(error);
+      alert(isArabic ? "حدث خطأ أثناء حذف العميل" : "Error deleting client");
     }
   };
 
+  // const handleEditClient = (id) => {
+  //   setEditingClient(id);
+  //   console.log("Editing client:", id);
+  // };
+
+  // const handleSaveClient = (id) => {
+  //   setEditingClient(null);
+  //   alert(isArabic ? "تم حفظ التغييرات بنجاح!" : "Changes saved successfully!");
+  //   console.log("Client saved:", id);
+  // };
+
+  // const handleDeleteClient = (id) => {
+  //   if (
+  //     window.confirm(
+  //       isArabic
+  //         ? "هل أنت متأكد من حذف هذا العميل؟"
+  //         : "Are you sure you want to delete this client?"
+  //     )
+  //   ) {
+  //     setClients(clients.filter((client) => client.id !== id));
+  //     alert(isArabic ? "تم حذف العميل بنجاح!" : "Client deleted successfully!");
+  //     console.log("Client deleted:", id);
+  //   }
+  // };
+
   const handleViewClient = (id) => {
-    const client = clients.find((c) => c.id === id);
-    alert(
-      `${isArabic ? "عرض تفاصيل العميل:" : "Viewing client details:"} ${
-        client?.nameEn
-      }`
-    );
+    const client = clients.find((c) => c._id === id);
+    setViewClient(client);
     console.log("Viewing client:", client);
   };
 
@@ -286,6 +437,9 @@ export const CompanyManagement = ({ isArabic }) => {
     };
     input.click();
   };
+
+  if (loading) return <p>Loading clients...</p>;
+  if (error) return <p style={{ color: "red" }}>Error: {error}</p>;
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -577,23 +731,26 @@ export const CompanyManagement = ({ isArabic }) => {
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {clients.map((client) => (
-                        <tr key={client.id} className="hover:bg-gray-50">
+                        <tr key={client._id} className="hover:bg-gray-50">
                           <td
                             className="px-6 py-4 whitespace-nowrap"
                             role="cell"
                           >
                             <div>
                               <div className="font-medium text-gray-900">
-                                {isArabic ? client.nameAr : client.nameEn}
+                                {isArabic
+                                  ? client.client_name_arb
+                                  : client.client_name_eng}
                               </div>
                               <div className="text-sm text-gray-500">
-                                {client.manpower}{" "}
+                                {client.manpower_count}{" "}
                                 {isArabic ? "عامل" : "workers"} •{" "}
-                                {client.vehicles}{" "}
+                                {client.vehicle_count}{" "}
                                 {isArabic ? "مركبة" : "vehicles"}
                               </div>
                               <div className="text-sm text-gray-500">
-                                {client.contactPerson} • {client.phone}
+                                {client.contact_person} •{" "}
+                                {client.client_mobile_number}
                               </div>
                             </div>
                           </td>
@@ -601,13 +758,13 @@ export const CompanyManagement = ({ isArabic }) => {
                             className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
                             role="cell"
                           >
-                            {client.type}
+                            {client.client_type}
                           </td>
                           <td
                             className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
                             role="cell"
                           >
-                            {client.contractValue}
+                            {client.contract_value?.$numberDecimal}
                           </td>
                           <td
                             className="px-6 py-4 whitespace-nowrap"
@@ -615,7 +772,7 @@ export const CompanyManagement = ({ isArabic }) => {
                           >
                             <span
                               className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                client.status === "Active"
+                                client.status === "active"
                                   ? "bg-green-100 text-green-800"
                                   : "bg-yellow-100 text-yellow-800"
                               }`}
@@ -627,7 +784,7 @@ export const CompanyManagement = ({ isArabic }) => {
                             className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
                             role="cell"
                           >
-                            {client.expiryDate}
+                            {client.contract_expiery_date}
                           </td>
                           <td
                             className="px-6 py-4 whitespace-nowrap text-sm font-medium"
@@ -635,28 +792,30 @@ export const CompanyManagement = ({ isArabic }) => {
                           >
                             <div className="flex items-center gap-2">
                               <button
-                                onClick={() => handleViewClient(client.id)}
+                                onClick={() => handleViewClient(client._id)}
                                 className="text-blue-600 hover:text-blue-800 p-1 rounded transition-colors"
                                 aria-label={`${isArabic ? "عرض" : "View"} ${
-                                  client.nameEn
+                                  client.client_name_eng
                                 }`}
                               >
                                 <Eye className="w-4 h-4" aria-hidden="true" />
                               </button>
+
                               <button
-                                onClick={() => handleEditClient(client.id)}
+                                onClick={() => handleEditClient(client._id)}
                                 className="text-green-600 hover:text-green-800 p-1 rounded transition-colors"
                                 aria-label={`${isArabic ? "تعديل" : "Edit"} ${
-                                  client.nameEn
+                                  client.client_name_eng
                                 }`}
                               >
                                 <Edit className="w-4 h-4" aria-hidden="true" />
                               </button>
+
                               <button
-                                onClick={() => handleDeleteClient(client.id)}
+                                onClick={() => handleDeleteClient(client._id)}
                                 className="text-red-600 hover:text-red-800 p-1 rounded transition-colors"
                                 aria-label={`${isArabic ? "حذف" : "Delete"} ${
-                                  client.nameEn
+                                  client.client_name_eng
                                 }`}
                               >
                                 <Trash2
@@ -672,10 +831,404 @@ export const CompanyManagement = ({ isArabic }) => {
                   </table>
                 </div>
               </div>
+              <div className="flex items-center justify-center gap-4 mt-6">
+                {/* Previous Button */}
+                <button
+                  onClick={() => fetchClients(Math.max(1, pagination.page - 1))}
+                  disabled={pagination.page <= 1}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+      ${
+        pagination.page <= 1
+          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+          : "bg-green-600 text-white hover:bg-green-700"
+      }`}
+                >
+                  {isArabic ? "السابق" : "Previous"}
+                </button>
+
+                {/* Page Info */}
+                <div className="px-4 py-2 bg-gray-100 rounded-lg text-sm font-medium text-gray-700">
+                  {isArabic ? "صفحة" : "Page"}{" "}
+                  {Number.isFinite(pagination.page) ? pagination.page : 0}{" "}
+                  {isArabic ? "من" : "of"}{" "}
+                  {Number.isFinite(pagination.totalPages)
+                    ? pagination.totalPages
+                    : 0}
+                </div>
+
+                {/* Next Button */}
+                <button
+                  onClick={() =>
+                    fetchClients(
+                      Math.min(pagination.totalPages, pagination.page + 1)
+                    )
+                  }
+                  disabled={pagination.page >= pagination.totalPages}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+      ${
+        pagination.page >= pagination.totalPages
+          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+          : "bg-green-600 text-white hover:bg-green-700"
+      }`}
+                >
+                  {isArabic ? "التالي" : "Next"}
+                </button>
+              </div>
             </div>
           )}
         </div>
       </div>
+
+      {/* view client details */}
+      {viewClient && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-lg w-full max-w-3xl max-h-screen overflow-y-auto p-6">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-gray-900">
+                {isArabic ? "تفاصيل العميل" : "Client Details"}
+              </h3>
+              <button
+                onClick={() => setViewClient(null)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Client Details Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Card component */}
+              {[
+                {
+                  label: isArabic
+                    ? "اسم الشركة (إنجليزي)"
+                    : "Company Name (English)",
+                  value: viewClient.client_name_eng,
+                },
+                {
+                  label: isArabic
+                    ? "اسم الشركة (عربي)"
+                    : "Company Name (Arabic)",
+                  value: viewClient.client_name_arb,
+                },
+                {
+                  label: isArabic ? "نوع العميل" : "Client Type",
+                  value: viewClient.client_type,
+                },
+                {
+                  label: isArabic ? "قيمة العقد" : "Contract Value",
+                  value:
+                    viewClient.contract_value?.$numberDecimal ||
+                    viewClient.contract_value,
+                },
+                {
+                  label: isArabic
+                    ? "تاريخ انتهاء العقد"
+                    : "Contract Expiry Date",
+                  value: viewClient.contract_expiery_date?.slice(0, 10),
+                },
+                {
+                  label: isArabic ? "الحالة" : "Status",
+                  value: viewClient.status,
+                },
+                {
+                  label: isArabic ? "عدد العمال" : "Manpower Count",
+                  value: viewClient.manpower_count,
+                },
+                {
+                  label: isArabic ? "عدد المركبات" : "Vehicle Count",
+                  value: viewClient.vehicle_count,
+                },
+                {
+                  label: isArabic ? "جهة الاتصال" : "Contact Person",
+                  value: viewClient.contact_person,
+                },
+                {
+                  label: isArabic ? "البريد الإلكتروني" : "Email",
+                  value: viewClient.client_email,
+                },
+                {
+                  label: isArabic ? "رقم الهاتف" : "Phone Number",
+                  value: viewClient.client_mobile_number,
+                },
+              ].map((field, idx) => (
+                <div
+                  key={idx}
+                  className="bg-gray-50 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow flex flex-col"
+                >
+                  <span className="text-sm text-gray-500 mb-1">
+                    {field.label}
+                  </span>
+                  <span className="text-gray-900 font-medium">
+                    {field.value || "-"}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={() => setViewClient(null)}
+                className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-lg font-medium transition-colors"
+              >
+                {isArabic ? "إغلاق" : "Close"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* update client */}
+      {editingClient && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-2xl max-h-screen overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-gray-900">
+                {isArabic ? "تعديل العميل" : "Edit Client"}
+              </h3>
+              <button
+                onClick={() => setEditingClient(null)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Company Names */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic
+                      ? "اسم الشركة (إنجليزي)"
+                      : "Company Name (English)"}{" "}
+                    *
+                  </label>
+                  <input
+                    type="text"
+                    value={editingClient.client_name_eng}
+                    onChange={(e) =>
+                      setEditingClient({
+                        ...editingClient,
+                        client_name_eng: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "اسم الشركة (عربي)" : "Company Name (Arabic)"}
+                  </label>
+                  <input
+                    type="text"
+                    value={editingClient.client_name_arb}
+                    onChange={(e) =>
+                      setEditingClient({
+                        ...editingClient,
+                        client_name_arb: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  />
+                </div>
+              </div>
+
+              {/* Type & Contract Value */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "نوع العميل" : "Client Type"}
+                  </label>
+                  <select
+                    value={editingClient.client_type}
+                    onChange={(e) =>
+                      setEditingClient({
+                        ...editingClient,
+                        client_type: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  >
+                    <option value="corporate">Corporate</option>
+                    <option value="government">Government</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "قيمة العقد" : "Contract Value"} *
+                  </label>
+                  <input
+                    type="text"
+                    value={
+                      editingClient.contract_value?.$numberDecimal ||
+                      editingClient.contract_value
+                    }
+                    onChange={(e) =>
+                      setEditingClient({
+                        ...editingClient,
+                        contract_value: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    placeholder="1.2M SAR"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Expiry Date & Status */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "تاريخ انتهاء العقد" : "Contract Expiry Date"}
+                  </label>
+                  <input
+                    type="date"
+                    value={
+                      editingClient.contract_expiery_date?.slice(0, 10) || ""
+                    }
+                    onChange={(e) =>
+                      setEditingClient({
+                        ...editingClient,
+                        contract_expiery_date: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "الحالة" : "Status"}
+                  </label>
+                  <select
+                    value={editingClient.status}
+                    onChange={(e) =>
+                      setEditingClient({
+                        ...editingClient,
+                        status: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  >
+                    <option value="active">Active</option>
+                    <option value="pending">Pending</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Manpower, Vehicles, Contact Person */}
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "عدد العمال" : "Manpower Count"}
+                  </label>
+                  <input
+                    type="number"
+                    value={editingClient.manpower_count || 0}
+                    onChange={(e) =>
+                      setEditingClient({
+                        ...editingClient,
+                        manpower_count: parseInt(e.target.value) || 0,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "عدد المركبات" : "Vehicle Count"}
+                  </label>
+                  <input
+                    type="number"
+                    value={editingClient.vehicle_count || 0}
+                    onChange={(e) =>
+                      setEditingClient({
+                        ...editingClient,
+                        vehicle_count: parseInt(e.target.value) || 0,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "جهة الاتصال" : "Contact Person"}
+                  </label>
+                  <input
+                    type="text"
+                    value={editingClient.contact_person || ""}
+                    onChange={(e) =>
+                      setEditingClient({
+                        ...editingClient,
+                        contact_person: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  />
+                </div>
+              </div>
+
+              {/* Email & Phone */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "البريد الإلكتروني" : "Email"}
+                  </label>
+                  <input
+                    type="email"
+                    value={editingClient.client_email || ""}
+                    onChange={(e) =>
+                      setEditingClient({
+                        ...editingClient,
+                        client_email: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "رقم الهاتف" : "Phone Number"}
+                  </label>
+                  <input
+                    type="tel"
+                    value={editingClient.client_mobile_number || ""}
+                    onChange={(e) =>
+                      setEditingClient({
+                        ...editingClient,
+                        client_mobile_number: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  />
+                </div>
+              </div>
+
+              {/* Save & Cancel Buttons */}
+              <div className="flex items-center gap-3 pt-4">
+                <button
+                  onClick={handleSaveClient}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                >
+                  <Save className="w-4 h-4" />
+                  {isArabic ? "حفظ التغييرات" : "Save Changes"}
+                </button>
+                <button
+                  onClick={() => setEditingClient(null)}
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-lg transition-colors"
+                >
+                  {isArabic ? "إلغاء" : "Cancel"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Add Client Modal */}
       {showAddClient && (
