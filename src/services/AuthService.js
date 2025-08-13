@@ -68,6 +68,12 @@ export class AuthService {
     }
   }
 
+  static getCookie(name) { // Helper function to get cookie value by name
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(";").shift();
+    }
+
   /**
    * Logout user and clear session
    */
@@ -76,32 +82,24 @@ export class AuthService {
       const user = this.getCurrentUser();
       console.log("Logging out user:", user?.username);
 
-      // Call logout API if needed
-      try {
-        const token = this.getToken();
-        if (token) {
-          await fetch("/api/auth/user/logout", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${token}`
-            },
-          });
-        }
-      } catch (error) {
-        console.warn("Logout API call failed:", error);
-        // Continue with local logout even if API fails
-      }
+      // Call logout API 
+  
+      const token = await getCookie("amoagc_token");
+      console.log("Token from cookie:", token);
 
+      const response = await axios.get("/api/user/logout", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
       this.clearSession();
 
       if (user) {
         console.log(
-          `User ${user.username} logged out at ${new Date().toISOString()}`
+          `User ${user.username} logged out at ${new Date().toISOString()}`, response.data
         );
       }
-
-      await this.simulateNetworkDelay(200, 500);
     } catch (error) {
       console.error("Logout error:", error);
       this.clearSession();
