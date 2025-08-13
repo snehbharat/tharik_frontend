@@ -77,13 +77,7 @@ export const ManpowerManagement = ({ isArabic }) => {
   const { sendDocumentExpiryAlert, sendProjectStatusChange } =
     useNotificationSender();
 
-  const [activeView, setActiveView] =
-    (useState < "dashboard") |
-    "employees" |
-    "projects" |
-    "attendance" |
-    "analytics" |
-    ("reports" > "dashboard");
+  const [activeView, setActiveView] = useState("dashboard");
   const [selectedProject, setSelectedProject] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
