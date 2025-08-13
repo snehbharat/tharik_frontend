@@ -6,6 +6,7 @@ import {
   useContext,
 } from "react";
 import { AuthService } from "../services/AuthService";
+import axios from "axios";
 
 // Auth Context
 const AuthContext = createContext(undefined);
@@ -131,8 +132,13 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+  
+
   // Logout function
   const logout = useCallback(async () => {
+
+    
+
     setAuthState((prev) => ({ ...prev, isLoading: true }));
 
     try {
@@ -275,7 +281,7 @@ export const useSession = () => {
 
     const updateTimer = () => {
       const now = new Date();
-      
+
       // Main token expiry
       const expiry = new Date(auth.sessionExpiry);
       const timeLeft = Math.max(0, expiry.getTime() - now.getTime());
@@ -299,7 +305,7 @@ export const useSession = () => {
     const hours = Math.floor(milliseconds / (60 * 60 * 1000));
     const minutes = Math.floor((milliseconds % (60 * 60 * 1000)) / 60000);
     const seconds = Math.floor((milliseconds % 60000) / 1000);
-    
+
     if (hours > 0) {
       return `${hours}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
     }

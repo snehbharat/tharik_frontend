@@ -39,6 +39,7 @@ import {
 } from "lucide-react";
 import { useBilingual, BilingualText } from "./BilingualLayout";
 import { useAuth } from "../hooks/useAuth";
+import axios from "axios";
 
 export const EnhancedBilingualSidebar = ({
   activeModule,
@@ -302,23 +303,25 @@ export const EnhancedBilingualSidebar = ({
     },
   ];
 
+  // function getCookie(name) {
+  //   const value = `; ${document.cookie}`;
+  //   const parts = value.split(`; ${name}=`);
+  //   if (parts.length === 2) return parts.pop().split(";").shift();
+  // }
+
+  // const token = getCookie("amoagc_token");
+
+
   const handleLogout = async () => {
     try {
-      if (
-        window.confirm(
-          language === "ar"
-            ? "هل أنت متأكد من تسجيل الخروج؟"
-            : "Are you sure you want to logout?"
-        )
-      ) {
-        await logout();
-        window.location.href = "/login";
-      }
+      await logout(); // Call the logout function from useAuth
+      window.location.href = "/login";
+      console.log(response.data.message);
     } catch (error) {
       console.error("Logout error:", error);
-      window.location.href = "/login";
     }
   };
+
 
   const toggleSection = (sectionId) => {
     if (isCollapsed) return;
@@ -385,17 +388,13 @@ export const EnhancedBilingualSidebar = ({
           disabled={!isVisible}
           onFocus={() => setFocusedItem(item.id)}
           onBlur={() => setFocusedItem("")}
-          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm group relative ${
-            isActive
-              ? "bg-white/95 text-green-800 shadow-xl transform scale-105 border border-green-200/50"
-              : "text-green-100/90 hover:bg-green-700/60 hover:text-white hover:shadow-md hover:translate-x-1"
-          } ${isRTL ? "flex-row-reverse" : ""} ${
-            isCollapsed ? "justify-center px-2" : ""
-          } ${
-            !isVisible ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-          } ${
-            focusedItem === item.id ? "ring-2 ring-white ring-opacity-50" : ""
-          }`}
+          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm group relative ${isActive
+            ? "bg-white/95 text-green-800 shadow-xl transform scale-105 border border-green-200/50"
+            : "text-green-100/90 hover:bg-green-700/60 hover:text-white hover:shadow-md hover:translate-x-1"
+            } ${isRTL ? "flex-row-reverse" : ""} ${isCollapsed ? "justify-center px-2" : ""
+            } ${!isVisible ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+            } ${focusedItem === item.id ? "ring-2 ring-white ring-opacity-50" : ""
+            }`}
           title={
             isCollapsed
               ? language === "ar"
@@ -437,9 +436,8 @@ export const EnhancedBilingualSidebar = ({
           {/* Tooltip for collapsed state */}
           {isCollapsed && (
             <div
-              className={`absolute ${
-                isRTL ? "right-full mr-2" : "left-full ml-2"
-              } top-1/2 transform -translate-y-1/2 bg-gray-900 text-white px-2 py-1 rounded text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50`}
+              className={`absolute ${isRTL ? "right-full mr-2" : "left-full ml-2"
+                } top-1/2 transform -translate-y-1/2 bg-gray-900 text-white px-2 py-1 rounded text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50`}
             >
               {language === "ar" ? item.nameAr : item.nameEn}
             </div>
@@ -454,6 +452,7 @@ export const EnhancedBilingualSidebar = ({
     const isExpanded = expandedSections.has(section.id);
     const visibleItems = section.items.filter(isMenuItemVisible);
 
+
     if (visibleItems.length === 0) return null;
 
     return (
@@ -461,9 +460,8 @@ export const EnhancedBilingualSidebar = ({
         {!isCollapsed && (
           <button
             onClick={() => toggleSection(section.id)}
-            className={`w-full flex items-center justify-between text-xs font-semibold text-green-300 uppercase tracking-wider mb-3 px-2 hover:text-green-200 transition-colors ${
-              isRTL ? "text-right" : "text-left"
-            }`}
+            className={`w-full flex items-center justify-between text-xs font-semibold text-green-300 uppercase tracking-wider mb-3 px-2 hover:text-green-200 transition-colors ${isRTL ? "text-right" : "text-left"
+              }`}
             aria-expanded={isExpanded}
             aria-controls={`section-${section.id}`}
           >
@@ -482,11 +480,10 @@ export const EnhancedBilingualSidebar = ({
 
         <div
           id={`section-${section.id}`}
-          className={`transition-all duration-300 overflow-hidden ${
-            isCollapsed || isExpanded
-              ? "max-h-screen opacity-100"
-              : "max-h-0 opacity-0"
-          }`}
+          className={`transition-all duration-300 overflow-hidden ${isCollapsed || isExpanded
+            ? "max-h-screen opacity-100"
+            : "max-h-0 opacity-0"
+            }`}
         >
           <ul className="space-y-1">{section.items.map(renderMenuItem)}</ul>
         </div>
@@ -494,6 +491,7 @@ export const EnhancedBilingualSidebar = ({
     );
   };
 
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);  //state for logout confirmation
   return (
     <>
       {/* Mobile Menu Button */}
@@ -525,25 +523,22 @@ export const EnhancedBilingualSidebar = ({
         ${isCollapsed ? "w-16" : "w-64"}
         ${isRTL ? "border-l border-green-700" : "border-r border-green-700"}
         fixed lg:relative h-screen z-50
-        ${
-          isMobileMenuOpen
+        ${isMobileMenuOpen
             ? "translate-x-0"
             : "-translate-x-full lg:translate-x-0"
-        }
+          }
       `}
         role="navigation"
         aria-label="Main navigation"
       >
         {/* Header */}
         <header
-          className={`p-4 border-b border-green-700/50 ${
-            isCollapsed ? "px-2" : "px-6"
-          }`}
+          className={`p-4 border-b border-green-700/50 ${isCollapsed ? "px-2" : "px-6"
+            }`}
         >
           <div
-            className={`flex items-center gap-3 ${
-              isRTL ? "flex-row-reverse" : ""
-            } ${isCollapsed ? "justify-center" : ""}`}
+            className={`flex items-center gap-3 ${isRTL ? "flex-row-reverse" : ""
+              } ${isCollapsed ? "justify-center" : ""}`}
           >
             <div className="w-10 h-10 bg-white/95 rounded-xl flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform duration-200">
               <Building2 className="w-6 h-6 text-green-800" />
@@ -571,9 +566,8 @@ export const EnhancedBilingualSidebar = ({
           {!isCollapsed && user && (
             <div className="mt-4 p-3 bg-green-700/80 rounded-xl border border-green-600/30 backdrop-blur-sm">
               <div
-                className={`flex items-center gap-2 ${
-                  isRTL ? "flex-row-reverse" : ""
-                }`}
+                className={`flex items-center gap-2 ${isRTL ? "flex-row-reverse" : ""
+                  }`}
               >
                 <User className="w-4 h-4 text-green-200/90" />
                 <div className={isRTL ? "text-right" : "text-left"}>
@@ -592,9 +586,8 @@ export const EnhancedBilingualSidebar = ({
           {onToggleCollapse && (
             <button
               onClick={onToggleCollapse}
-              className={`absolute top-4 bg-green-600 hover:bg-green-700 text-white p-1 rounded-full shadow-lg transition-colors ${
-                isRTL ? "left-2" : "right-2"
-              }`}
+              className={`absolute top-4 bg-green-600 hover:bg-green-700 text-white p-1 rounded-full shadow-lg transition-colors ${isRTL ? "left-2" : "right-2"
+                }`}
               aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
               {isCollapsed ? (
@@ -619,16 +612,14 @@ export const EnhancedBilingualSidebar = ({
 
         {/* Footer */}
         <footer
-          className={`p-4 border-t border-green-700/50 ${
-            isCollapsed ? "px-2" : ""
-          }`}
+          className={`p-4 border-t border-green-700/50 ${isCollapsed ? "px-2" : ""
+            }`}
         >
           {user ? (
             <button
-              onClick={handleLogout}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-green-100/90 hover:bg-green-700/60 transition-all duration-200 hover:shadow-md group ${
-                isRTL ? "flex-row-reverse" : ""
-              } ${isCollapsed ? "justify-center px-2" : ""}`}
+              onClick={() => setShowLogoutConfirm(true)}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-green-100/90 hover:bg-green-700/60 transition-all duration-200 hover:shadow-md group ${isRTL ? "flex-row-reverse" : ""
+                } ${isCollapsed ? "justify-center px-2" : ""}`}
               title={isCollapsed ? t("nav.signOut", "Sign Out") : undefined}
               aria-label="Sign out"
             >
@@ -638,23 +629,38 @@ export const EnhancedBilingualSidebar = ({
                   <BilingualText en="Sign Out" ar="تسجيل الخروج" />
                 </span>
               )}
-
-              {/* Tooltip for collapsed state */}
-              {isCollapsed && (
-                <div
-                  className={`absolute ${
-                    isRTL ? "right-full mr-2" : "left-full ml-2"
-                  } top-1/2 transform -translate-y-1/2 bg-gray-900 text-white px-2 py-1 rounded text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50`}
-                >
-                  <BilingualText en="Sign Out" ar="تسجيل الخروج" />
-                </div>
-              )}
             </button>
+
           ) : (
             <div className="text-center text-green-200/80 text-sm">
               <BilingualText en="Not signed in" ar="غير مسجل الدخول" />
             </div>
           )}
+
+          {showLogoutConfirm && (
+            <div className="mt-3 p-4 bg-green-700/90 rounded-lg border border-green-600 text-center">
+              <p className="mb-3 text-sm">
+                {language === "ar"
+                  ? "هل أنت متأكد من تسجيل الخروج؟"
+                  : "Are you sure you want to logout?"}
+              </p>
+              <div className="flex justify-center gap-3">
+                <button
+                  onClick={handleLogout}
+                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded"
+                >
+                  {language === "ar" ? "نعم" : "Yes"}
+                </button>
+                <button
+                  onClick={() => setShowLogoutConfirm(false)}
+                  className="bg-gray-300 hover:bg-gray-400 text-black px-4 py-1 rounded"
+                >
+                  {language === "ar" ? "إلغاء" : "Cancel"}
+                </button>
+              </div>
+            </div>
+          )}
+
         </footer>
       </aside>
     </>
