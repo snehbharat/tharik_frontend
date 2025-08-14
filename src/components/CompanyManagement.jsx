@@ -26,6 +26,13 @@ export const CompanyManagement = ({ isArabic }) => {
   const [editingClient, setEditingClient] = useState(null);
   const [clients, setClients] = useState([]);
   const [viewClient, setViewClient] = useState(null);
+  const [clientCount, setClientCount] = useState({
+    totalClient: 0,
+    activeClient: 0,
+    activeCorporateClient: 0,
+    activeGovtClient: 0,
+    totalWorkers: 0,
+  });
   console.log(clients);
 
   const [pagination, setPagination] = useState({
@@ -36,6 +43,31 @@ export const CompanyManagement = ({ isArabic }) => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // client count useeffect
+
+  const fetchClientCount = async () => {
+    try {
+      const token = Cookies.get("amoagc_token");
+      if (!token) throw new Error("Token not found");
+
+      const res = await axios.get(
+        "http://localhost:3001/api/client/client-count",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (res.data?.status === 200) {
+        setClientCount(res.data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching client count:", error);
+    }
+  };
+  useEffect(() => {
+    fetchClientCount();
+  }, []);
 
   const fetchClients = async (page = 1) => {
     try {
@@ -219,6 +251,7 @@ export const CompanyManagement = ({ isArabic }) => {
             c._id === editingClient._id ? res.data.data.clientDetails : c
           )
         );
+        fetchClientCount();
         setEditingClient(null);
       } else {
         alert(res.data?.message || "Failed to save client");
@@ -269,6 +302,7 @@ export const CompanyManagement = ({ isArabic }) => {
 
           return updatedClients;
         });
+        fetchClientCount();
       } else {
         alert(res.data?.message || "Failed to delete client");
       }
@@ -649,34 +683,37 @@ export const CompanyManagement = ({ isArabic }) => {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="bg-blue-50 rounded-lg p-4">
                   <div className="text-2xl font-bold text-blue-600">
-                    {clients.length}
+                    {clientCount.totalClient}
                   </div>
                   <div className="text-sm text-blue-700">
                     {isArabic ? "إجمالي العملاء" : "Total Clients"}
                   </div>
                 </div>
+
                 <div className="bg-green-50 rounded-lg p-4">
                   <div className="text-2xl font-bold text-green-600">
-                    {clients.filter((c) => c.status === "Active").length}
+                    {clientCount.activeClient}
                   </div>
                   <div className="text-sm text-green-700">
                     {isArabic ? "عملاء نشطون" : "Active Clients"}
                   </div>
                 </div>
+
                 <div className="bg-purple-50 rounded-lg p-4">
                   <div className="text-2xl font-bold text-purple-600">
-                    {clients.filter((c) => c.type === "Corporate").length}
+                    {clientCount.activeCorporateClient}
                   </div>
                   <div className="text-sm text-purple-700">
                     {isArabic ? "عملاء الشركات" : "Corporate Clients"}
                   </div>
                 </div>
+
                 <div className="bg-yellow-50 rounded-lg p-4">
                   <div className="text-2xl font-bold text-yellow-600">
-                    {clients.reduce((sum, c) => sum + c.manpower, 0)}
+                    {clientCount.activeGovtClient}
                   </div>
                   <div className="text-sm text-yellow-700">
-                    {isArabic ? "إجمالي العمال" : "Total Workers"}
+                    {isArabic ? "العملاء الحكوميين" : "Government Clients"}
                   </div>
                 </div>
               </div>
@@ -784,7 +821,18 @@ export const CompanyManagement = ({ isArabic }) => {
                             className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
                             role="cell"
                           >
-                            {client.contract_expiery_date}
+                            {client.contract_expiery_date
+                              ? new Date(
+                                  client.contract_expiery_date
+                                ).toLocaleDateString(
+                                  isArabic ? "ar-EG" : "en-GB",
+                                  {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric",
+                                  }
+                                )
+                              : ""}
                           </td>
                           <td
                             className="px-6 py-4 whitespace-nowrap text-sm font-medium"
