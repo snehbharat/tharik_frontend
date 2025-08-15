@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import ClientService from "../services/ClientService";
 import {
   Building2,
   Users,
@@ -48,21 +49,10 @@ export const CompanyManagement = ({ isArabic }) => {
 
   const fetchClientCount = async () => {
     try {
-      const token = Cookies.get("amoagc_token");
-      if (!token) throw new Error("Token not found");
-
-      const res = await axios.get(
-        "http://localhost:3001/api/client/client-count",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      if (res.data?.status === 200) {
-        setClientCount(res.data.data);
-      }
+      const res = await ClientService.getClientCount();
+      if (res.data?.status === 200) setClientCount(res.data.data);
     } catch (error) {
-      console.error("Error fetching client count:", error);
+      console.error(error);
     }
   };
   useEffect(() => {
@@ -72,21 +62,7 @@ export const CompanyManagement = ({ isArabic }) => {
   const fetchClients = async (page = 1) => {
     try {
       setLoading(true);
-      const token = Cookies.get("amoagc_token");
-      if (!token) {
-        throw new Error("Token not found in cookies");
-      }
-
-      const res = await axios.get(
-        `http://localhost:3001/api/client/getAll?page=${page}&limit=${pagination.limit}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      console.log(res.data);
-
+      const res = await ClientService.getAllClients(page, pagination.limit);
       setClients(res.data.data.data || []);
       setPagination({
         total: res.data.data.total,
@@ -94,9 +70,8 @@ export const CompanyManagement = ({ isArabic }) => {
         limit: res.data.data.limit,
         totalPages: res.data.data.totalPages,
       });
-    } catch (err) {
-      console.error(err);
-      setError(err.message);
+    } catch (error) {
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -130,73 +105,15 @@ export const CompanyManagement = ({ isArabic }) => {
     activeContracts: 24,
   };
 
-  const handleAddClient = async () => {
-    if (!newClient.nameEn || !newClient.contractValue) {
-      alert(
-        isArabic ? "يرجى ملء الحقول المطلوبة" : "Please fill in required fields"
-      );
-      return;
-    }
-
+  const handleAddClient = async (payload) => {
     try {
-      const token = Cookies.get("amoagc_token");
-      if (!token) {
-        throw new Error("Token not found in cookies");
-      }
-
-      const payload = {
-        client_email: newClient.email,
-        client_mobile_number: newClient.phone,
-        client_name_eng: newClient.nameEn,
-        client_name_arb: newClient.nameAr,
-        client_type: newClient.type.toLowerCase(), // API expects lowercase
-        contract_value: Number(newClient.contractValue),
-        contract_expiery_date: newClient.expiryDate || null,
-        status: newClient.status.toLowerCase(),
-        manpower_count: Number(newClient.manpower) || 0,
-        vehicle_count: Number(newClient.vehicles) || 0,
-        contact_person: newClient.contactPerson,
-      };
-
-      const res = await axios.post(
-        "http://localhost:3001/api/client/create",
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
+      const res = await ClientService.createClient(payload);
       if (res.data?.status === 200) {
-        alert(
-          isArabic ? "تم إضافة العميل بنجاح!" : "Client added successfully!"
-        );
-
         fetchClients(1);
-
-        // Reset form
-        setNewClient({
-          nameEn: "",
-          nameAr: "",
-          type: "Corporate",
-          contractValue: "",
-          status: "Active",
-          expiryDate: "",
-          manpower: 0,
-          vehicles: 0,
-          contactPerson: "",
-          email: "",
-          phone: "",
-        });
-        setShowAddClient(false);
-        setActiveTab("clients");
-      } else {
-        alert(res.data?.message || "Failed to add client");
+        fetchClientCount();
       }
     } catch (error) {
       console.error(error);
-      alert(isArabic ? "حدث خطأ أثناء إضافة العميل" : "Error adding client");
     }
   };
 
@@ -213,10 +130,6 @@ export const CompanyManagement = ({ isArabic }) => {
     if (!editingClient) return;
 
     try {
-      const token = Cookies.get("amoagc_token");
-      if (!token) throw new Error("Token not found");
-
-      // Map your editingClient state to API format
       const payload = {
         client_email: editingClient.client_email,
         client_mobile_number: editingClient.client_mobile_number,
@@ -234,84 +147,30 @@ export const CompanyManagement = ({ isArabic }) => {
         contact_person: editingClient.contact_person,
       };
 
-      const res = await axios.put(
-        `http://localhost:3001/api/client/${editingClient._id}`,
-        payload,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      // Pass only the ID here
+      const res = await ClientService.updateClient(editingClient._id, payload);
 
       if (res.data?.status === 200) {
-        alert(
-          isArabic ? "تم حفظ التغييرات بنجاح!" : "Changes saved successfully!"
-        );
-
-        // Update client in local state
-        setClients((prev) =>
-          prev.map((c) =>
-            c._id === editingClient._id ? res.data.data.clientDetails : c
-          )
-        );
+        fetchClients(pagination.page);
         fetchClientCount();
         setEditingClient(null);
-      } else {
-        alert(res.data?.message || "Failed to save client");
       }
     } catch (error) {
       console.error(error);
-      alert(isArabic ? "حدث خطأ أثناء حفظ التغييرات" : "Error saving client");
     }
   };
 
   const handleDeleteClient = async (id) => {
-    if (
-      !window.confirm(
-        isArabic
-          ? "هل أنت متأكد من حذف هذا العميل؟"
-          : "Are you sure you want to delete this client?"
-      )
-    )
-      return;
-
     try {
-      const token = Cookies.get("amoagc_token");
-      if (!token) throw new Error("Token not found");
-
-      const res = await axios.delete(`http://localhost:3001/api/client/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (res.data?.status === 200 || res.status === 200) {
-        alert(
-          isArabic ? "تم حذف العميل بنجاح!" : "Client deleted successfully!"
-        );
-
-        setClients((prev) => {
-          const updatedClients = prev.filter((c) => c._id !== id);
-
-          // Recalculate pagination
-          const newTotal = updatedClients.length;
-          const newTotalPages = Math.ceil(newTotal / pagination.limit);
-          const newPage = Math.min(pagination.page, newTotalPages || 1);
-
-          setPagination((prevPagination) => ({
-            ...prevPagination,
-            total: newTotal,
-            totalPages: newTotalPages,
-            page: newPage,
-          }));
-
-          return updatedClients;
-        });
+      const res = await ClientService.deleteClient(id);
+      if (res.data?.status === 200) {
+        fetchClients(pagination.page);
         fetchClientCount();
-      } else {
-        alert(res.data?.message || "Failed to delete client");
       }
     } catch (error) {
       console.error(error);
-      alert(isArabic ? "حدث خطأ أثناء حذف العميل" : "Error deleting client");
     }
   };
-
   // const handleEditClient = (id) => {
   //   setEditingClient(id);
   //   console.log("Editing client:", id);
