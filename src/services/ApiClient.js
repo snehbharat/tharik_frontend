@@ -1,69 +1,55 @@
-// Enhanced API Client for AMOAGC Platform
-// Provides seamless integration between frontend and backend with automatic fallback
-
 import axios from "axios";
 import { AUTH_CONFIG, API_CONFIG } from "../config/constants";
 
-export class ApiClient {
-  constructor(config = {}) {
+class Client {
+  constructor() {
     this.isBackendAvailable = true;
     this.mockMode = false;
 
-    const defaultConfig = {
+    this.client = axios.create({
       baseURL: API_CONFIG.BASE_URL,
       timeout: API_CONFIG.TIMEOUT,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       withCredentials: true,
-    };
+    });
 
-    const finalConfig = { ...defaultConfig, ...config };
-
-    this.client = axios.create(finalConfig);
     this.setupInterceptors();
     this.checkBackendAvailability();
   }
 
+  // Interceptors handle authentication, retries, and fallback
   setupInterceptors() {
-    // Request interceptor for authentication
     this.client.interceptors.request.use(
       (config) => {
         const token = localStorage.getItem(AUTH_CONFIG.TOKEN_KEY);
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
+        if (token) config.headers.Authorization = `Bearer ${token}`;
         return config;
       },
       (error) => Promise.reject(error)
     );
 
-    // Response interceptor for error handling
     this.client.interceptors.response.use(
       (response) => response,
       async (error) => {
+        const originalRequest = error.config;
+
+        // Backend down → enable mock mode
         if (error.code === "ECONNREFUSED" || error.code === "ERR_NETWORK") {
-          console.warn("Backend unavailable, switching to mock mode");
+          console.warn("Backend unavailable → switching to mock mode");
           this.isBackendAvailable = false;
           this.mockMode = true;
-
-          // Return mock response for the failed request
-          return this.getMockResponse(error.config);
+          return this.getMockResponse(originalRequest);
         }
 
-        if (error.response && error.response.status === 401) {
-          const refreshToken = localStorage.getItem(
-            AUTH_CONFIG.REFRESH_TOKEN_KEY
-          );
-          if (refreshToken) {
-            try {
-              await this.refreshToken();
-              return this.client.request(error.config);
-            } catch (refreshError) {
-              this.handleAuthenticationFailure();
-            }
-          } else {
+        // Unauthorized → try refresh token
+        if (error.response && error.response.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true;
+          try {
+            await this.refreshToken();
+            return this.client(originalRequest); // retry with new token
+          } catch (refreshError) {
             this.handleAuthenticationFailure();
+            return Promise.reject(refreshError);
           }
         }
 
@@ -72,74 +58,68 @@ export class ApiClient {
     );
   }
 
+  // Simple backend health check
   async checkBackendAvailability() {
     try {
-      await this.client.get("/health", { timeout: 5000 });
+      await this.client.get("/health", { timeout: 3000 });
       this.isBackendAvailable = true;
       this.mockMode = false;
-      console.log("Backend connection established");
-    } catch (error) {
-      console.warn("Backend not available, using mock data mode");
+      console.log("✅ Backend is available");
+      return true;
+    } catch {
+      console.warn("⚠ Backend unavailable → using mock data");
       this.isBackendAvailable = false;
       this.mockMode = true;
+      return false;
     }
   }
 
+  // Refresh JWT token
   async refreshToken() {
+
+    const userJson = localStorage.getItem(this.SESSION_CONFIG.userKey);
+    if (!userJson) return null;
+
+    const user = JSON.parse(userJson);
+
     const refreshToken = localStorage.getItem(AUTH_CONFIG.REFRESH_TOKEN_KEY);
     if (!refreshToken) throw new Error("No refresh token available");
 
-    const response = await this.client.post("/api/auth/refresh", {
-      refreshToken,
+    const { data } = await this.client.post("/api/refresh/token", { refreshToken });
+    this.storeSession({
+      token: data.data.token,
+      refreshToken: data.data.refreshToken,
+      user: user,
+      tokenExpiry: new Date(data.data.tokenExpiery),
+      refreshTokenExpiry: new Date(data.data.refreshTokenExpiery),
     });
-
-    const { token, expiresIn } = response.data;
-    localStorage.setItem(AUTH_CONFIG.TOKEN_KEY, token);
-    localStorage.setItem(
-      AUTH_CONFIG.EXPIRY_KEY,
-      new Date(Date.now() + expiresIn).toISOString()
-    );
+    console.log("🔄 Token refreshed");
   }
 
+  // Handle logout
   handleAuthenticationFailure() {
-    localStorage.removeItem(AUTH_CONFIG.TOKEN_KEY);
-    localStorage.removeItem(AUTH_CONFIG.REFRESH_TOKEN_KEY);
-    localStorage.removeItem(AUTH_CONFIG.USER_KEY);
-    localStorage.removeItem(AUTH_CONFIG.EXPIRY_KEY);
+    console.warn("❌ Authentication failed → logging out");
+    localStorage.clear();
     window.location.href = "/login";
   }
 
+  // Standardized error format
   formatError(error) {
     return {
       success: false,
       message:
-        (error.response &&
-          error.response.data &&
-          error.response.data.message) ||
-        error.message ||
-        "An error occurred",
-      errors:
-        (error.response && error.response.data && error.response.data.errors) ||
-        [],
-      code:
-        (error.response && error.response.data && error.response.data.code) ||
-        error.code,
-      statusCode: (error.response && error.response.status) || 500,
+        error?.response?.data?.message || error.message || "An error occurred",
+      errors: error?.response?.data?.errors || [],
+      code: error?.response?.data?.code || error.code,
+      statusCode: error?.response?.status || 500,
     };
   }
 
+  // Mock fallback
   getMockResponse(config) {
-    const mockData = this.generateMockData(
-      config.url || "",
-      config.method || "GET"
-    );
-
+    const mockData = this.generateMockData(config.url || "", config.method || "GET");
     return Promise.resolve({
-      data: {
-        success: true,
-        data: mockData,
-        message: "Mock response (backend unavailable)",
-      },
+      data: { success: true, data: mockData, message: "Mock response" },
       status: 200,
       statusText: "OK",
       headers: {},
@@ -147,166 +127,41 @@ export class ApiClient {
     });
   }
 
+  // Mock dataset
   generateMockData(url, method) {
-    if (url.includes("/employees")) {
-      return method === "GET" ? this.getMockEmployees() : { id: "mock_id" };
+    if (url.includes("/client/client-count")) {
+      return { count: 42 }; // Mock client count
     }
-    if (url.includes("/projects")) {
-      return method === "GET"
-        ? this.getMockProjects()
-        : { id: "mock_project_id" };
-    }
-    if (url.includes("/attendance")) {
-      return method === "GET"
-        ? this.getMockAttendance()
-        : { id: "mock_attendance_id" };
-    }
-    if (url.includes("/integrations")) {
-      return method === "GET"
-        ? this.getMockIntegrations()
-        : { id: "mock_integration_id" };
-    }
-
+    if (url.includes("/employees")) return method === "GET" ? this.getMockEmployees() : { id: "mock_emp" };
     return { message: "Mock response", timestamp: new Date().toISOString() };
   }
 
   getMockEmployees() {
-    return [
-      {
-        id: "emp_001",
-        name: "Ahmed Al-Rashid",
-        employeeId: "EMP001",
-        trade: "Site Supervisor",
-        nationality: "Saudi",
-        phoneNumber: "+966501234567",
-        hourlyRate: 35.0,
-        actualRate: 55.0,
-        status: "active",
-        createdAt: new Date().toISOString(),
-      },
-    ];
+    return [{ id: "emp_001", name: "Mock Employee", status: "active" }];
   }
 
-  getMockProjects() {
-    return [
-      {
-        id: "proj_001",
-        name: "Aramco Facility Maintenance",
-        client: "Saudi Aramco",
-        status: "active",
-        progress: 75,
-        budget: 1200000,
-        createdAt: new Date().toISOString(),
-      },
-    ];
+  // ==== Public API methods ====
+  get(url, params) {
+    return this.client.get(url, { params }).then((res) => res.data);
   }
 
-  getMockAttendance() {
-    return [
-      {
-        id: "att_001",
-        employeeId: "emp_001",
-        date: new Date().toISOString().split("T")[0],
-        hoursWorked: 8,
-        overtime: 2,
-        createdAt: new Date().toISOString(),
-      },
-    ];
+  post(url, data) {
+    return this.client.post(url, data).then((res) => res.data);
   }
 
-  getMockIntegrations() {
-    return [
-      {
-        id: "int_001",
-        name: "ZATCA E-Invoicing",
-        type: "zatca",
-        status: "connected",
-        enabled: true,
-        last_sync: new Date().toISOString(),
-      },
-    ];
+  put(url, data) {
+    return this.client.put(url, data).then((res) => res.data);
   }
 
-  async get(url, params) {
-    try {
-      const response = await this.client.get(url, { params });
-      return response.data;
-    } catch (error) {
-      if (this.mockMode) {
-        const mockResponse = await this.getMockResponse({ url, method: "GET" });
-        return mockResponse.data;
-      }
-      throw this.formatError(error);
-    }
+  delete(url) {
+    return this.client.delete(url).then((res) => res.data);
   }
 
-  async post(url, data) {
-    try {
-      const response = await this.client.post(url, data);
-      return response.data;
-    } catch (error) {
-      if (this.mockMode) {
-        const mockResponse = await this.getMockResponse({
-          url,
-          method: "POST",
-          data,
-        });
-        return mockResponse.data;
-      }
-      throw this.formatError(error);
-    }
+  patch(url, data) {
+    return this.client.patch(url, data).then((res) => res.data);
   }
 
-  async put(url, data) {
-    try {
-      const response = await this.client.put(url, data);
-      return response.data;
-    } catch (error) {
-      if (this.mockMode) {
-        const mockResponse = await this.getMockResponse({
-          url,
-          method: "PUT",
-          data,
-        });
-        return mockResponse.data;
-      }
-      throw this.formatError(error);
-    }
-  }
-
-  async delete(url) {
-    try {
-      const response = await this.client.delete(url);
-      return response.data;
-    } catch (error) {
-      if (this.mockMode) {
-        const mockResponse = await this.getMockResponse({
-          url,
-          method: "DELETE",
-        });
-        return mockResponse.data;
-      }
-      throw this.formatError(error);
-    }
-  }
-
-  async patch(url, data) {
-    try {
-      const response = await this.client.patch(url, data);
-      return response.data;
-    } catch (error) {
-      if (this.mockMode) {
-        const mockResponse = await this.getMockResponse({
-          url,
-          method: "PATCH",
-          data,
-        });
-        return mockResponse.data;
-      }
-      throw this.formatError(error);
-    }
-  }
-
+  // Utility
   isBackendConnected() {
     return this.isBackendAvailable;
   }
@@ -314,21 +169,7 @@ export class ApiClient {
   isMockMode() {
     return this.mockMode;
   }
-
-  async testConnection() {
-    try {
-      await this.client.get("/health", { timeout: 5000 });
-      this.isBackendAvailable = true;
-      this.mockMode = false;
-      return true;
-    } catch (error) {
-      this.isBackendAvailable = false;
-      this.mockMode = true;
-      return false;
-    }
-  }
 }
 
-// Export singleton instance
-export const apiClient = new ApiClient();
-export default ApiClient;
+// Singleton instance
+export const apiClient = new Client();

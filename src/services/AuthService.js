@@ -43,7 +43,7 @@ export class AuthService {
       }
 
       const loginResponse = data.data.loginResponse;
-      
+
       // Store session data
       this.storeSession({
         token: loginResponse.token,
@@ -53,9 +53,9 @@ export class AuthService {
         refreshTokenExpiry: new Date(loginResponse.refreshTokenExpiery),
       });
 
-      return { 
-        success: true, 
-        user: loginResponse.userDetails, 
+      return {
+        success: true,
+        user: loginResponse.userDetails,
         token: loginResponse.token,
         refreshToken: loginResponse.refreshToken,
         tokenExpiry: loginResponse.tokenExpiery,
@@ -69,10 +69,10 @@ export class AuthService {
   }
 
   static getCookie(name) { // Helper function to get cookie value by name
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop().split(";").shift();
-    }
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(";").shift();
+  }
 
   /**
    * Logout user and clear session
@@ -83,7 +83,7 @@ export class AuthService {
       console.log("Logging out user:", user?.username);
 
       // Call logout API 
-  
+
       const token = await getCookie("amoagc_token");
       console.log("Token from cookie:", token);
 
@@ -92,7 +92,7 @@ export class AuthService {
           Authorization: `Bearer ${token}`
         }
       });
-      
+
       this.clearSession();
 
       if (user) {
@@ -132,7 +132,7 @@ export class AuthService {
       }
 
       // Call refresh token API
-      const response = await fetch("/api/auth/user/refresh-token", {
+      const response = await fetch("/api/refresh/token", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -146,8 +146,8 @@ export class AuthService {
         throw new Error(data.message || "Token refresh failed");
       }
 
-      const refreshResponse = data.data.refreshResponse || data.data.loginResponse;
-      
+      const refreshResponse = data.data || data.data.loginResponse;
+
       // Update session with new tokens
       this.storeSession({
         token: refreshResponse.token,
@@ -282,8 +282,8 @@ export class AuthService {
     if (allPermissions.includes("*") || user.role === "admin") return true;
 
     // Check specific permissions
-    return allPermissions.includes(permission) || 
-           allPermissions.some(perm => perm === permission.split(".")[0] + ".*");
+    return allPermissions.includes(permission) ||
+      allPermissions.some(perm => perm === permission.split(".")[0] + ".*");
   }
 
   /**

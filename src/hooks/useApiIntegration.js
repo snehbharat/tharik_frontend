@@ -14,7 +14,8 @@ export const useApiIntegration = () => {
     setState((prev) => ({ ...prev, connectionStatus: "checking" }));
 
     try {
-      const isConnected = await apiClient.testConnection();
+      const isConnected = await apiClient.checkBackendAvailability();
+      console.log("isConnected", isConnected);
 
       setState((prev) => ({
         ...prev,

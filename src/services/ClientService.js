@@ -6,9 +6,9 @@ class ClientService {
     // Vite exposes env variables via import.meta.env
     const baseURL = import.meta.env.VITE_API_BASE_URL;
 
-    if (!baseURL) {
-      throw new Error("API base URL not set in .env file");
-    }
+    // if (!baseURL) {
+    //   throw new Error("API base URL not set in .env file");
+    // }
 
     this.api = axios.create({
       baseURL,
