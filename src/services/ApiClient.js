@@ -1,4 +1,5 @@
 import axios from "axios";
+import Cookies from "js-cookie";
 import { AUTH_CONFIG, API_CONFIG } from "../config/constants";
 
 class Client {
@@ -21,8 +22,10 @@ class Client {
   setupInterceptors() {
     this.client.interceptors.request.use(
       (config) => {
-        const token = localStorage.getItem(AUTH_CONFIG.TOKEN_KEY);
-        if (token) config.headers.Authorization = `Bearer ${token}`;
+        const token = Cookies.get("amoagc_token");
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
         return config;
       },
       (error) => Promise.reject(error)
@@ -42,7 +45,11 @@ class Client {
         }
 
         // Unauthorized → try refresh token
-        if (error.response && error.response.status === 401 && !originalRequest._retry) {
+        if (
+          error.response &&
+          error.response.status === 401 &&
+          !originalRequest._retry
+        ) {
           originalRequest._retry = true;
           try {
             await this.refreshToken();
@@ -61,7 +68,9 @@ class Client {
   // Simple backend health check
   async checkBackendAvailability() {
     try {
-      await this.client.get("/health", { timeout: 3000 });
+      await axios.get(`${API_CONFIG.BASE_URL.replace("/api", "")}/health`, {
+        timeout: 3000,
+      });
       this.isBackendAvailable = true;
       this.mockMode = false;
       console.log("✅ Backend is available");
@@ -76,7 +85,6 @@ class Client {
 
   // Refresh JWT token
   async refreshToken() {
-
     const userJson = localStorage.getItem(this.SESSION_CONFIG.userKey);
     if (!userJson) return null;
 
@@ -85,7 +93,9 @@ class Client {
     const refreshToken = localStorage.getItem(AUTH_CONFIG.REFRESH_TOKEN_KEY);
     if (!refreshToken) throw new Error("No refresh token available");
 
-    const { data } = await this.client.post("/api/refresh/token", { refreshToken });
+    const { data } = await this.client.post("/api/refresh/token", {
+      refreshToken,
+    });
     this.storeSession({
       token: data.data.token,
       refreshToken: data.data.refreshToken,
@@ -117,7 +127,10 @@ class Client {
 
   // Mock fallback
   getMockResponse(config) {
-    const mockData = this.generateMockData(config.url || "", config.method || "GET");
+    const mockData = this.generateMockData(
+      config.url || "",
+      config.method || "GET"
+    );
     return Promise.resolve({
       data: { success: true, data: mockData, message: "Mock response" },
       status: 200,
@@ -132,7 +145,8 @@ class Client {
     if (url.includes("/client/client-count")) {
       return { count: 42 }; // Mock client count
     }
-    if (url.includes("/employees")) return method === "GET" ? this.getMockEmployees() : { id: "mock_emp" };
+    if (url.includes("/employees"))
+      return method === "GET" ? this.getMockEmployees() : { id: "mock_emp" };
     return { message: "Mock response", timestamp: new Date().toISOString() };
   }
 
@@ -141,24 +155,63 @@ class Client {
   }
 
   // ==== Public API methods ====
-  get(url, params) {
-    return this.client.get(url, { params }).then((res) => res.data);
+  async getCC(url) {
+    try {
+      const res = await this.client.get(url);
+      return res.data;
+    } catch (err) {
+      throw err;
+    }
+  }
+  async get(url, params) {
+    try {
+      const res = await this.client.get(url, { params });
+      console.log(res);
+
+      return res.data;
+    } catch (err) {
+      throw err;
+    }
   }
 
-  post(url, data) {
-    return this.client.post(url, data).then((res) => res.data);
+  async post(url, data) {
+    console.log(data);
+
+    try {
+      const res = await this.client.post(url, data);
+      console.log(res);
+
+      return res.data;
+    } catch (err) {
+      throw err;
+    }
   }
 
-  put(url, data) {
-    return this.client.put(url, data).then((res) => res.data);
+  async put(url, data) {
+    try {
+      const res = await this.client.put(url, data);
+      return res.data;
+    } catch (err) {
+      throw err;
+    }
   }
 
-  delete(url) {
-    return this.client.delete(url).then((res) => res.data);
+  async delete(url) {
+    try {
+      const res = await this.client.delete(url);
+      return res.data;
+    } catch (err) {
+      throw err;
+    }
   }
 
-  patch(url, data) {
-    return this.client.patch(url, data).then((res) => res.data);
+  async patch(url, data) {
+    try {
+      const res = await this.client.patch(url, data);
+      return res.data;
+    } catch (err) {
+      throw err;
+    }
   }
 
   // Utility
