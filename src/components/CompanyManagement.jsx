@@ -17,9 +17,6 @@ import {
   Download,
   Upload,
 } from "lucide-react";
-import { useAuth } from "../hooks/useAuth";
-import axios from "axios";
-import Cookies from "js-cookie";
 
 export const CompanyManagement = ({ isArabic }) => {
   const [activeTab, setActiveTab] = useState("profile");
@@ -34,7 +31,7 @@ export const CompanyManagement = ({ isArabic }) => {
     activeGovtClient: 0,
     totalWorkers: 0,
   });
-  console.log(clients);
+  // console.log(clients);
 
   const [pagination, setPagination] = useState({
     total: 0,
@@ -45,41 +42,44 @@ export const CompanyManagement = ({ isArabic }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // client count useeffect
-
   const fetchClientCount = async () => {
     try {
       const res = await ClientService.getClientCount();
-      if (res.data?.status === 200) setClientCount(res.data.data);
-    } catch (error) {
-      console.error(error);
+      console.log(res);
+
+      setClientCount({
+        totalClient: res?.data?.totalClient || 0,
+        activeClient: res?.data?.activeClient || 0,
+        activeCorporateClient: res?.data?.activeCorporateClient || 0,
+        activeGovtClient: res?.data?.activeGovtClient || 0,
+        totalWorkers: res?.data?.totalWorkers || 0,
+      });
+    } catch (err) {
+      console.error("Error fetching client count:", err.message);
+      setError("Failed to load client count");
     }
   };
-  useEffect(() => {
-    fetchClientCount();
-  }, []);
 
   const fetchClients = async (page = 1) => {
     try {
       setLoading(true);
       const res = await ClientService.getAllClients(page, pagination.limit);
-      setClients(res.data.data.data || []);
+      // console.log("res", res);
+
+      setClients(res?.data?.data || []);
       setPagination({
-        total: res.data.data.total,
-        page: res.data.data.page,
-        limit: res.data.data.limit,
-        totalPages: res.data.data.totalPages,
+        total: res?.data?.total || 0,
+        page: res?.data?.page || 1,
+        limit: res?.data?.limit || 10,
+        totalPages: res?.data?.totalPages || 1,
       });
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error("Error fetching clients:", err.message);
+      setError("Failed to load clients");
     } finally {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchClients(1);
-  }, []);
 
   const [newClient, setNewClient] = useState({
     nameEn: "",
@@ -105,15 +105,48 @@ export const CompanyManagement = ({ isArabic }) => {
     activeContracts: 24,
   };
 
-  const handleAddClient = async (payload) => {
+  const handleAddClient = async () => {
+    const payload = {
+      client_email: newClient.email,
+      client_mobile_number: newClient.phone,
+      client_name_eng: newClient.nameEn,
+      client_name_arb: newClient.nameAr,
+      client_type: newClient.type.toLowerCase(),
+      contract_value: Number(
+        newClient.contractValue?.$numberDecimal || newClient.contractValue
+      ),
+      contract_expiery_date: newClient.expiryDate,
+      status: newClient.status.toLowerCase(),
+      manpower_count: Number(newClient.manpower),
+      vehicle_count: Number(newClient.vehicles),
+      contact_person: newClient.contactPerson,
+    };
+
     try {
       const res = await ClientService.createClient(payload);
-      if (res.data?.status === 200) {
+      console.log(res);
+
+      if (res?.status === 200) {
         fetchClients(1);
         fetchClientCount();
+        setShowAddClient(false);
+        setNewClient({
+          nameEn: "",
+          nameAr: "",
+          type: "Corporate",
+          contractValue: "",
+          status: "Active",
+          expiryDate: "",
+          manpower: 0,
+          vehicles: 0,
+          contactPerson: "",
+          email: "",
+          phone: "",
+        });
       }
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      setError("Failed to Add client");
+      console.error("Error adding client:", err.message);
     }
   };
 
@@ -150,51 +183,28 @@ export const CompanyManagement = ({ isArabic }) => {
       // Pass only the ID here
       const res = await ClientService.updateClient(editingClient._id, payload);
 
-      if (res.data?.status === 200) {
+      if (res?.status === 200) {
         fetchClients(pagination.page);
         fetchClientCount();
         setEditingClient(null);
       }
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      setError("Failed to Edit client");
+      console.error("Error updating client:", err.message);
     }
   };
 
   const handleDeleteClient = async (id) => {
     try {
       const res = await ClientService.deleteClient(id);
-      if (res.data?.status === 200) {
+      if (res?.status === 200) {
         fetchClients(pagination.page);
         fetchClientCount();
       }
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error("Error deleting client:", err.message);
     }
   };
-  // const handleEditClient = (id) => {
-  //   setEditingClient(id);
-  //   console.log("Editing client:", id);
-  // };
-
-  // const handleSaveClient = (id) => {
-  //   setEditingClient(null);
-  //   alert(isArabic ? "تم حفظ التغييرات بنجاح!" : "Changes saved successfully!");
-  //   console.log("Client saved:", id);
-  // };
-
-  // const handleDeleteClient = (id) => {
-  //   if (
-  //     window.confirm(
-  //       isArabic
-  //         ? "هل أنت متأكد من حذف هذا العميل؟"
-  //         : "Are you sure you want to delete this client?"
-  //     )
-  //   ) {
-  //     setClients(clients.filter((client) => client.id !== id));
-  //     alert(isArabic ? "تم حذف العميل بنجاح!" : "Client deleted successfully!");
-  //     console.log("Client deleted:", id);
-  //   }
-  // };
 
   const handleViewClient = (id) => {
     const client = clients.find((c) => c._id === id);
@@ -330,6 +340,11 @@ export const CompanyManagement = ({ isArabic }) => {
     };
     input.click();
   };
+
+  useEffect(() => {
+    fetchClients(1);
+    fetchClientCount();
+  }, []);
 
   if (loading) return <p>Loading clients...</p>;
   if (error) return <p style={{ color: "red" }}>Error: {error}</p>;
