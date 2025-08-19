@@ -174,6 +174,17 @@ class Client {
     }
   }
 
+  async getExport(url, params) {
+    try {
+      const res = await this.client.get(url, { params });
+      console.log(res);
+
+      return res;
+    } catch (err) {
+      throw err;
+    }
+  }
+
   async post(url, data) {
     console.log(data);
 
