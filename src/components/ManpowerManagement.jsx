@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Users,
   Briefcase,
@@ -30,6 +30,22 @@ import {
   Activity,
   Building2,
 } from "lucide-react";
+// employees
+import {
+  getEmployees,
+  addEmployee,
+  updateEmployee,
+  deleteEmployee,
+  getEmployeeRoles,
+  getNationalities,
+} from "../services/EmployeeService";
+// projects
+// import {
+//   getProjects,
+//   addProject,
+//   updateProject,
+//   deleteProject,
+// } from "../services/ProjectService";
 // import { calculateFinancials } from "../utils/financialCalculations";
 
 import { useWorkforceData } from "../hooks/useWorkforceData";
@@ -55,6 +71,30 @@ import { NationalityChart } from "./charts/NationalityChart";
 import { EnhancedAttendanceTracker } from "./attendance/EnhancedAttendanceTracker";
 
 export const ManpowerManagement = ({ isArabic }) => {
+  // const [employees, setEmployees] = useState([]);
+  // const [projects, setProjects] = useState([]);
+  // const [attendance, setAttendance] = useState([]);
+  // const [roles, setRoles] = useState([]);
+  // const [nationalities, setNationalities] = useState([]);
+  // const [loading, setLoading] = useState(false);
+  // const fetchEmployees = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const res = await getEmployees(1, 10);
+  //     setEmployees(res.data.data.employees);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   fetchEmployees();
+  //   fetchProjects();
+  //   fetchAttendance();
+  //   fetchEnums();
+  // }, []);
+  // console.log(employees);
+
   const {
     employees,
     projects,
@@ -692,7 +732,7 @@ export const ManpowerManagement = ({ isArabic }) => {
             {activeView === "employees" && (
               <div className="space-y-6">
                 {/* Employee Statistics */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                   <MetricCard
                     title={isArabic ? "إجمالي الموظفين" : "Total Employees"}
                     value={employees.length}
@@ -720,7 +760,7 @@ export const ManpowerManagement = ({ isArabic }) => {
                     }
                     value={
                       employees.filter((emp) =>
-                        emp.documents.some(
+                        emp?.documents?.some(
                           (doc) =>
                             getDaysUntilExpiry(doc.expiryDate || "") <= 30
                         )
@@ -730,7 +770,7 @@ export const ManpowerManagement = ({ isArabic }) => {
                     gradient="from-red-50 to-red-100"
                     borderColor="border-red-200"
                   />
-                </div>
+                </div> */}
 
                 {/* Search and Filters */}
                 <div className="flex items-center gap-4">
