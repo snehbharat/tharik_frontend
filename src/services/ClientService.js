@@ -20,6 +20,10 @@ class ClientService {
   deleteClient(id) {
     return apiClient.delete(`/client/${id}`);
   }
+
+  exportClientDetails() {
+    return apiClient.getExport("/client/export/client/details")
+  }
 }
 
 export default new ClientService();

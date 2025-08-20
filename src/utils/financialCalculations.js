@@ -385,13 +385,14 @@ export const generateActionableInsights = (employees, projects, attendance) => {
 export const formatCurrency = (amount, currency = "SAR") => {
   return new Intl.NumberFormat("en-SA", {
     style: "currency",
-    currency: currency,
+    currency: currency || 0,
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(amount);
 };
 
-export const formatPercentage = (value, decimals = 1) => {
+export const formatPercentage = (value = 0, decimals = 1) => {
+  console.log("value", value);
   return `${value.toFixed(decimals)}%`;
 };
 
@@ -495,25 +496,28 @@ export const validateEmployee = (employee) => {
 
 // Validate project data
 export const validateProject = (project) => {
+
+  console.log("project", project);
+
   const errors = [];
 
   if (!project.name || !project.name.trim())
     errors.push("Project name is required");
-  if (!project.client || !project.client.trim())
+  if (!project.client_name || !project.client_name.trim())
     errors.push("Client is required");
   if (!project.location || !project.location.trim())
     errors.push("Location is required");
-  if (!project.startDate) errors.push("Start date is required");
-  if (!project.endDate) errors.push("End date is required");
+  if (!project.start_date) errors.push("Start date is required");
+  if (!project.end_date) errors.push("End date is required");
 
   if (typeof project.budget !== "number" || project.budget <= 0) {
     errors.push("Valid budget is required");
   }
 
   if (
-    project.startDate &&
-    project.endDate &&
-    new Date(project.startDate) >= new Date(project.endDate)
+    project.start_date &&
+    project.end_date &&
+    new Date(project.start_date) >= new Date(project.end_date)
   ) {
     errors.push("End date must be after start date");
   }
