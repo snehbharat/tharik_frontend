@@ -292,6 +292,7 @@ export const ManpowerManagement = ({ isArabic }) => {
           activeView={activeView}
           setActiveView={setActiveView}
           isArabic={isArabic}
+          payrollSummary={payrollSummary}
         />
         {/* Main content area */}
         <div className="p-6">

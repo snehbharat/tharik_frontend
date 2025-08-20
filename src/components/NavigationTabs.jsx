@@ -26,11 +26,10 @@ export const NavigationTabs = ({ activeView, setActiveView, isArabic, payrollSum
             <button
               key={view}
               onClick={() => setActiveView(view)}
-              className={`px-6 py-4 font-medium transition-colors ${
-                activeView === view
+              className={`px-6 py-4 font-medium transition-colors ${activeView === view
                   ? "text-green-600 border-b-2 border-green-600"
                   : "text-gray-500 hover:text-gray-700"
-              }`}
+                }`}
             >
               <div className="flex items-center gap-2">
                 <Icon className="w-4 h-4" />
@@ -47,10 +46,9 @@ export const NavigationTabs = ({ activeView, setActiveView, isArabic, payrollSum
             </div>
             <div>
               <div className="text-2xl font-bold text-yellow-900">
-                {/* {formatCurrency(payrollSummary.totalBudget)
+                {formatCurrency(payrollSummary.totalBudget)
                   .replace("SAR", "")
-                  .trim()} */}
-                {/* K */}
+                  .trim()}
               </div>
               <div className="text-sm text-yellow-700">
                 {isArabic ? "إجمالي ميزانية المشاريع" : "Total Project Budget"}
@@ -58,7 +56,7 @@ export const NavigationTabs = ({ activeView, setActiveView, isArabic, payrollSum
             </div>
           </div>
           <div className="text-xs text-yellow-600">
-            {/* {payrollSummary.projectCount} {isArabic ? "مشروع" : "projects"} */}
+            {payrollSummary.projectCount} {isArabic ? "مشروع" : "projects"}
           </div>
         </div>
       </div>
