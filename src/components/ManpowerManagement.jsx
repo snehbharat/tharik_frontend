@@ -284,7 +284,7 @@ export const ManpowerManagement = ({ isArabic }) => {
         <Header
           isArabic={isArabic}
           onRefresh={refreshData}
-          onExport={() => {}}
+          onExport={() => { }}
           onAddProject={() => setShowAddProject(true)}
         />
         {/* Navigation tabs */}
@@ -292,6 +292,7 @@ export const ManpowerManagement = ({ isArabic }) => {
           activeView={activeView}
           setActiveView={setActiveView}
           isArabic={isArabic}
+          payrollSummary={payrollSummary}
         />
         {/* Main content area */}
         <div className="p-6">
@@ -339,7 +340,7 @@ export const ManpowerManagement = ({ isArabic }) => {
       </div>
       {/* Add project modal */}
       {showAddProject && (
-       
+
         <AddProjectModal
           isArabic={isArabic}
           clients={clients}
