@@ -43,7 +43,7 @@ export const ProfitTrendChart = ({ data, isArabic = false }) => {
                     item.profit > 0 ? "text-green-600" : "text-red-600"
                   }`}
                 >
-                  {item.margin.toFixed(1)}%
+                  {/* {item.margin.toFixed(1)}% */}
                 </span>
               </div>
             </div>
