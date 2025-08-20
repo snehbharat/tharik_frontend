@@ -178,7 +178,7 @@ export default function AddProjectModal({
       
       // Call API
       const result = await ProjectServiceClient.createProject(formattedData);
-      
+      await ProjectServiceClient.getAllProjects(1, 100)
       // Call parent's onSave function with the result
       if (onSave) {
         await onSave(result);
