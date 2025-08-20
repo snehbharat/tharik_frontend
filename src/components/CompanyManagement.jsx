@@ -65,7 +65,7 @@ export const CompanyManagement = ({ isArabic }) => {
     try {
       setLoading(true);
       const res = await ClientService.getAllClients(page, pagination.limit);
-      // console.log("res", res);
+      console.log("res", res);
 
       setClients(res?.data?.data || []);
       setPagination({
