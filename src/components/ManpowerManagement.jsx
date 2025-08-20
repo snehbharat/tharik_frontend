@@ -180,7 +180,7 @@ export const ManpowerManagement = ({ isArabic }) => {
   const handleAddProject = async () => {
     const validation = validateProject(newProject);
     if (!validation.valid) {
-      alert(validation.errors.join("\n"));
+      // alert(validation.errors.join("\n"));
       return;
     }
 
