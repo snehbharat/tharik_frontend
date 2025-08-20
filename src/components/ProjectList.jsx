@@ -1,5 +1,5 @@
 import React from "react";
-import { Briefcase, Eye, Edit, Trash2 } from "lucide-react";
+import { Briefcase, Eye, Edit, Trash2,Plus } from "lucide-react";
 import { formatCurrency, formatPercentage } from "../utils/financialCalculations";
 
 export const ProjectList = ({ projects, attendance, isArabic, loading, onAddProject, onProjectAction, getStatusColor }) => (

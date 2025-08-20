@@ -8,8 +8,8 @@ import { Dashboard } from "./Dashboard";
 import { ProjectList } from "./ProjectList";
 import { Analytics } from "./Analytics";
 import { Reports } from "./Reports";
-import { AddProjectModal } from "./AddProjectModal";
 import { EnhancedAttendanceTracker } from "./attendance/EnhancedAttendanceTracker";
+import AddProjectModal from "./AddProjectModal";
 
 export const ManpowerManagement = ({ isArabic }) => {
   // State for projects, attendance, clients, and UI controls
@@ -339,8 +339,10 @@ export const ManpowerManagement = ({ isArabic }) => {
       </div>
       {/* Add project modal */}
       {showAddProject && (
+       
         <AddProjectModal
           isArabic={isArabic}
+          clients={clients}
           newProject={newProject}
           setNewProject={setNewProject}
           onSave={handleAddProject}
