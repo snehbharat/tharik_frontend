@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
+import { apiClient } from "./ApiClient";
 
 const API_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:3001/api";
@@ -20,10 +21,10 @@ export const deleteEmployee = (id) =>
 
 // Enum APIs
 export const getEmployeeRoles = () =>
-  axios.get(`${API_URL}/enums/getEmployeeRole`);
+  apiClient.get(`/enum/getEmployeeRole`);
 
 export const getNationalities = () =>
-  axios.get(`${API_URL}/enums/getNationality`);
+  apiClient.get(`/enum/getNationality`);
 
 
 // const [employees] = useState([
@@ -248,6 +249,15 @@ class EmployeeService {
     }
   }
 
+
+  async getEmployeeRoles() {
+    return await apiClient.get(`/enum/getEmployeeRole`)
+  };
+
+  async getNationalities() {
+    return await apiClient.get(`/enum/getNationality`)
+  };
+
   // Employee CRUD Operations
   async getAllEmployees(filters = {}) {
     const queryParams = new URLSearchParams();
@@ -269,10 +279,7 @@ class EmployeeService {
   }
 
   async createEmployee(employeeData) {
-    return await this.apiCall('/comprehensive', {
-      method: 'POST',
-      body: JSON.stringify(employeeData),
-    });
+    return await apiClient.post('/employees/comprehensive', employeeData);
   }
 
   async updateEmployee(employeeId, employeeData) {
@@ -298,10 +305,10 @@ class EmployeeService {
   // Department Operations
   async getAllDepartments() {
     // 🚀 Return dummy data for now
-    return { data: departments };
+    // return { data: departments };
 
     // 🔜 Later, just switch to:
-    // return await this.apiCall("/departments");
+    return await apiClient.get("/department");
   }
 
   async getDepartmentById(departmentId) {

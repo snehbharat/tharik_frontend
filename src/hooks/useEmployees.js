@@ -56,7 +56,7 @@ export const useEmployee = (employeeId) => {
 
   const fetchEmployee = useCallback(async () => {
     if (!employeeId) return;
-    
+
     try {
       setLoading(true);
       setError(null);
@@ -143,8 +143,8 @@ export const useDepartments = () => {
   const updateDepartment = useCallback(async (departmentId, updateData) => {
     try {
       const response = await employeeService.updateDepartment(departmentId, updateData);
-      setDepartments(prev => 
-        prev.map(dept => 
+      setDepartments(prev =>
+        prev.map(dept =>
           dept.id === departmentId ? (response.data || response) : dept
         )
       );
@@ -165,6 +165,57 @@ export const useDepartments = () => {
   };
 };
 
+export const useEnums = () => {
+  const [employeeRoles, setEmployeeRoles] = useState([]);
+  const [nationalities, setNationalities] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchEnums = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const [rolesResponse, nationalitiesResponse] = await Promise.allSettled([
+        employeeService.getEmployeeRoles(),
+        employeeService.getNationalities()
+      ]);
+
+      console.log("nationalitiesResponse", nationalitiesResponse);
+
+      if (rolesResponse.status === 'fulfilled' && rolesResponse.value?.data) {
+        setEmployeeRoles(rolesResponse.value.data);
+      } else {
+        console.warn('Failed to load employee roles:', rolesResponse.reason);
+      }
+
+      if (nationalitiesResponse.status === 'fulfilled' && nationalitiesResponse.value?.data) {
+        setNationalities(nationalitiesResponse.value.data);
+      } else {
+        console.warn('Failed to load nationalities:', nationalitiesResponse.reason);
+      }
+
+    } catch (err) {
+      setError(err.message);
+      console.error('Error fetching enums:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchEnums();
+  }, [fetchEnums]);
+
+  return {
+    employeeRoles,
+    nationalities,
+    loading,
+    error,
+    refetch: fetchEnums,
+  };
+};
+
 // hooks/useEmployeeDocuments.js
 export const useEmployeeDocuments = (employeeId) => {
   const [documents, setDocuments] = useState([]);
@@ -174,7 +225,7 @@ export const useEmployeeDocuments = (employeeId) => {
 
   const fetchDocuments = useCallback(async () => {
     if (!employeeId) return;
-    
+
     try {
       setLoading(true);
       setError(null);
@@ -284,7 +335,7 @@ export const useEmployeeActions = () => {
       setLoading(true);
       setError(null);
       const blob = await employeeService.exportEmployeeData(format, filters);
-      
+
       // Create download link
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -294,7 +345,7 @@ export const useEmployeeActions = () => {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-      
+
       return true;
     } catch (err) {
       setError(err.message);
