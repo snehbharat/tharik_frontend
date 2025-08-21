@@ -209,7 +209,7 @@ export default function AddProjectModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-6 w-full max-w-4xl max-h-screen overflow-y-auto">
+      <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-4xl max-h-screen overflow-y-auto mt-10">
         {/* Modal header */}
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-xl font-bold text-gray-900">
@@ -243,6 +243,7 @@ export default function AddProjectModal({
                 type="text"
                 value={newProject.name || ""}
                 onChange={(e) => handleFieldChange('name', e.target.value)}
+                placeholder="Enter project name"
                 className={`w-full border rounded-lg px-3 py-2 ${
                   getFieldError('name') ? 'border-red-500' : 'border-gray-300'
                 }`}
@@ -292,6 +293,7 @@ export default function AddProjectModal({
               <input
                 type="text"
                 value={newProject.location || ""}
+                placeholder="Enter project location"
                 onChange={(e) => handleFieldChange('location', e.target.value)}
                 className={`w-full border rounded-lg px-3 py-2 ${
                   getFieldError('location') ? 'border-red-500' : 'border-gray-300'
@@ -310,6 +312,7 @@ export default function AddProjectModal({
               <input
                 type="number"
                 value={newProject.budget || ""}
+                placeholder="Enter budget"
                 onChange={(e) => handleFieldChange('budget', parseFloat(e.target.value) || "")}
                 className={`w-full border rounded-lg px-3 py-2 ${
                   getFieldError('budget') ? 'border-red-500' : 'border-gray-300'
@@ -411,6 +414,7 @@ export default function AddProjectModal({
               onChange={(e) => handleFieldChange('description', e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2"
               rows={3}
+              placeholder="Enter project description"
               disabled={isSubmitting}
               maxLength={500}
             />
