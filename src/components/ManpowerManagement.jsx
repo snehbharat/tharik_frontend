@@ -84,7 +84,7 @@ export const ManpowerManagement = ({ isArabic }) => {
         ProjectServiceClient.getAllProjects(1, 100),
         ClientService.getAllClients(1, 100),
       ]);
-      const projectsData = projectResponse?.data || [];
+      const projectsData = projectResponse?.data?.projects || [];
       setProjects(Array.isArray(projectsData) ? projectsData : []);
       setClients(clientResponse.data?.data || clientResponse.data || []);
     } catch (err) {

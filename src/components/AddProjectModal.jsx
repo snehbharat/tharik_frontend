@@ -152,6 +152,8 @@ export default function AddProjectModal({
       end_date: project.endDate,
       budget: parseFloat(project.budget) || 0,
       Client_id: project.clientId || "",
+      profitMargin: project.profitMargin ? parseFloat(project.profitMargin) : 0,
+      riskLevel: project.riskLevel || "low" ,
     };
   };
 
