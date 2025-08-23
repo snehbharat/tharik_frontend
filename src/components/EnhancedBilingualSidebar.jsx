@@ -316,7 +316,6 @@ export const EnhancedBilingualSidebar = ({
     try {
       await logout(); // Call the logout function from useAuth
       window.location.href = "/login";
-      console.log(response.data.message);
     } catch (error) {
       console.error("Logout error:", error);
     }
@@ -336,7 +335,6 @@ export const EnhancedBilingualSidebar = ({
   };
 
   const handleMenuClick = (item) => {
-    console.log("Menu item clicked:", item.id);
 
     if (item.requiresAuth && !user) {
       alert(

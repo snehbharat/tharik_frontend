@@ -46,7 +46,6 @@ export const CompanyManagement = ({ isArabic }) => {
   const fetchClientCount = async () => {
     try {
       const res = await ClientService.getClientCount();
-      console.log(res);
 
       setClientCount({
         totalClient: res?.data?.totalClient || 0,
@@ -65,7 +64,6 @@ export const CompanyManagement = ({ isArabic }) => {
     try {
       setLoading(true);
       const res = await ClientService.getAllClients(page, pagination.limit);
-      console.log("res", res);
 
       setClients(res?.data?.data || []);
       setPagination({
@@ -125,7 +123,6 @@ export const CompanyManagement = ({ isArabic }) => {
 
     try {
       const res = await ClientService.createClient(payload);
-      console.log(res);
 
       if (res?.status === 200) {
         fetchClients(1);
@@ -210,7 +207,6 @@ export const CompanyManagement = ({ isArabic }) => {
   const handleViewClient = (id) => {
     const client = clients.find((c) => c._id === id);
     setViewClient(client);
-    console.log("Viewing client:", client);
   };
 
   const handleExportClients = async () => {
