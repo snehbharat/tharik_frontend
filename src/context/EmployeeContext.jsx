@@ -39,13 +39,13 @@ const employeeReducer = (state, action) => {
   switch (action.type) {
     case EMPLOYEE_ACTIONS.SET_LOADING:
       return { ...state, loading: action.payload, error: null };
-    
+
     case EMPLOYEE_ACTIONS.SET_ERROR:
       return { ...state, error: action.payload, loading: false };
-    
+
     case EMPLOYEE_ACTIONS.SET_EMPLOYEES:
       return { ...state, employees: action.payload, loading: false, error: null };
-    
+
     case EMPLOYEE_ACTIONS.ADD_EMPLOYEE:
       return {
         ...state,
@@ -53,7 +53,7 @@ const employeeReducer = (state, action) => {
         loading: false,
         error: null,
       };
-    
+
     case EMPLOYEE_ACTIONS.UPDATE_EMPLOYEE:
       return {
         ...state,
@@ -63,7 +63,7 @@ const employeeReducer = (state, action) => {
         loading: false,
         error: null,
       };
-    
+
     case EMPLOYEE_ACTIONS.DELETE_EMPLOYEE:
       return {
         ...state,
@@ -71,28 +71,28 @@ const employeeReducer = (state, action) => {
         loading: false,
         error: null,
       };
-    
+
     case EMPLOYEE_ACTIONS.SET_DEPARTMENTS:
       return { ...state, departments: action.payload, loading: false, error: null };
-    
+
     case EMPLOYEE_ACTIONS.SET_FILTERS:
       return {
         ...state,
         filters: { ...state.filters, ...action.payload },
       };
-    
+
     case EMPLOYEE_ACTIONS.CLEAR_FILTERS:
       return {
         ...state,
         filters: initialState.filters,
       };
-    
+
     case EMPLOYEE_ACTIONS.SET_SUCCESS_MESSAGE:
       return { ...state, successMessage: action.payload };
-    
+
     case EMPLOYEE_ACTIONS.CLEAR_SUCCESS_MESSAGE:
       return { ...state, successMessage: '' };
-    
+
     default:
       return state;
   }
@@ -175,28 +175,37 @@ export const useEmployeeActions = () => {
   const createEmployee = useCallback(async (employeeData) => {
     try {
       setLoading(true);
-      const response = await employeeService.createEmployee(employeeData);
-      dispatch({ type: EMPLOYEE_ACTIONS.ADD_EMPLOYEE, payload: response.data || response });
+      await employeeService.createEmployee(employeeData);
+
+      // Instead of adding one employee manually, fetch the updated list
+      await fetchEmployees();
+
       setSuccessMessage('Employee created successfully!');
-      return response;
     } catch (error) {
       setError(error.message);
       throw error;
+    } finally {
+      setLoading(false);
     }
-  }, [setLoading, setError, setSuccessMessage, dispatch]);
+  }, [setLoading, setError, setSuccessMessage, fetchEmployees]);
 
   const updateEmployee = useCallback(async (employeeId, employeeData) => {
     try {
       setLoading(true);
-      const response = await employeeService.updateEmployee(employeeId, employeeData);
-      dispatch({ type: EMPLOYEE_ACTIONS.UPDATE_EMPLOYEE, payload: response.data || response });
+      await employeeService.updateEmployee(employeeId, employeeData);
+
+      // Refresh list after update
+      await fetchEmployees();
+
       setSuccessMessage('Employee updated successfully!');
-      return response;
     } catch (error) {
       setError(error.message);
       throw error;
+    } finally {
+      setLoading(false);
     }
-  }, [setLoading, setError, setSuccessMessage, dispatch]);
+  }, [setLoading, setError, setSuccessMessage, fetchEmployees]);
+
 
   const deleteEmployee = useCallback(async (employeeId) => {
     try {
@@ -214,7 +223,7 @@ export const useEmployeeActions = () => {
     try {
       setLoading(true);
       const blob = await employeeService.exportEmployeeData(format, filters);
-      
+
       // Create download link
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -224,7 +233,7 @@ export const useEmployeeActions = () => {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-      
+
       setSuccessMessage('Employee data exported successfully!');
       setLoading(false);
     } catch (error) {
@@ -239,11 +248,11 @@ export const useEmployeeActions = () => {
       const formData = new FormData();
       formData.append('file', file);
       const response = await employeeService.importEmployeeData(formData);
-      
+
       // Refresh employee list
       await fetchEmployees();
       setSuccessMessage(`Successfully imported ${response.imported || 0} employees!`);
-      
+
       return response;
     } catch (error) {
       setError(error.message);

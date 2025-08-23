@@ -127,7 +127,7 @@ const EmployeeForm = ({
     ];
 
     requiredFields.forEach(field => {
-      if (!formData[field]?.trim()) {
+      if (!formData[field]) {
         newErrors[field] = isArabic ? 'هذا الحقل مطلوب' : 'This field is required';
       }
     });

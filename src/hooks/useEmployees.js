@@ -181,8 +181,6 @@ export const useEnums = () => {
         employeeService.getNationalities()
       ]);
 
-      console.log("nationalitiesResponse", nationalitiesResponse);
-
       if (rolesResponse.status === 'fulfilled' && rolesResponse.value?.data) {
         setEmployeeRoles(rolesResponse.value.data);
       } else {

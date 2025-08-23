@@ -291,8 +291,6 @@ const EmployeeManagementHubContent = ({ isArabic = false }) => {
     fetchDepartments();
   }, [fetchEmployees, fetchDepartments]);
 
-  console.log("employee", employees);
-
   // Auto-clear success messages
   useEffect(() => {
     if (successMessage) {
@@ -348,7 +346,7 @@ const EmployeeManagementHubContent = ({ isArabic = false }) => {
   const handleSaveEmployee = async (employeeData) => {
     try {
       if (editingEmployee) {
-        await updateEmployee(editingEmployee.id, employeeData);
+        await updateEmployee(editingEmployee._id, employeeData);
       } else {
         await createEmployee(employeeData);
       }
