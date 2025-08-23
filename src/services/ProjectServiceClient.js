@@ -21,8 +21,12 @@ class ProjectServiceClient {
     return apiClient.put(`/project/update/${id}`, payload);
   }
 
+  getProjectById(id) {
+    return apiClient.get(`/project/me/${id}`);
+  }
+
   deactivateProject(id) {
-    return apiClient.delete(`/project/deactive/${id}`);
+    return apiClient.patch(`/project/deactivate/${id}`);
   }
 }
 

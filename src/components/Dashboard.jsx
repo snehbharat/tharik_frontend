@@ -58,18 +58,15 @@ export const Dashboard = ({ isArabic }) => {
 
   const handleRefresh = () => {
     setRefreshing(true);
-    console.log("Refreshing dashboard data...");
 
     // Simulate data refresh
     setTimeout(() => {
       setRefreshing(false);
       setLastUpdated(new Date());
-      console.log("Dashboard data refreshed successfully");
     }, 1000);
   };
 
   const handleExportData = () => {
-    console.log("Exporting dashboard data...");
     try {
       const exportData = {
         metrics,
@@ -101,7 +98,6 @@ export const Dashboard = ({ isArabic }) => {
       link.click();
       URL.revokeObjectURL(url);
 
-      console.log("Dashboard data exported successfully");
     } catch (error) {
       console.error("Export failed:", error);
       alert(isArabic ? "فشل في تصدير البيانات" : "Export failed");
@@ -179,7 +175,6 @@ export const Dashboard = ({ isArabic }) => {
           icon={Users}
           gradient="from-blue-50 to-blue-100"
           borderColor="border-blue-200"
-          onClick={() => console.log("Workforce metric clicked")}
         />
 
         <MetricCard
@@ -189,7 +184,6 @@ export const Dashboard = ({ isArabic }) => {
           icon={Building2}
           gradient="from-green-50 to-green-100"
           borderColor="border-green-200"
-          onClick={() => console.log("Projects metric clicked")}
         />
 
         <MetricCard
@@ -205,7 +199,6 @@ export const Dashboard = ({ isArabic }) => {
             value: "+15.2%",
             isPositive: true,
           }}
-          onClick={() => console.log("Profits metric clicked")}
         />
 
         <MetricCard
@@ -217,7 +210,6 @@ export const Dashboard = ({ isArabic }) => {
           icon={TrendingUp}
           gradient="from-yellow-50 to-yellow-100"
           borderColor="border-yellow-200"
-          onClick={() => console.log("Utilization metric clicked")}
         />
       </div>
 
@@ -231,7 +223,6 @@ export const Dashboard = ({ isArabic }) => {
             value={selectedProject}
             onChange={(e) => {
               setSelectedProject(e.target.value);
-              console.log("Project filter changed:", e.target.value);
             }}
             className="border border-gray-300 rounded-lg px-3 py-2"
           >
@@ -258,7 +249,6 @@ export const Dashboard = ({ isArabic }) => {
                 metrics={getProjectMetrics(project.id)}
                 isArabic={isArabic}
                 onSelect={() => {
-                  console.log("Project selected:", project.name);
                   setSelectedProject(project.id);
                 }}
               />
@@ -272,7 +262,6 @@ export const Dashboard = ({ isArabic }) => {
           insights={insights}
           isArabic={isArabic}
           onInsightAction={(insightId, action) => {
-            console.log("Insight action:", action, "on insight:", insightId);
             // Handle insight actions
             switch (action) {
               case "acknowledge":
