@@ -223,9 +223,18 @@ class Client {
     }
   }
 
-  async patch(url, data) {
+  // async patch(url, data) {
+  //   try {
+  //     const res = await this.client.patch(url, data);
+  //     return res.data;
+  //   } catch (err) {
+  //     throw err;
+  //   }
+  // }
+
+  async patch(url) {
     try {
-      const res = await this.client.patch(url, data);
+      const res = await this.client.patch(url);
       return res.data;
     } catch (err) {
       throw err;

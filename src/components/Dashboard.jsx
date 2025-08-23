@@ -174,7 +174,6 @@ export const Dashboard = ({ isArabic }) => {
           icon={Users}
           gradient="from-blue-50 to-blue-100"
           borderColor="border-blue-200"
-          onClick={() => console.log("Workforce metric clicked")}
         />
 
         <MetricCard
@@ -184,7 +183,6 @@ export const Dashboard = ({ isArabic }) => {
           icon={Building2}
           gradient="from-green-50 to-green-100"
           borderColor="border-green-200"
-          onClick={() => console.log("Projects metric clicked")}
         />
 
         <MetricCard
@@ -200,7 +198,6 @@ export const Dashboard = ({ isArabic }) => {
             value: "+15.2%",
             isPositive: true,
           }}
-          onClick={() => console.log("Profits metric clicked")}
         />
 
         <MetricCard
@@ -212,7 +209,6 @@ export const Dashboard = ({ isArabic }) => {
           icon={TrendingUp}
           gradient="from-yellow-50 to-yellow-100"
           borderColor="border-yellow-200"
-          onClick={() => console.log("Utilization metric clicked")}
         />
       </div>
 

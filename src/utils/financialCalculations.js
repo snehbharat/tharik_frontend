@@ -392,7 +392,6 @@ export const formatCurrency = (amount, currency = "SAR") => {
 };
 
 export const formatPercentage = (value = 0, decimals = 1) => {
-  console.log("value", value);
   return `${value.toFixed(decimals)}%`;
 };
 
