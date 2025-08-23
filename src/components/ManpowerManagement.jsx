@@ -312,6 +312,7 @@ export const ManpowerManagement = ({ isArabic }) => {
           )}
           {activeView === "projects" && (
             <ProjectList
+              clients={clients}
               projects={projects}
               attendance={attendance}
               isArabic={isArabic}
