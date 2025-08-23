@@ -104,8 +104,6 @@ export const AuthProvider = ({ children }) => {
         };
 
         setAuthState(newAuthState);
-
-        console.log("Login successful for user:", response.user.username);
         return true;
       } else {
         setAuthState((prev) => ({
@@ -155,10 +153,6 @@ export const AuthProvider = ({ children }) => {
         sessionExpiry: null,
         refreshTokenExpiry: null,
       });
-
-      if (currentUser) {
-        console.log("Logout successful for user:", currentUser.username);
-      }
     } catch (error) {
       console.error("Logout error:", error);
       setAuthState({
@@ -177,7 +171,6 @@ export const AuthProvider = ({ children }) => {
   // Refresh token function
   const refreshTokenHandler = useCallback(async () => {
     try {
-      console.log("Attempting to refresh token...");
       const response = await AuthService.refreshToken();
 
       if (response.success && response.user && response.token) {
@@ -190,11 +183,8 @@ export const AuthProvider = ({ children }) => {
           refreshTokenExpiry: response.refreshTokenExpiry ? new Date(response.refreshTokenExpiry) : prev.refreshTokenExpiry,
           error: null,
         }));
-
-        console.log("Token refreshed successfully");
         return true;
       } else {
-        console.log("Token refresh failed, logging out...");
         await logout();
         return false;
       }

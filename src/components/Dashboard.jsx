@@ -97,7 +97,6 @@ export const Dashboard = ({ isArabic }) => {
       }.csv`;
       link.click();
       URL.revokeObjectURL(url);
-
     } catch (error) {
       console.error("Export failed:", error);
       alert(isArabic ? "فشل في تصدير البيانات" : "Export failed");

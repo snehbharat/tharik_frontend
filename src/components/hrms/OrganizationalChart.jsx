@@ -33,7 +33,7 @@ export const OrganizationalChart = ({ departments, employees, isArabic }) => {
 
   const getDepartmentEmployees = (departmentId) => {
     return employees.filter(
-      (emp) => emp.professionalInfo.departmentId === departmentId
+      (emp) => emp?.professionalInfo?.departmentId?._id === departmentId
     );
   };
 
@@ -48,9 +48,8 @@ export const OrganizationalChart = ({ departments, employees, isArabic }) => {
   };
   return (
     <div
-      className={`space-y-6 ${
-        isFullscreen ? "fixed inset-0 bg-white z-50 p-6 overflow-auto" : ""
-      }`}
+      className={`space-y-6 ${isFullscreen ? "fixed inset-0 bg-white z-50 p-6 overflow-auto" : ""
+        }`}
     >
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -79,8 +78,8 @@ export const OrganizationalChart = ({ departments, employees, isArabic }) => {
                 ? "عرض الشبكة"
                 : "Grid View"
               : isArabic
-              ? "عرض الشجرة"
-              : "Tree View"}
+                ? "عرض الشجرة"
+                : "Tree View"}
           </button>
           <button
             onClick={() => setIsFullscreen(!isFullscreen)}
@@ -96,8 +95,8 @@ export const OrganizationalChart = ({ departments, employees, isArabic }) => {
                 ? "تصغير"
                 : "Minimize"
               : isArabic
-              ? "ملء الشاشة"
-              : "Fullscreen"}
+                ? "ملء الشاشة"
+                : "Fullscreen"}
           </button>
           <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
             <Download className="w-4 h-4" />
@@ -140,8 +139,8 @@ export const OrganizationalChart = ({ departments, employees, isArabic }) => {
                     {headOfDept
                       ? headOfDept.personalInfo.fullName
                       : isArabic
-                      ? "غير محدد"
-                      : "Not assigned"}
+                        ? "غير محدد"
+                        : "Not assigned"}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
@@ -283,13 +282,12 @@ export const OrganizationalChart = ({ departments, employees, isArabic }) => {
 
                               <div className="mt-3 flex items-center justify-between">
                                 <span
-                                  className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${
-                                    employee.status === "active"
-                                      ? "bg-green-100 text-green-800 border-green-200"
-                                      : employee.status === "on-leave"
+                                  className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${employee.status === "active"
+                                    ? "bg-green-100 text-green-800 border-green-200"
+                                    : employee.status === "on-leave"
                                       ? "bg-yellow-100 text-yellow-800 border-yellow-200"
                                       : "bg-gray-100 text-gray-800 border-gray-200"
-                                  }`}
+                                    }`}
                                 >
                                   {employee.status}
                                 </span>
@@ -304,8 +302,7 @@ export const OrganizationalChart = ({ departments, employees, isArabic }) => {
                               </div>
 
                               {/* Direct Reports */}
-                              {employee.professionalInfo.reportingStructure
-                                .directReports.length > 0 && (
+                              {employee?.professionalInfo?.reportingStructure?.directReports.length > 0 && (
                                 <div className="mt-3 pt-3 border-t border-gray-200">
                                   <div className="text-xs text-gray-600 mb-2">
                                     {isArabic
@@ -313,7 +310,7 @@ export const OrganizationalChart = ({ departments, employees, isArabic }) => {
                                       : "Direct Reports:"}
                                   </div>
                                   <div className="flex flex-wrap gap-1">
-                                    {employee.professionalInfo.reportingStructure.directReports
+                                    {employee?.professionalInfo?.reportingStructure?.directReports
                                       .slice(0, 3)
                                       .map((reportId, index) => {
                                         const report = employees.find(
@@ -328,16 +325,14 @@ export const OrganizationalChart = ({ departments, employees, isArabic }) => {
                                           </span>
                                         ) : null;
                                       })}
-                                    {employee.professionalInfo
-                                      .reportingStructure.directReports.length >
+                                    {employee?.professionalInfo?.reportingStructure?.directReports.length >
                                       3 && (
-                                      <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">
-                                        +
-                                        {employee.professionalInfo
-                                          .reportingStructure.directReports
-                                          .length - 3}
-                                      </span>
-                                    )}
+                                        <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">
+                                          +
+                                          {employee?.professionalInfo?.reportingStructure?.directReports
+                                            .length - 3}
+                                        </span>
+                                      )}
                                   </div>
                                 </div>
                               )}
@@ -356,11 +351,11 @@ export const OrganizationalChart = ({ departments, employees, isArabic }) => {
               .filter(
                 (emp) =>
                   !selectedDepartment ||
-                  emp.professionalInfo.departmentId === selectedDepartment
+                  emp?.professionalInfo?.departmentId?._id === selectedDepartment
               )
               .map((employee) => {
                 const department = departments.find(
-                  (dept) => dept.id === employee.professionalInfo.departmentId
+                  (dept) => dept.id === employee?.professionalInfo?.departmentId?._id
                 );
                 const directReports = getDirectReports(employee.id);
 
@@ -424,13 +419,12 @@ export const OrganizationalChart = ({ departments, employees, isArabic }) => {
 
                     <div className="mt-3 flex items-center justify-between">
                       <span
-                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${
-                          employee.status === "active"
-                            ? "bg-green-100 text-green-800 border-green-200"
-                            : employee.status === "on-leave"
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${employee.status === "active"
+                          ? "bg-green-100 text-green-800 border-green-200"
+                          : employee.status === "on-leave"
                             ? "bg-yellow-100 text-yellow-800 border-yellow-200"
                             : "bg-gray-100 text-gray-800 border-gray-200"
-                        }`}
+                          }`}
                       >
                         {employee.status}
                       </span>
@@ -504,8 +498,8 @@ export const OrganizationalChart = ({ departments, employees, isArabic }) => {
                         {headOfDept
                           ? headOfDept.personalInfo.fullName
                           : isArabic
-                          ? "غير محدد"
-                          : "Not assigned"}
+                            ? "غير محدد"
+                            : "Not assigned"}
                       </div>
                     </td>
                     <td className="px-4 py-4">
@@ -536,19 +530,18 @@ export const OrganizationalChart = ({ departments, employees, isArabic }) => {
                     </td>
                     <td className="px-4 py-4">
                       <span
-                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          department.isActive
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${department.isActive
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                          }`}
                       >
                         {department.isActive
                           ? isArabic
                             ? "نشط"
                             : "Active"
                           : isArabic
-                          ? "غير نشط"
-                          : "Inactive"}
+                            ? "غير نشط"
+                            : "Inactive"}
                       </span>
                     </td>
                   </tr>

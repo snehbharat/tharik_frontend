@@ -23,6 +23,7 @@ import {
   Globe,
   Home,
   Building2,
+  Plus,
 } from "lucide-react";
 
 export const EmployeeProfileManager = ({ employee, onClose, isArabic }) => {
@@ -30,12 +31,18 @@ export const EmployeeProfileManager = ({ employee, onClose, isArabic }) => {
   const [isEditing, setIsEditing] = useState(false);
 
   const formatCurrency = (amount, currency = "SAR") => {
+    // Handle MongoDB Decimal128 object or normal number
+    const numericAmount =
+      typeof amount === "object" && amount?.$numberDecimal
+        ? parseFloat(amount.$numberDecimal)
+        : Number(amount) || 0;
+
     return new Intl.NumberFormat("en-SA", {
       style: "currency",
       currency: currency,
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(amount);
+    }).format(numericAmount);
   };
 
   const calculateTenure = (hireDate) => {
@@ -45,9 +52,8 @@ export const EmployeeProfileManager = ({ employee, onClose, isArabic }) => {
     const months = now.getMonth() - hire.getMonth();
 
     if (years > 0) {
-      return `${years} ${isArabic ? "سنة" : "years"} ${
-        months > 0 ? `${months} ${isArabic ? "شهر" : "months"}` : ""
-      }`;
+      return `${years} ${isArabic ? "سنة" : "years"} ${months > 0 ? `${months} ${isArabic ? "شهر" : "months"}` : ""
+        }`;
     }
     return `${months} ${isArabic ? "شهر" : "months"}`;
   };
@@ -128,8 +134,8 @@ export const EmployeeProfileManager = ({ employee, onClose, isArabic }) => {
                   ? "حفظ"
                   : "Save"
                 : isArabic
-                ? "تعديل"
-                : "Edit"}
+                  ? "تعديل"
+                  : "Edit"}
             </button>
             <button
               onClick={onClose}
@@ -145,11 +151,10 @@ export const EmployeeProfileManager = ({ employee, onClose, isArabic }) => {
           <nav className="flex overflow-x-auto">
             <button
               onClick={() => setActiveTab("personal")}
-              className={`px-6 py-4 font-medium transition-colors whitespace-nowrap ${
-                activeTab === "personal"
-                  ? "text-blue-600 border-b-2 border-blue-600"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
+              className={`px-6 py-4 font-medium transition-colors whitespace-nowrap ${activeTab === "personal"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-500 hover:text-gray-700"
+                }`}
             >
               <div className="flex items-center gap-2">
                 <User className="w-4 h-4" />
@@ -158,11 +163,10 @@ export const EmployeeProfileManager = ({ employee, onClose, isArabic }) => {
             </button>
             <button
               onClick={() => setActiveTab("professional")}
-              className={`px-6 py-4 font-medium transition-colors whitespace-nowrap ${
-                activeTab === "professional"
-                  ? "text-blue-600 border-b-2 border-blue-600"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
+              className={`px-6 py-4 font-medium transition-colors whitespace-nowrap ${activeTab === "professional"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-500 hover:text-gray-700"
+                }`}
             >
               <div className="flex items-center gap-2">
                 <Briefcase className="w-4 h-4" />
@@ -171,11 +175,10 @@ export const EmployeeProfileManager = ({ employee, onClose, isArabic }) => {
             </button>
             <button
               onClick={() => setActiveTab("documents")}
-              className={`px-6 py-4 font-medium transition-colors whitespace-nowrap ${
-                activeTab === "documents"
-                  ? "text-blue-600 border-b-2 border-blue-600"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
+              className={`px-6 py-4 font-medium transition-colors whitespace-nowrap ${activeTab === "documents"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-500 hover:text-gray-700"
+                }`}
             >
               <div className="flex items-center gap-2">
                 <FileText className="w-4 h-4" />
@@ -187,11 +190,10 @@ export const EmployeeProfileManager = ({ employee, onClose, isArabic }) => {
             </button>
             <button
               onClick={() => setActiveTab("performance")}
-              className={`px-6 py-4 font-medium transition-colors whitespace-nowrap ${
-                activeTab === "performance"
-                  ? "text-blue-600 border-b-2 border-blue-600"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
+              className={`px-6 py-4 font-medium transition-colors whitespace-nowrap ${activeTab === "performance"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-500 hover:text-gray-700"
+                }`}
             >
               <div className="flex items-center gap-2">
                 <Target className="w-4 h-4" />
@@ -200,11 +202,10 @@ export const EmployeeProfileManager = ({ employee, onClose, isArabic }) => {
             </button>
             <button
               onClick={() => setActiveTab("emergency")}
-              className={`px-6 py-4 font-medium transition-colors whitespace-nowrap ${
-                activeTab === "emergency"
-                  ? "text-blue-600 border-b-2 border-blue-600"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
+              className={`px-6 py-4 font-medium transition-colors whitespace-nowrap ${activeTab === "emergency"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-500 hover:text-gray-700"
+                }`}
             >
               <div className="flex items-center gap-2">
                 <Heart className="w-4 h-4" />
@@ -502,10 +503,10 @@ export const EmployeeProfileManager = ({ employee, onClose, isArabic }) => {
                     <div className="text-xl font-bold text-purple-600">
                       {formatCurrency(
                         employee.professionalInfo.salaryInfo.baseSalary +
-                          employee.professionalInfo.salaryInfo.allowances.reduce(
-                            (sum, allowance) => sum + allowance.amount,
-                            0
-                          ),
+                        employee.professionalInfo.salaryInfo.allowances.reduce(
+                          (sum, allowance) => sum + allowance.amount,
+                          0
+                        ),
                         employee.professionalInfo.salaryInfo.currency
                       )}
                     </div>
@@ -543,8 +544,8 @@ export const EmployeeProfileManager = ({ employee, onClose, isArabic }) => {
                                   ? "شهري"
                                   : "Monthly"
                                 : isArabic
-                                ? "مرة واحدة"
-                                : "One-time"}
+                                  ? "مرة واحدة"
+                                  : "One-time"}
                             </div>
                           </div>
                         </div>
@@ -599,7 +600,7 @@ export const EmployeeProfileManager = ({ employee, onClose, isArabic }) => {
                         {isArabic ? "نوع الجدول:" : "Schedule Type:"}
                       </span>
                       <span className="font-medium text-gray-900 capitalize">
-                        {employee.professionalInfo.workSchedule.scheduleType}
+                        {employee?.professionalInfo?.workSchedule?.scheduleType || ""}
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -607,7 +608,7 @@ export const EmployeeProfileManager = ({ employee, onClose, isArabic }) => {
                         {isArabic ? "وقت البداية:" : "Start Time:"}
                       </span>
                       <span className="font-medium text-gray-900">
-                        {employee.professionalInfo.workSchedule.startTime}
+                        {employee?.professionalInfo?.workSchedule?.startTime || ""}
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -615,7 +616,7 @@ export const EmployeeProfileManager = ({ employee, onClose, isArabic }) => {
                         {isArabic ? "وقت الانتهاء:" : "End Time:"}
                       </span>
                       <span className="font-medium text-gray-900">
-                        {employee.professionalInfo.workSchedule.endTime}
+                        {employee?.professionalInfo?.workSchedule?.endTime || ""}
                       </span>
                     </div>
                   </div>
@@ -625,8 +626,10 @@ export const EmployeeProfileManager = ({ employee, onClose, isArabic }) => {
                         {isArabic ? "مدة الاستراحة:" : "Break Duration:"}
                       </span>
                       <span className="font-medium text-gray-900">
-                        {employee.professionalInfo.workSchedule.breakDuration}{" "}
-                        {isArabic ? "دقيقة" : "minutes"}
+                        {employee?.professionalInfo?.workSchedule?.breakDuration || ""}
+                        {employee?.professionalInfo?.workSchedule?.breakDuration
+                          ? ` ${isArabic ? "دقيقة" : "minutes"}`
+                          : ""}
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -634,10 +637,7 @@ export const EmployeeProfileManager = ({ employee, onClose, isArabic }) => {
                         {isArabic ? "أيام العمل:" : "Working Days:"}
                       </span>
                       <span className="font-medium text-gray-900">
-                        {
-                          employee.professionalInfo.workSchedule.workingDays
-                            .length
-                        }{" "}
+                        {employee?.professionalInfo?.workSchedule?.workingDays?.length || 0}{" "}
                         {isArabic ? "أيام" : "days"}
                       </span>
                     </div>
@@ -646,25 +646,24 @@ export const EmployeeProfileManager = ({ employee, onClose, isArabic }) => {
                         {isArabic ? "العمل الإضافي:" : "Overtime Eligible:"}
                       </span>
                       <span
-                        className={`font-medium ${
-                          employee.professionalInfo.workSchedule
-                            .overtimeEligible
-                            ? "text-green-600"
-                            : "text-red-600"
-                        }`}
+                        className={`font-medium ${employee?.professionalInfo?.workSchedule?.overtimeEligible
+                          ? "text-green-600"
+                          : "text-red-600"
+                          }`}
                       >
-                        {employee.professionalInfo.workSchedule.overtimeEligible
+                        {employee?.professionalInfo?.workSchedule?.overtimeEligible
                           ? isArabic
                             ? "نعم"
                             : "Yes"
                           : isArabic
-                          ? "لا"
-                          : "No"}
+                            ? "لا"
+                            : "No"}
                       </span>
                     </div>
                   </div>
                 </div>
               </div>
+
             </div>
           )}
 
@@ -766,9 +765,8 @@ export const EmployeeProfileManager = ({ employee, onClose, isArabic }) => {
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
                         <div
-                          className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                            contact.isPrimary ? "bg-red-600" : "bg-gray-600"
-                          }`}
+                          className={`w-10 h-10 rounded-lg flex items-center justify-center ${contact.isPrimary ? "bg-red-600" : "bg-gray-600"
+                            }`}
                         >
                           <Heart className="w-5 h-5 text-white" />
                         </div>

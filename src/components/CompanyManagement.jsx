@@ -32,7 +32,6 @@ export const CompanyManagement = ({ isArabic }) => {
     activeGovtClient: 0,
     totalWorkers: 0,
   });
-  // console.log(clients);
 
   const [pagination, setPagination] = useState({
     total: 0,
