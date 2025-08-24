@@ -34,7 +34,7 @@ import { TaskManagement } from "./components/TaskManagement";
 import { UserAccessRoles } from "./components/UserAccessRoles";
 import { ZATCAInvoicingSystem } from "./components/ZATCAInvoicingSystem";
 import { HourlyRateManagement } from "./components/HourlyRateManagement";
-import { EmployeeManagementHub } from "./components/hrms/EmployeeManagementHub";
+import EmployeeManagementHub from './components/hrms/EmployeeManagementHub.jsx';
 import { NotificationDashboard } from "./components/notifications/NotificationDashboard";
 import { NotificationTester } from "./components/notifications/NotificationTester";
 import { PrivateEmployeeDashboard } from "./components/dashboard/PrivateEmployeeDashboard";
