@@ -21,6 +21,7 @@ export const ProjectList = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
+  const [selectedProjectId, setSelectedProjectId] = useState(null); // Add this new state
   const [isLoadingProjectDetails, setIsLoadingProjectDetails] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchLoading, setSearchLoading] = useState(false);
@@ -149,12 +150,38 @@ export const ProjectList = ({
   const handleEditProject = async (id) => {
     try {
       setIsLoadingProjectDetails(true);
+      
+      console.log('=== EDITING PROJECT ===');
+      console.log('Selected project ID:', id);
+      console.log('Current editingProject:', editingProject);
+      console.log('Current selectedProjectId:', selectedProjectId);
+      
+      // Set the selected project ID first
+      setSelectedProjectId(id);
+      
+      // Clear the previous editing project
+      setEditingProject(null);
+      
       const response = await ProjectServiceClient.getProjectById(id);
       console.log('Project edit response:', response);
       
       // Handle different response structures
       const projectData = response?.data || response;
-      setEditingProject(projectData);
+      console.log('Raw project data:', projectData);
+      
+      // Format the project data for the form
+      const formattedProject = {
+        ...projectData,
+        // Format dates for input fields (remove time part)
+        startDate: projectData.startDate ? projectData.startDate.split('T')[0] : '',
+        endDate: projectData.endDate ? projectData.endDate.split('T')[0] : '',
+        // Handle client ID properly
+        clientId: projectData.Client_id?._id || projectData.clientId || projectData.Client_id
+      };
+      
+      console.log('Formatted project data:', formattedProject);
+      
+      setEditingProject(formattedProject);
       setIsUpdateModalOpen(true);
     } catch (error) {
       console.error("Error fetching project for editing:", error);
@@ -171,6 +198,13 @@ export const ProjectList = ({
       project?.status?.toLowerCase() === "active"
     );
     setProjectList(activeProjects);
+  };
+
+  // Handle modal close - reset editing project and selected ID
+  const handleUpdateModalClose = () => {
+    setIsUpdateModalOpen(false);
+    setEditingProject(null);
+    setSelectedProjectId(null); // Clear the selected project ID
   };
 
   return (
@@ -369,6 +403,7 @@ export const ProjectList = ({
       />
 
       <UpdateProjectModal
+        key={selectedProjectId} // Force re-mount when project changes
         isOpen={isUpdateModalOpen}
         isArabic={isArabic}
         clients={clients}
@@ -380,13 +415,15 @@ export const ProjectList = ({
             const updatedProjects = extractProjectsData(updated);
             setProjectList(updatedProjects);
             setIsUpdateModalOpen(false);
+            setEditingProject(null);
+            setSelectedProjectId(null); // Clear selected project ID after save
           } catch (error) {
             console.error("Error refreshing projects after update:", error);
           }
         }}
-        onClose={() => setIsUpdateModalOpen(false)}
+        onClose={handleUpdateModalClose}
         loading={false}
-        projectId={editingProject?._id || editingProject?.id}
+        projectId={selectedProjectId} // Use the separate state instead
         isLoadingProjectDetails={isLoadingProjectDetails}
       />
     </div>

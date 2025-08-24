@@ -17,15 +17,32 @@ export default function UpdateProjectModal({
     const [apiError, setApiError] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    // Reset state when projectId changes or modal opens/closes
+    useEffect(() => {
+        console.log('=== MODAL EFFECT ===');
+        console.log('isOpen:', isOpen);
+        console.log('projectId:', projectId);
+        console.log('editingProject:', editingProject);
+        
+        if (isOpen && projectId) {
+            setErrors({});
+            setApiError("");
+            setIsSubmitting(false);
+        }
+    }, [projectId, isOpen]);
 
     useEffect(() => {
+        console.log('=== CLIENT ID EFFECT ===');
+        console.log('editingProject:', editingProject);
+        
         if (editingProject && editingProject.Client_id) {
+            console.log('Updating clientId from Client_id');
             setEditingProject({
                 ...editingProject,
                 clientId: editingProject.Client_id._id
             });
         }
-    }, [editingProject]);
+    }, [editingProject, setEditingProject]);
 
     // Validation rules
     const validationRules = {
@@ -67,6 +84,7 @@ export default function UpdateProjectModal({
     };
 
     if (!isOpen) return null;
+    
 
     // Validation function
     const validateField = (fieldName, value) => {
@@ -221,7 +239,6 @@ export default function UpdateProjectModal({
                                     </option>
                                 ))}
                             </select>
-
 
                             {getFieldError("clientId") && <p className="text-red-500 text-sm mt-1">{getFieldError("clientId")}</p>}
                         </div>
