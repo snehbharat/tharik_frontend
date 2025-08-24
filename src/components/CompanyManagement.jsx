@@ -17,12 +17,16 @@ import {
   Download,
   Upload,
 } from "lucide-react";
+import VehicleService from "../services/VehicleService";
+import ProjectServiceClient from "../services/ProjectServiceClient";
 
 export const CompanyManagement = ({ isArabic }) => {
   const [activeTab, setActiveTab] = useState("profile");
   const [showAddClient, setShowAddClient] = useState(false);
   const [editingClient, setEditingClient] = useState(null);
   const [clients, setClients] = useState([]);
+  const [vehicles, setVehicles] = useState([]);
+  const [projects, setProjects] = useState([]);
   const [viewClient, setViewClient] = useState(null);
   const [isExporting, setIsExporting] = useState(false);
   const [clientCount, setClientCount] = useState({
@@ -46,7 +50,7 @@ export const CompanyManagement = ({ isArabic }) => {
   const fetchClientCount = async () => {
     try {
       const res = await ClientService.getClientCount();
-      console.log(res);
+      // console.log(res);
 
       setClientCount({
         totalClient: res?.data?.totalClient || 0,
@@ -65,7 +69,7 @@ export const CompanyManagement = ({ isArabic }) => {
     try {
       setLoading(true);
       const res = await ClientService.getAllClients(page, pagination.limit);
-      console.log("res", res);
+      // console.log("res", res);
 
       setClients(res?.data?.data || []);
       setPagination({
@@ -77,6 +81,38 @@ export const CompanyManagement = ({ isArabic }) => {
     } catch (err) {
       console.error("Error fetching clients:", err.message);
       setError("Failed to load clients");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchVehicles = async (page = 1) => {
+    try {
+      setLoading(true);
+      const res = await VehicleService.getAllVehicles(page, pagination.limit);
+      // console.log("vehicleRes", res);
+      setVehicles(res?.data || []);
+    } catch (err) {
+      console.error("Error fetching vehicles:", err.message);
+      setError("Failed to load vehicles");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchProjects = async (page = 1) => {
+    try {
+      setLoading(true);
+      const res = await ProjectServiceClient.getAllProjects(
+        page,
+        pagination.limit
+      );
+      // console.log("projectRes", res);
+
+      setProjects(res?.data || []);
+    } catch (err) {
+      console.error("Error fetching projects:", err.message);
+      setError("Failed to load projects");
     } finally {
       setLoading(false);
     }
@@ -125,7 +161,7 @@ export const CompanyManagement = ({ isArabic }) => {
 
     try {
       const res = await ClientService.createClient(payload);
-      console.log(res);
+      // console.log(res);
 
       if (res?.status === 200) {
         fetchClients(1);
@@ -172,7 +208,7 @@ export const CompanyManagement = ({ isArabic }) => {
         client_type: editingClient.client_type.toLowerCase(),
         contract_value: Number(
           editingClient.contract_value?.$numberDecimal ||
-          editingClient.contract_value
+            editingClient.contract_value
         ),
         contract_expiery_date: editingClient.contract_expiery_date,
         status: editingClient.status.toLowerCase(),
@@ -210,7 +246,7 @@ export const CompanyManagement = ({ isArabic }) => {
   const handleViewClient = (id) => {
     const client = clients.find((c) => c._id === id);
     setViewClient(client);
-    console.log("Viewing client:", client);
+    // console.log("Viewing client:", client);
   };
 
   const handleExportClients = async () => {
@@ -234,7 +270,9 @@ export const CompanyManagement = ({ isArabic }) => {
       const a = document.createElement("a");
       a.style.display = "none";
       a.href = url;
-      a.download = `clients_export_${new Date().toISOString().split("T")[0]}.xlsx`;
+      a.download = `clients_export_${
+        new Date().toISOString().split("T")[0]
+      }.xlsx`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -327,6 +365,8 @@ export const CompanyManagement = ({ isArabic }) => {
   useEffect(() => {
     fetchClients(1);
     fetchClientCount();
+    fetchVehicles();
+    fetchProjects();
   }, []);
 
   if (loading) return <p>Loading clients...</p>;
@@ -369,10 +409,11 @@ export const CompanyManagement = ({ isArabic }) => {
           <nav className="flex">
             <button
               onClick={() => setActiveTab("profile")}
-              className={`px-6 py-4 font-medium transition-colors ${activeTab === "profile"
-                ? "text-green-600 border-b-2 border-green-600"
-                : "text-gray-500 hover:text-gray-700"
-                }`}
+              className={`px-6 py-4 font-medium transition-colors ${
+                activeTab === "profile"
+                  ? "text-green-600 border-b-2 border-green-600"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
             >
               <div className="flex items-center gap-2">
                 <Building2 className="w-4 h-4" />
@@ -381,10 +422,11 @@ export const CompanyManagement = ({ isArabic }) => {
             </button>
             <button
               onClick={() => setActiveTab("clients")}
-              className={`px-6 py-4 font-medium transition-colors ${activeTab === "clients"
-                ? "text-green-600 border-b-2 border-green-600"
-                : "text-gray-500 hover:text-gray-700"
-                }`}
+              className={`px-6 py-4 font-medium transition-colors ${
+                activeTab === "clients"
+                  ? "text-green-600 border-b-2 border-green-600"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
             >
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4" />
@@ -455,17 +497,13 @@ export const CompanyManagement = ({ isArabic }) => {
                       <span className="text-gray-600">
                         {isArabic ? "المركبات:" : "Vehicles:"}
                       </span>
-                      <span className="font-semibold">
-                        {companyInfo.vehicleCount}
-                      </span>
+                      <span className="font-semibold">{vehicles.total}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">
                         {isArabic ? "العقود النشطة:" : "Active Contracts:"}
                       </span>
-                      <span className="font-semibold">
-                        {companyInfo.activeContracts}
-                      </span>
+                      <span className="font-semibold">{projects.total}</span>
                     </div>
                   </div>
                 </div>
@@ -663,10 +701,11 @@ export const CompanyManagement = ({ isArabic }) => {
                             role="cell"
                           >
                             <span
-                              className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${client.status === "active"
-                                ? "bg-green-100 text-green-800"
-                                : "bg-yellow-100 text-yellow-800"
-                                }`}
+                              className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                client.status === "active"
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-yellow-100 text-yellow-800"
+                              }`}
                             >
                               {client.status}
                             </span>
@@ -677,15 +716,15 @@ export const CompanyManagement = ({ isArabic }) => {
                           >
                             {client.contract_expiery_date
                               ? new Date(
-                                client.contract_expiery_date
-                              ).toLocaleDateString(
-                                isArabic ? "ar-EG" : "en-GB",
-                                {
-                                  day: "2-digit",
-                                  month: "short",
-                                  year: "numeric",
-                                }
-                              )
+                                  client.contract_expiery_date
+                                ).toLocaleDateString(
+                                  isArabic ? "ar-EG" : "en-GB",
+                                  {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric",
+                                  }
+                                )
                               : ""}
                           </td>
                           <td
@@ -696,8 +735,9 @@ export const CompanyManagement = ({ isArabic }) => {
                               <button
                                 onClick={() => handleViewClient(client._id)}
                                 className="text-blue-600 hover:text-blue-800 p-1 rounded transition-colors"
-                                aria-label={`${isArabic ? "عرض" : "View"} ${client.client_name_eng
-                                  }`}
+                                aria-label={`${isArabic ? "عرض" : "View"} ${
+                                  client.client_name_eng
+                                }`}
                               >
                                 <Eye className="w-4 h-4" aria-hidden="true" />
                               </button>
@@ -705,8 +745,9 @@ export const CompanyManagement = ({ isArabic }) => {
                               <button
                                 onClick={() => handleEditClient(client._id)}
                                 className="text-green-600 hover:text-green-800 p-1 rounded transition-colors"
-                                aria-label={`${isArabic ? "تعديل" : "Edit"} ${client.client_name_eng
-                                  }`}
+                                aria-label={`${isArabic ? "تعديل" : "Edit"} ${
+                                  client.client_name_eng
+                                }`}
                               >
                                 <Edit className="w-4 h-4" aria-hidden="true" />
                               </button>
@@ -714,8 +755,9 @@ export const CompanyManagement = ({ isArabic }) => {
                               <button
                                 onClick={() => handleDeleteClient(client._id)}
                                 className="text-red-600 hover:text-red-800 p-1 rounded transition-colors"
-                                aria-label={`${isArabic ? "حذف" : "Delete"} ${client.client_name_eng
-                                  }`}
+                                aria-label={`${isArabic ? "حذف" : "Delete"} ${
+                                  client.client_name_eng
+                                }`}
                               >
                                 <Trash2
                                   className="w-4 h-4"
@@ -736,10 +778,11 @@ export const CompanyManagement = ({ isArabic }) => {
                   onClick={() => fetchClients(Math.max(1, pagination.page - 1))}
                   disabled={pagination.page <= 1}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
-      ${pagination.page <= 1
-                      ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                      : "bg-green-600 text-white hover:bg-green-700"
-                    }`}
+      ${
+        pagination.page <= 1
+          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+          : "bg-green-600 text-white hover:bg-green-700"
+      }`}
                 >
                   {isArabic ? "السابق" : "Previous"}
                 </button>
@@ -763,10 +806,11 @@ export const CompanyManagement = ({ isArabic }) => {
                   }
                   disabled={pagination.page >= pagination.totalPages}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
-      ${pagination.page >= pagination.totalPages
-                      ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                      : "bg-green-600 text-white hover:bg-green-700"
-                    }`}
+      ${
+        pagination.page >= pagination.totalPages
+          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+          : "bg-green-600 text-white hover:bg-green-700"
+      }`}
                 >
                   {isArabic ? "التالي" : "Next"}
                 </button>

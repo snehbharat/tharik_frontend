@@ -30,10 +30,9 @@ import {
 } from "lucide-react";
 import VehicleService from "../services/VehicleService";
 import ClientService from "../services/ClientService";
-import ClientSelect from "./ClientSelect";
 import VehicleFilters from "./VehicleFilters";
-import ProjectService from "../services/ProjectService";
 import ProjectSelect from "./ProjectSelect";
+import ProjectServiceClient from "../services/ProjectServiceClient";
 
 export const FleetManagement = ({ isArabic }) => {
   const [vehicles, setVehicles] = useState([]);
@@ -85,6 +84,8 @@ export const FleetManagement = ({ isArabic }) => {
     "Concrete Mixer",
     "Forklift",
   ];
+
+  // console.log("projects", projects);
 
   const vehicleStatus = ["Active", "Inactive", "Maintenance"];
 
@@ -249,7 +250,7 @@ export const FleetManagement = ({ isArabic }) => {
     try {
       setLoading(true);
       const res = await VehicleService.getAllVehicles(page, pagination.limit);
-      console.log("ressss", res);
+      // console.log("vehicleRes", res);
 
       setVehicles(res?.data?.data || []);
       setPagination({
@@ -258,13 +259,6 @@ export const FleetManagement = ({ isArabic }) => {
         limit: res?.data?.limit || 10,
         totalPages: res?.data?.totalPages || 1,
       });
-      // const summary = { active: 0, inactive: 0, maintenance: 0 };
-      // res.data.forEach((v) => {
-      //   if (v.status === "Active") summary.active++;
-      //   if (v.status === "Inactive") summary.inactive++;
-      //   if (v.status === "Maintenance") summary.maintenance++;
-      // });
-      // setReportSummary(summary);
     } catch (err) {
       console.error("Error fetching vehicles:", err.message);
       setError("Failed to load vehicles");
@@ -280,7 +274,7 @@ export const FleetManagement = ({ isArabic }) => {
         page,
         projectPagination.limit
       );
-      console.log("res", res);
+      // console.log("clientRes", res);
 
       setClients(res?.data?.data || []);
       setprojectPagination({
@@ -299,22 +293,22 @@ export const FleetManagement = ({ isArabic }) => {
   const fetchProjects = async (page = 1) => {
     try {
       setLoading(true);
-      const res = await ProjectService.getAllProjects(
+      const res = await ProjectServiceClient.getAllProjects(
         page,
         projectPagination.limit
       );
-      console.log("res", res);
+      // console.log("projectRes", res);
 
-      setProjects(res?.data?.data || []);
+      setProjects(res?.data?.projects || []);
       setprojectPagination({
         total: res?.data?.total || 0,
-        page: res?.data?.page || 1,
-        limit: res?.data?.limit || 10,
+        page: res?.data?.currentPage || 1,
+        limit: res?.data?.pageLimit || 10,
         totalPages: res?.data?.totalPages || 1,
       });
     } catch (err) {
-      console.error("Error fetching clients:", err.message);
-      setError("Failed to load clients");
+      console.error("Error fetching projects:", err.message);
+      setError("Failed to load projects");
     } finally {
       setLoading(false);
     }
@@ -398,6 +392,7 @@ export const FleetManagement = ({ isArabic }) => {
     }
 
     const selectedProject = projects.find((p) => p._id === newVehicle.project);
+    // console.log("selectedProject", selectedProject);
 
     const vehiclePayload = {
       plate_number: newVehicle.plateNumber,
@@ -525,7 +520,7 @@ export const FleetManagement = ({ isArabic }) => {
   const handleViewVehicle = (id) => {
     const vehicle = vehicles.find((c) => c._id === id);
     setViewVehicle(vehicle);
-    console.log("Viewing client:", vehicle);
+    // console.log("Viewing client:", vehicle);
   };
 
   const handleDeleteVehicle = async (id) => {
@@ -771,7 +766,7 @@ export const FleetManagement = ({ isArabic }) => {
         return 0;
       });
   }, [vehicles, searchTerm, selectedProject, filters]);
-  console.log("f", filteredVehicles);
+  // console.log("f", filteredVehicles);
 
   return (
     <div className="p-6 space-y-6">
