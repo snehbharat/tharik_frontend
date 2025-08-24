@@ -110,7 +110,7 @@ const AppContent = () => {
       case "lead-management":
         return <LeadManagement isArabic={isArabic} />;
       case "task-management":
-        return <TaskManagement isArabic={isArabic} />;
+        return <TaskManagement isArabic={isArabic} currentUser={user} />;
       case "user-access-roles":
         return <UserAccessRoles isArabic={isArabic} />;
       case "hourly-rates":
