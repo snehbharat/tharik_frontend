@@ -25,23 +25,81 @@ export const ProjectList = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [searchLoading, setSearchLoading] = useState(false);
 
+  // Helper function to safely extract projects data from API response
+  const extractProjectsData = (response) => {
+    if (!response) return [];
+    
+    // If response.data is an array, return it directly
+    if (Array.isArray(response.data)) {
+      return response.data;
+    }
+    
+    // If response.data.projects exists, return it
+    if (response.data?.projects && Array.isArray(response.data.projects)) {
+      return response.data.projects;
+    }
+    
+    // If response.data.data exists, return it
+    if (response.data?.data && Array.isArray(response.data.data)) {
+      return response.data.data;
+    }
+    
+    // If response itself is an array, return it
+    if (Array.isArray(response)) {
+      return response;
+    }
+    
+    console.warn('Unexpected API response structure in ProjectList:', response);
+    return [];
+  };
+
+  // Update projectList when projects prop changes - show only active projects
   useEffect(() => {
-    setProjectList(projects);
+    console.log('Projects prop updated in ProjectList:', projects);
+    // Filter to show only active projects initially
+    const activeProjects = projects.filter(project => 
+      project?.status?.toLowerCase() === "active"
+    );
+    setProjectList(activeProjects);
   }, [projects]);
 
+  // Handle search functionality - only run when there's an actual search query
   useEffect(() => {
+    // Don't run search if query is empty - use the projects from props instead
+    if (!searchQuery.trim()) {
+      // Filter to show only active projects from props when no search query
+      const activeProjects = projects.filter(project => 
+        project?.status?.toLowerCase() === "active"
+      );
+      setProjectList(activeProjects);
+      setSearchLoading(false);
+      return;
+    }
+
     const fetchProjects = async () => {
       try {
         setSearchLoading(true);
-        if (searchQuery.trim().length > 0) {
-          const { data } = await ProjectServiceClient.searchProjects(searchQuery.trim());
-          setProjectList(data || []);
-        } else {
-          const { data } = await ProjectServiceClient.getAllProjects();
-          setProjectList(data || []);
-        }
+        console.log('Searching for projects with query:', searchQuery.trim());
+        
+        const response = await ProjectServiceClient.searchProjects(searchQuery.trim());
+        console.log('Search response:', response);
+        
+        const searchResults = extractProjectsData(response);
+        console.log('Extracted search results:', searchResults);
+        
+        // Filter search results to show only active projects
+        const activeSearchResults = searchResults.filter(project => 
+          project?.status?.toLowerCase() === "active"
+        );
+        
+        setProjectList(activeSearchResults);
       } catch (error) {
         console.error("Error searching projects:", error);
+        // On error, fall back to showing active projects from props
+        const activeProjects = projects.filter(project => 
+          project?.status?.toLowerCase() === "active"
+        );
+        setProjectList(activeProjects);
       } finally {
         setSearchLoading(false);
       }
@@ -49,7 +107,7 @@ export const ProjectList = ({
 
     const delayDebounce = setTimeout(fetchProjects, 500);
     return () => clearTimeout(delayDebounce);
-  }, [searchQuery]);
+  }, [searchQuery, projects]); // Added projects as dependency
 
   const handleDeactivateProject = async (projectId, projectName) => {
     const confirmMessage = isArabic
@@ -61,7 +119,10 @@ export const ProjectList = ({
     try {
       setIsDeactivating(projectId);
       await ProjectServiceClient.deactivateProject(projectId);
+      
+      // Remove from local state immediately
       setProjectList((prev) => prev.filter((p) => p._id !== projectId));
+      
       alert(isArabic ? "تم إلغاء تفعيل المشروع بنجاح" : "Project deactivated successfully");
     } catch (error) {
       console.error("Error deactivating project:", error);
@@ -73,8 +134,12 @@ export const ProjectList = ({
 
   const handleViewProject = async (id) => {
     try {
-      const { data } = await ProjectServiceClient.getProjectById(id);
-      setProjectDetails(data);
+      const response = await ProjectServiceClient.getProjectById(id);
+      console.log('Project details response:', response);
+      
+      // Handle different response structures
+      const projectData = response?.data || response;
+      setProjectDetails(projectData);
       setIsModalOpen(true);
     } catch (error) {
       console.error("Error fetching project details:", error);
@@ -84,14 +149,28 @@ export const ProjectList = ({
   const handleEditProject = async (id) => {
     try {
       setIsLoadingProjectDetails(true);
-      const { data } = await ProjectServiceClient.getProjectById(id);
-      setEditingProject(data);
+      const response = await ProjectServiceClient.getProjectById(id);
+      console.log('Project edit response:', response);
+      
+      // Handle different response structures
+      const projectData = response?.data || response;
+      setEditingProject(projectData);
       setIsUpdateModalOpen(true);
     } catch (error) {
       console.error("Error fetching project for editing:", error);
     } finally {
       setIsLoadingProjectDetails(false);
     }
+  };
+
+  // Clear search and show all active projects
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    // Filter to show only active projects when clearing search
+    const activeProjects = projects.filter(project => 
+      project?.status?.toLowerCase() === "active"
+    );
+    setProjectList(activeProjects);
   };
 
   return (
@@ -103,8 +182,23 @@ export const ProjectList = ({
             {isArabic ? "جميع المشاريع" : "All Projects"}
           </h2>
           <p className="text-sm text-gray-500">
-            {isArabic ? "إجمالي" : "Total"}: {projectList.length}{" "}
-            {isArabic ? "مشروع" : "projects"}
+            {searchQuery.trim() ? (
+              <>
+                {isArabic ? "نتائج البحث:" : "Search results:"} {projectList.length}{" "}
+                {isArabic ? "مشروع" : "projects"}
+                <button 
+                  onClick={handleClearSearch}
+                  className="ml-2 text-blue-600 hover:text-blue-800 underline text-xs"
+                >
+                  {isArabic ? "عرض الكل" : "Show all"}
+                </button>
+              </>
+            ) : (
+              <>
+                {isArabic ? "إجمالي" : "Total"}: {projectList.length}{" "}
+                {isArabic ? "مشروع" : "projects"}
+              </>
+            )}
           </p>
         </div>
 
@@ -120,17 +214,28 @@ export const ProjectList = ({
           {searchLoading && (
             <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-gray-400" size={18} />
           )}
+          {searchQuery.trim() && !searchLoading && (
+            <button
+              onClick={handleClearSearch}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              ×
+            </button>
+          )}
         </div>
       </div>
 
       {/* Projects */}
       {loading ? (
-        <div className="text-center py-12">{isArabic ? "جاري التحميل..." : "Loading..."}</div>
+        <div className="text-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-gray-400 mx-auto mb-4" />
+          <p>{isArabic ? "جاري التحميل..." : "Loading..."}</p>
+        </div>
       ) : projectList.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {projectList.map((project) => (
             <div
-              key={project._id}
+              key={project._id || project.id}
               className="bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col"
             >
               {/* Project Header */}
@@ -183,7 +288,7 @@ export const ProjectList = ({
                   <div className="font-semibold text-blue-600">
                     {Array.isArray(attendance)
                       ? attendance
-                        .filter((a) => a?.projectId === project._id)
+                        .filter((a) => a?.projectId === (project._id || project.id))
                         .reduce((sum, a) => sum + (a?.hoursWorked || 0), 0)
                       : 0}
                   </div>
@@ -193,7 +298,7 @@ export const ProjectList = ({
               {/* Actions */}
               <div className="p-2 bg-gray-50 flex flex-wrap md:flex-nowrap justify-start items-center gap-2">
                 <button
-                  onClick={() => handleViewProject(project._id)}
+                  onClick={() => handleViewProject(project._id || project.id)}
                   className="flex-1 md:flex-none bg-blue-600 hover:bg-blue-700 text-white px-2 py-1.5 rounded-lg text-sm flex items-center justify-center gap-2 transition"
                 >
                   <Eye className="w-4 h-4" />
@@ -201,7 +306,7 @@ export const ProjectList = ({
                 </button>
 
                 <button
-                  onClick={() => handleEditProject(project._id)}
+                  onClick={() => handleEditProject(project._id || project.id)}
                   className="flex-1 md:flex-none bg-yellow-600 hover:bg-yellow-700 text-white px-2 py-1.5 rounded-lg text-sm flex items-center justify-center gap-2 transition"
                 >
                   <Edit className="w-4 h-4" />
@@ -209,24 +314,24 @@ export const ProjectList = ({
                 </button>
 
                 <button
-                  onClick={() => handleDeactivateProject(project._id, project.name)}
-                  disabled={isDeactivating === project._id}
-                  className={`flex-1 md:flex-none px-2 py-1.5 rounded-lg text-sm flex items-center justify-center gap-2 transition ${isDeactivating === project._id
+                  onClick={() => handleDeactivateProject(project._id || project.id, project.name)}
+                  disabled={isDeactivating === (project._id || project.id)}
+                  className={`flex-1 md:flex-none px-2 py-1.5 rounded-lg text-sm flex items-center justify-center gap-2 transition ${
+                    isDeactivating === (project._id || project.id)
                       ? "bg-gray-400 cursor-not-allowed text-white"
                       : "bg-red-600 hover:bg-red-700 text-white"
-                    }`}
+                  }`}
                 >
                   <Trash2 className="w-4 h-4" />
-                  {isDeactivating === project._id
+                  {isDeactivating === (project._id || project.id)
                     ? isArabic
                       ? "جاري الإلغاء..."
                       : "Deactivating..."
                     : isArabic
-                      ? "إلغاء تفعيل"
-                      : "Deactivate"}
+                    ? "إلغاء تفعيل"
+                    : "Deactivate"}
                 </button>
               </div>
-
             </div>
           ))}
         </div>
@@ -234,18 +339,26 @@ export const ProjectList = ({
         <div className="text-center py-12">
           <Briefcase className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            {isArabic ? "لا توجد مشاريع" : "No Projects"}
+            {searchQuery.trim() 
+              ? (isArabic ? "لم يتم العثور على مشاريع" : "No projects found")
+              : (isArabic ? "لا توجد مشاريع" : "No Projects")
+            }
           </h3>
           <p className="text-gray-500 mb-6">
-            {isArabic ? "ابدأ بإنشاء مشروعك الأول" : "Get started by creating your first project"}
+            {searchQuery.trim()
+              ? (isArabic ? "جرب البحث بمصطلح مختلف" : "Try searching with different terms")
+              : (isArabic ? "ابدأ بإنشاء مشروعك الأول" : "Get started by creating your first project")
+            }
           </p>
-          <button
-            onClick={onAddProject}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 mx-auto transition"
-          >
-            <Plus className="w-5 h-5" />
-            {isArabic ? "إضافة مشروع" : "Add Project"}
-          </button>
+          {!searchQuery.trim() && (
+            <button
+              onClick={onAddProject}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 mx-auto transition"
+            >
+              <Plus className="w-5 h-5" />
+              {isArabic ? "إضافة مشروع" : "Add Project"}
+            </button>
+          )}
         </div>
       )}
 
@@ -262,13 +375,18 @@ export const ProjectList = ({
         editingProject={editingProject || {}}
         setEditingProject={setEditingProject}
         onSave={async () => {
-          const updated = await ProjectServiceClient.getAllProjects();
-          setProjectList(updated.data || []);
-          setIsUpdateModalOpen(false);
+          try {
+            const updated = await ProjectServiceClient.getAllProjects();
+            const updatedProjects = extractProjectsData(updated);
+            setProjectList(updatedProjects);
+            setIsUpdateModalOpen(false);
+          } catch (error) {
+            console.error("Error refreshing projects after update:", error);
+          }
         }}
         onClose={() => setIsUpdateModalOpen(false)}
         loading={false}
-        projectId={editingProject?._id}
+        projectId={editingProject?._id || editingProject?.id}
         isLoadingProjectDetails={isLoadingProjectDetails}
       />
     </div>
