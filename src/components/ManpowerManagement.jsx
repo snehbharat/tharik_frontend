@@ -49,47 +49,116 @@ export const ManpowerManagement = ({ isArabic }) => {
     notes: "",
   });
 
+  // Helper function to safely extract projects data from API response
+  const extractProjectsData = (response) => {
+    // Handle different possible response structures
+    if (!response) return [];
+    
+    // If response.data is an array, return it directly
+    if (Array.isArray(response.data)) {
+      return response.data;
+    }
+    
+    // If response.data.projects exists, return it
+    if (response.data?.projects && Array.isArray(response.data.projects)) {
+      return response.data.projects;
+    }
+    
+    // If response.data.data exists, return it
+    if (response.data?.data && Array.isArray(response.data.data)) {
+      return response.data.data;
+    }
+    
+    // If response itself is an array, return it
+    if (Array.isArray(response)) {
+      return response;
+    }
+    
+    // Default to empty array if no valid structure found
+    console.warn('Unexpected API response structure:', response);
+    return [];
+  };
+
+  // Helper function to safely extract clients data from API response
+  const extractClientsData = (response) => {
+    if (!response) return [];
+    
+    // Handle different possible response structures for clients
+    if (Array.isArray(response.data)) {
+      return response.data;
+    }
+    
+    if (response.data?.data && Array.isArray(response.data.data)) {
+      return response.data.data;
+    }
+    
+    if (Array.isArray(response)) {
+      return response;
+    }
+    
+    console.warn('Unexpected client API response structure:', response);
+    return [];
+  };
+
   // Fetch projects and clients on component mount
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
+      setError(null);
       try {
         const [projectResponse, clientResponse] = await Promise.all([
           ProjectServiceClient.getAllProjects(1, 100),
           ClientService.getAllClients(1, 100),
         ]);
-        const projectsData = projectResponse?.data || [];
-        setProjects(Array.isArray(projectsData) ? projectsData : []);
-        setClients(clientResponse.data?.data || clientResponse.data || []);
+       
+        
+        const projectsData = extractProjectsData(projectResponse);
+        const clientsData = extractClientsData(clientResponse);
+        
+       
+        
+        setProjects(projectsData);
+        setClients(clientsData);
+        
       } catch (err) {
+        console.error("Error fetching initial data:", err);
         setError(isArabic ? "فشل في جلب البيانات" : "Failed to fetch data");
-        console.error("Error fetching data:", err);
       } finally {
         setLoading(false);
       }
     };
+    
     fetchData();
   }, [isArabic]);
 
   // Log projects state for debugging
   useEffect(() => {
-    console.log("Projects State Updated:", projects);
   }, [projects]);
 
   // Refresh data function to reload projects and clients
   const refreshData = async () => {
     setLoading(true);
+    setError(null);
     try {
+      
       const [projectResponse, clientResponse] = await Promise.all([
         ProjectServiceClient.getAllProjects(1, 100),
         ClientService.getAllClients(1, 100),
       ]);
-      const projectsData = projectResponse?.data?.projects || [];
-      setProjects(Array.isArray(projectsData) ? projectsData : []);
-      setClients(clientResponse.data?.data || clientResponse.data || []);
+      
+     
+      
+      const projectsData = extractProjectsData(projectResponse);
+      const clientsData = extractClientsData(clientResponse);
+      
+
+      
+      setProjects(projectsData);
+      setClients(clientsData);
+      
     } catch (err) {
-      setError(isArabic ? "فشل في جلب البيانات" : "Failed to fetch data");
-      console.error("Error fetching data:", err);
+      console.error("Error refreshing data:", err);
+      setError(isArabic ? "فشل في تحديث البيانات" : "Failed to refresh data");
     } finally {
       setLoading(false);
     }
@@ -173,7 +242,7 @@ export const ManpowerManagement = ({ isArabic }) => {
   const selectedProjectData = useMemo(() => {
     if (selectedProject === "all") return null;
     const validProjects = Array.isArray(projects) ? projects.filter(p => p && typeof p === 'object') : [];
-    return validProjects.find((p) => p.id === selectedProject) || null;
+    return validProjects.find((p) => p.id === selectedProject || p._id === selectedProject) || null;
   }, [projects, selectedProject]);
 
   // Handle adding a new project
@@ -187,7 +256,7 @@ export const ManpowerManagement = ({ isArabic }) => {
     setLoading(true);
     try {
       await ProjectServiceClient.createProject(newProject);
-      await refreshData();
+      await refreshData(); // This will reload the data
       setNewProject({
         name: "",
         client: "",
@@ -239,17 +308,15 @@ export const ManpowerManagement = ({ isArabic }) => {
 
   // Handle project actions (view, edit, delete)
   const handleProjectAction = (projectId, action) => {
-    console.log(`Project ${projectId} action: ${action}`);
     switch (action) {
       case "view":
-        console.log("Viewing project:", projectId);
         break;
       case "edit":
-        console.log("Editing project:", projectId);
         break;
       case "delete":
         if (window.confirm(isArabic ? "هل تريد حذف هذا المشروع؟" : "Are you sure you want to delete this project?")) {
-          console.log("Deleting project:", projectId);
+          // Add actual delete logic here
+          refreshData(); // Refresh after delete
         }
         break;
       default:
@@ -278,8 +345,17 @@ export const ManpowerManagement = ({ isArabic }) => {
       <div className="p-6 space-y-6">
         {/* Error display */}
         {error && (
-          <div className="bg-red-100 text-red-800 p-4 rounded-lg">{error}</div>
+          <div className="bg-red-100 text-red-800 p-4 rounded-lg border border-red-200">
+            {error}
+            <button 
+              onClick={() => setError(null)}
+              className="ml-2 text-red-600 hover:text-red-800 font-semibold"
+            >
+              ×
+            </button>
+          </div>
         )}
+        
         {/* Header component */}
         <Header
           isArabic={isArabic}
@@ -287,6 +363,7 @@ export const ManpowerManagement = ({ isArabic }) => {
           onExport={() => { }}
           onAddProject={() => setShowAddProject(true)}
         />
+        
         {/* Navigation tabs */}
         <NavigationTabs
           activeView={activeView}
@@ -294,6 +371,7 @@ export const ManpowerManagement = ({ isArabic }) => {
           isArabic={isArabic}
           payrollSummary={payrollSummary}
         />
+        
         {/* Main content area */}
         <div className="p-6">
           {activeView === "dashboard" && (
@@ -339,9 +417,9 @@ export const ManpowerManagement = ({ isArabic }) => {
           )}
         </div>
       </div>
+      
       {/* Add project modal */}
       {showAddProject && (
-
         <AddProjectModal
           isArabic={isArabic}
           clients={clients}
