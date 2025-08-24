@@ -250,7 +250,6 @@ export const FleetManagement = ({ isArabic }) => {
     try {
       setLoading(true);
       const res = await VehicleService.getAllVehicles(page, pagination.limit);
-      // console.log("vehicleRes", res);
 
       setVehicles(res?.data?.data || []);
       setPagination({
@@ -274,7 +273,6 @@ export const FleetManagement = ({ isArabic }) => {
         page,
         projectPagination.limit
       );
-      // console.log("clientRes", res);
 
       setClients(res?.data?.data || []);
       setprojectPagination({
@@ -297,7 +295,6 @@ export const FleetManagement = ({ isArabic }) => {
         page,
         projectPagination.limit
       );
-      // console.log("projectRes", res);
 
       setProjects(res?.data?.projects || []);
       setprojectPagination({
@@ -520,7 +517,6 @@ export const FleetManagement = ({ isArabic }) => {
   const handleViewVehicle = (id) => {
     const vehicle = vehicles.find((c) => c._id === id);
     setViewVehicle(vehicle);
-    // console.log("Viewing client:", vehicle);
   };
 
   const handleDeleteVehicle = async (id) => {
@@ -766,7 +762,6 @@ export const FleetManagement = ({ isArabic }) => {
         return 0;
       });
   }, [vehicles, searchTerm, selectedProject, filters]);
-  // console.log("f", filteredVehicles);
 
   return (
     <div className="p-6 space-y-6">

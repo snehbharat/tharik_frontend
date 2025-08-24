@@ -34,7 +34,7 @@ import { TaskManagement } from "./components/TaskManagement";
 import { UserAccessRoles } from "./components/UserAccessRoles";
 import { ZATCAInvoicingSystem } from "./components/ZATCAInvoicingSystem";
 import { HourlyRateManagement } from "./components/HourlyRateManagement";
-import { EmployeeManagementHub } from "./components/hrms/EmployeeManagementHub";
+import EmployeeManagementHub from './components/hrms/EmployeeManagementHub.jsx';
 import { NotificationDashboard } from "./components/notifications/NotificationDashboard";
 import { NotificationTester } from "./components/notifications/NotificationTester";
 import { PrivateEmployeeDashboard } from "./components/dashboard/PrivateEmployeeDashboard";
@@ -67,28 +67,23 @@ const AppContent = () => {
   }
 
   const renderActiveModule = () => {
-    console.log("Rendering active module:", activeModule);
 
     switch (activeModule) {
       case "dashboard":
         const isAdmin = user?.role.level >= 8 || user?.role.id === "admin";
         if (isAdmin) {
-          console.log("Rendering admin dashboard for user:", user?.username);
           return <ComprehensiveAdminDashboard isArabic={isArabic} />;
         }
         const isEmployee = user?.role.id === "employee" || user?.role.level < 5;
         if (isEmployee) {
-          console.log("Rendering employee dashboard for user:", user?.username);
           return <PrivateEmployeeDashboard isArabic={isArabic} />;
         }
-        console.log("Rendering standard dashboard");
         return isArabic ? (
           <EnhancedBilingualDashboard />
         ) : (
           <Dashboard isArabic={isArabic} />
         );
       case "company":
-        console.log("Rendering company management");
         return <CompanyManagement isArabic={isArabic} />;
       case "manpower":
         return <ManpowerManagement isArabic={isArabic} />;
@@ -125,19 +120,13 @@ const AppContent = () => {
       case "notification-tester":
         return <NotificationTester isArabic={isArabic} />;
       case "integrations":
-        console.log("Rendering integration control panel");
         return <IntegrationControlPanel isArabic={isArabic} />;
       case "attendance-tracking":
-        console.log("Rendering attendance tracking");
         return <AttendanceTracking isArabic={isArabic} />;
       case "permissions":
-        console.log("Rendering permissions management");
         return <PermissionsPage isArabic={isArabic}/>;  
       default:
-        console.log(
-          "Rendering default dashboard for unknown module:",
-          activeModule
-        );
+       
         return <Dashboard isArabic={isArabic} />;
     }
   };
@@ -165,7 +154,6 @@ const AppContent = () => {
           <EnhancedBilingualSidebar
             activeModule={activeModule}
             setActiveModule={(module) => {
-              console.log("Setting active module:", module);
               setActiveModule(module);
             }}
             isCollapsed={sidebarCollapsed}
