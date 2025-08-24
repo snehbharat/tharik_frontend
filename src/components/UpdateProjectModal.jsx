@@ -29,15 +29,15 @@ export default function UpdateProjectModal({
     }, [projectId, isOpen]);
 
     useEffect(() => {
-       
-        
-        if (editingProject && editingProject.Client_id) {
-            setEditingProject({
-                ...editingProject,
+        // Only update if Client_id exists but clientId doesn't
+        if (editingProject && editingProject.Client_id && !editingProject.clientId) {
+            setEditingProject(prev => ({
+                ...prev,
                 clientId: editingProject.Client_id._id
-            });
+            }));
         }
-    }, [editingProject, setEditingProject]);
+    }, [editingProject?.Client_id, editingProject?.clientId, setEditingProject]);
+
 
     // Validation rules
     const validationRules = {
