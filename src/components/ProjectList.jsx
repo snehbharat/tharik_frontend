@@ -56,7 +56,6 @@ export const ProjectList = ({
 
   // Update projectList when projects prop changes - show only active projects
   useEffect(() => {
-    console.log('Projects prop updated in ProjectList:', projects);
     // Filter to show only active projects initially
     const activeProjects = projects.filter(project => 
       project?.status?.toLowerCase() === "active"
@@ -80,13 +79,10 @@ export const ProjectList = ({
     const fetchProjects = async () => {
       try {
         setSearchLoading(true);
-        console.log('Searching for projects with query:', searchQuery.trim());
         
         const response = await ProjectServiceClient.searchProjects(searchQuery.trim());
-        console.log('Search response:', response);
         
         const searchResults = extractProjectsData(response);
-        console.log('Extracted search results:', searchResults);
         
         // Filter search results to show only active projects
         const activeSearchResults = searchResults.filter(project => 
@@ -136,7 +132,6 @@ export const ProjectList = ({
   const handleViewProject = async (id) => {
     try {
       const response = await ProjectServiceClient.getProjectById(id);
-      console.log('Project details response:', response);
       
       // Handle different response structures
       const projectData = response?.data || response;
@@ -151,10 +146,7 @@ export const ProjectList = ({
     try {
       setIsLoadingProjectDetails(true);
       
-      console.log('=== EDITING PROJECT ===');
-      console.log('Selected project ID:', id);
-      console.log('Current editingProject:', editingProject);
-      console.log('Current selectedProjectId:', selectedProjectId);
+    
       
       // Set the selected project ID first
       setSelectedProjectId(id);
@@ -163,11 +155,9 @@ export const ProjectList = ({
       setEditingProject(null);
       
       const response = await ProjectServiceClient.getProjectById(id);
-      console.log('Project edit response:', response);
       
       // Handle different response structures
       const projectData = response?.data || response;
-      console.log('Raw project data:', projectData);
       
       // Format the project data for the form
       const formattedProject = {
@@ -179,7 +169,6 @@ export const ProjectList = ({
         clientId: projectData.Client_id?._id || projectData.clientId || projectData.Client_id
       };
       
-      console.log('Formatted project data:', formattedProject);
       
       setEditingProject(formattedProject);
       setIsUpdateModalOpen(true);

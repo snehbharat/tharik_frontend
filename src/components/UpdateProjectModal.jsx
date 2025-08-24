@@ -19,10 +19,7 @@ export default function UpdateProjectModal({
 
     // Reset state when projectId changes or modal opens/closes
     useEffect(() => {
-        console.log('=== MODAL EFFECT ===');
-        console.log('isOpen:', isOpen);
-        console.log('projectId:', projectId);
-        console.log('editingProject:', editingProject);
+      
         
         if (isOpen && projectId) {
             setErrors({});
@@ -32,11 +29,9 @@ export default function UpdateProjectModal({
     }, [projectId, isOpen]);
 
     useEffect(() => {
-        console.log('=== CLIENT ID EFFECT ===');
-        console.log('editingProject:', editingProject);
+       
         
         if (editingProject && editingProject.Client_id) {
-            console.log('Updating clientId from Client_id');
             setEditingProject({
                 ...editingProject,
                 clientId: editingProject.Client_id._id
