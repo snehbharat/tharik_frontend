@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import VehicleService from "../services/VehicleService";
 import ProjectServiceClient from "../services/ProjectServiceClient";
+import { getCompany } from "../services/CompanyService";
+import { employeeService } from "../services/EmployeeService";
 
 export const CompanyManagement = ({ isArabic }) => {
   const [activeTab, setActiveTab] = useState("profile");
@@ -27,8 +29,10 @@ export const CompanyManagement = ({ isArabic }) => {
   const [clients, setClients] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [projects, setProjects] = useState([]);
+  const [employees, setEmployees] = useState([]);
   const [viewClient, setViewClient] = useState(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [companyInfo, setCompanyInfo] = useState(null);
   const [clientCount, setClientCount] = useState({
     totalClient: 0,
     activeClient: 0,
@@ -114,6 +118,19 @@ export const CompanyManagement = ({ isArabic }) => {
       setLoading(false);
     }
   };
+  const fetchEmployees = async (page = 1) => {
+    try {
+      setLoading(true);
+      const res = await employeeService.getAllEmployees(page, pagination.limit);
+      setEmployees(res?.data || []);
+    } catch (err) {
+      console.error("Error fetching employees:", err.message);
+      setError("Failed to load employees");
+    } finally {
+      setLoading(false);
+    }
+  };
+  console.log("em", employees.pagination);
 
   const [newClient, setNewClient] = useState({
     nameEn: "",
@@ -129,15 +146,20 @@ export const CompanyManagement = ({ isArabic }) => {
     phone: "",
   });
 
-  const companyInfo = {
-    crNumber: "1010123456",
-    vatNumber: "300123456789003",
-    establishmentDate: "2018-03-15",
-    licenseExpiry: "2025-03-15",
-    employeeCount: 186,
-    vehicleCount: 47,
-    activeContracts: 24,
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getCompany();
+        setCompanyInfo(data);
+      } catch (error) {
+        console.error("Failed to load company info", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleAddClient = async () => {
     const payload = {
@@ -357,11 +379,20 @@ export const CompanyManagement = ({ isArabic }) => {
     input.click();
   };
 
+  const getRemainingDays = (expiryDate) => {
+    if (!expiryDate) return 0;
+    const today = new Date();
+    const expiry = new Date(expiryDate);
+    const diffTime = expiry - today;
+    return Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+  };
+
   useEffect(() => {
     fetchClients(1);
     fetchClientCount();
     fetchVehicles();
     fetchProjects();
+    fetchEmployees();
   }, []);
 
   if (loading) return <p>Loading clients...</p>;
@@ -441,7 +472,9 @@ export const CompanyManagement = ({ isArabic }) => {
                     <Building2 className="w-8 h-8 text-green-600" />
                     <div>
                       <h3 className="font-bold text-gray-900">
-                        {isArabic ? "أموجك المجمعة" : "AMOAGC Al-Majmaah"}
+                        {isArabic
+                          ? companyInfo?.companyNameAr
+                          : companyInfo?.companyNameEn}
                       </h3>
                       <p className="text-sm text-gray-600">
                         {isArabic
@@ -455,21 +488,23 @@ export const CompanyManagement = ({ isArabic }) => {
                       <FileText className="w-4 h-4 text-gray-500" />
                       <span>
                         {isArabic ? "رقم السجل التجاري:" : "CR Number:"}{" "}
-                        {companyInfo.crNumber}
+                        {companyInfo?.crNumber}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <FileText className="w-4 h-4 text-gray-500" />
                       <span>
                         {isArabic ? "الرقم الضريبي:" : "VAT Number:"}{" "}
-                        {companyInfo.vatNumber}
+                        {companyInfo?.vatNumber}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4 text-gray-500" />
                       <span>
                         {isArabic ? "تاريخ التأسيس:" : "Established:"}{" "}
-                        {companyInfo.establishmentDate}
+                        {companyInfo?.establishmentDate
+                          ? companyInfo?.establishmentDate.split("T")[0]
+                          : ""}
                       </span>
                     </div>
                   </div>
@@ -485,20 +520,20 @@ export const CompanyManagement = ({ isArabic }) => {
                         {isArabic ? "الموظفون:" : "Employees:"}
                       </span>
                       <span className="font-semibold">
-                        {companyInfo.employeeCount}
+                        {employees?.pagination?.total}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">
                         {isArabic ? "المركبات:" : "Vehicles:"}
                       </span>
-                      <span className="font-semibold">{vehicles.total}</span>
+                      <span className="font-semibold">{vehicles?.total}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">
                         {isArabic ? "العقود النشطة:" : "Active Contracts:"}
                       </span>
-                      <span className="font-semibold">{projects.total}</span>
+                      <span className="font-semibold">{projects?.total}</span>
                     </div>
                   </div>
                 </div>
@@ -509,15 +544,34 @@ export const CompanyManagement = ({ isArabic }) => {
                     {isArabic ? "تنبيهات الترخيص" : "License Alerts"}
                   </h4>
                   <div className="space-y-2">
+                    {/* License expiry date */}
                     <div className="text-sm text-yellow-700">
                       <span className="font-medium">
                         {isArabic ? "انتهاء الترخيص:" : "License Expiry:"}
                       </span>
                       <br />
-                      {companyInfo.licenseExpiry}
+                      {companyInfo?.licenseExpiry
+                        ? companyInfo.licenseExpiry.split("T")[0]
+                        : ""}
                     </div>
-                    <div className="text-xs text-yellow-600">
-                      {isArabic ? "90 يوم متبقي" : "90 days remaining"}
+
+                    {/* Days remaining */}
+                    <div
+                      className={`text-xs ${
+                        getRemainingDays(companyInfo?.licenseExpiry) <= 30
+                          ? "text-red-600 font-bold"
+                          : "text-yellow-600"
+                      }`}
+                    >
+                      {companyInfo?.licenseExpiry &&
+                        (() => {
+                          const days = getRemainingDays(
+                            companyInfo.licenseExpiry
+                          );
+                          return isArabic
+                            ? `${days} يوم متبقي`
+                            : `${days} days remaining`;
+                        })()}
                     </div>
                   </div>
                 </div>
