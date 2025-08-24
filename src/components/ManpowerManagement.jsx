@@ -53,27 +53,27 @@ export const ManpowerManagement = ({ isArabic }) => {
   const extractProjectsData = (response) => {
     // Handle different possible response structures
     if (!response) return [];
-    
+
     // If response.data is an array, return it directly
     if (Array.isArray(response.data)) {
       return response.data;
     }
-    
+
     // If response.data.projects exists, return it
     if (response.data?.projects && Array.isArray(response.data.projects)) {
       return response.data.projects;
     }
-    
+
     // If response.data.data exists, return it
     if (response.data?.data && Array.isArray(response.data.data)) {
       return response.data.data;
     }
-    
+
     // If response itself is an array, return it
     if (Array.isArray(response)) {
       return response;
     }
-    
+
     // Default to empty array if no valid structure found
     console.warn('Unexpected API response structure:', response);
     return [];
@@ -82,20 +82,20 @@ export const ManpowerManagement = ({ isArabic }) => {
   // Helper function to safely extract clients data from API response
   const extractClientsData = (response) => {
     if (!response) return [];
-    
+
     // Handle different possible response structures for clients
     if (Array.isArray(response.data)) {
       return response.data;
     }
-    
+
     if (response.data?.data && Array.isArray(response.data.data)) {
       return response.data.data;
     }
-    
+
     if (Array.isArray(response)) {
       return response;
     }
-    
+
     console.warn('Unexpected client API response structure:', response);
     return [];
   };
@@ -110,16 +110,16 @@ export const ManpowerManagement = ({ isArabic }) => {
           ProjectServiceClient.getAllProjects(1, 100),
           ClientService.getAllClients(1, 100),
         ]);
-       
-        
+
+
         const projectsData = extractProjectsData(projectResponse);
         const clientsData = extractClientsData(clientResponse);
-        
-       
-        
+
+
+
         setProjects(projectsData);
         setClients(clientsData);
-        
+
       } catch (err) {
         console.error("Error fetching initial data:", err);
         setError(isArabic ? "فشل في جلب البيانات" : "Failed to fetch data");
@@ -127,7 +127,7 @@ export const ManpowerManagement = ({ isArabic }) => {
         setLoading(false);
       }
     };
-    
+
     fetchData();
   }, [isArabic]);
 
@@ -140,22 +140,22 @@ export const ManpowerManagement = ({ isArabic }) => {
     setLoading(true);
     setError(null);
     try {
-      
+
       const [projectResponse, clientResponse] = await Promise.all([
         ProjectServiceClient.getAllProjects(1, 100),
         ClientService.getAllClients(1, 100),
       ]);
-      
-     
-      
+
+
+
       const projectsData = extractProjectsData(projectResponse);
       const clientsData = extractClientsData(clientResponse);
-      
 
-      
+
+
       setProjects(projectsData);
       setClients(clientsData);
-      
+
     } catch (err) {
       console.error("Error refreshing data:", err);
       setError(isArabic ? "فشل في تحديث البيانات" : "Failed to refresh data");
@@ -246,17 +246,17 @@ export const ManpowerManagement = ({ isArabic }) => {
   }, [projects, selectedProject]);
 
   // Handle adding a new project
-  const handleAddProject = async () => {
-    const validation = validateProject(newProject);
-    if (!validation.valid) {
-      // alert(validation.errors.join("\n"));
-      return;
-    }
-
-    setLoading(true);
+  // Handle adding a new project
+  const handleAddProject = async (result) => {
+    // The validation and API call is now handled in the modal
+    // We just need to refresh the data and close the modal
     try {
-      await ProjectServiceClient.createProject(newProject);
-      await refreshData(); // This will reload the data
+      setLoading(true);
+
+      // Refresh data to show the newly added project
+      await refreshData();
+
+      // Reset the form
       setNewProject({
         name: "",
         client: "",
@@ -273,13 +273,59 @@ export const ManpowerManagement = ({ isArabic }) => {
         riskLevel: "medium",
         profitMargin: 20,
       });
+
+      // Close the modal
       setShowAddProject(false);
+
+      // Show success message
       alert(isArabic ? "تم إضافة المشروع بنجاح!" : "Project added successfully!");
+
     } catch (err) {
-      console.error("Error adding project:", err);
-      setError(isArabic ? "فشل في إضافة المشروع" : "Failed to add project");
+      console.error("Error refreshing data after project creation:", err);
+      // Even if refresh fails, close the modal since the project was likely created
+      setShowAddProject(false);
+      setError(isArabic ? "تم إنشاء المشروع ولكن فشل في تحديث القائمة" : "Project created but failed to refresh list");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Updated handleSave in AddProjectModal component
+  const handleSave = async (e) => {
+    if (e) {
+      e.preventDefault();
+    }
+    setApiError("");
+
+    // Validate form
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Format data for API
+      const formattedData = formatProjectData(newProject);
+
+      // Call API
+      const result = await ProjectServiceClient.createProject(formattedData);
+
+      // Call parent's onSave function with the result and wait for it to complete
+      if (onSave) {
+        await onSave(result);
+      }
+
+      // Modal will be closed by the parent component after successful refresh
+
+    } catch (error) {
+      console.error("Error creating project:", error);
+      setApiError(
+        error.message ||
+        (isArabic ? "حدث خطأ أثناء حفظ المشروع" : "An error occurred while saving the project")
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -347,7 +393,7 @@ export const ManpowerManagement = ({ isArabic }) => {
         {error && (
           <div className="bg-red-100 text-red-800 p-4 rounded-lg border border-red-200">
             {error}
-            <button 
+            <button
               onClick={() => setError(null)}
               className="ml-2 text-red-600 hover:text-red-800 font-semibold"
             >
@@ -355,7 +401,7 @@ export const ManpowerManagement = ({ isArabic }) => {
             </button>
           </div>
         )}
-        
+
         {/* Header component */}
         <Header
           isArabic={isArabic}
@@ -363,7 +409,7 @@ export const ManpowerManagement = ({ isArabic }) => {
           onExport={() => { }}
           onAddProject={() => setShowAddProject(true)}
         />
-        
+
         {/* Navigation tabs */}
         <NavigationTabs
           activeView={activeView}
@@ -371,7 +417,7 @@ export const ManpowerManagement = ({ isArabic }) => {
           isArabic={isArabic}
           payrollSummary={payrollSummary}
         />
-        
+
         {/* Main content area */}
         <div className="p-6">
           {activeView === "dashboard" && (
@@ -417,7 +463,7 @@ export const ManpowerManagement = ({ isArabic }) => {
           )}
         </div>
       </div>
-      
+
       {/* Add project modal */}
       {showAddProject && (
         <AddProjectModal
