@@ -31,6 +31,7 @@ import {
   Zap,
   Settings,
 } from "lucide-react";
+import { getCompany, updateCompany } from "../services/CompanyService";
 
 export const ZATCAInvoicingSystem = ({ isArabic }) => {
   const [activeTab, setActiveTab] = useState("invoices");
@@ -40,25 +41,54 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [showPreview, setShowPreview] = useState(false);
+  const [sellerInfo, setSellerInfo] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   // Default seller information
-  const [sellerInfo, setSellerInfo] = useState({
-    companyNameEn: "AMOAGC Al-Majmaah",
-    companyNameAr: "أموجك المجمعة",
-    vatNumber: "300123456789003", // 15-digit TIN
-    crNumber: "1010123456",
-    addressEn: "King Abdulaziz Road, Al-Majmaah 11952, Saudi Arabia",
-    addressAr: "شارع الملك عبدالعزيز، المجمعة 11952، المملكة العربية السعودية",
-    city: "Al-Majmaah",
-    postalCode: "11952",
-    country: "Saudi Arabia",
-    phone: "+966 11 234 5678",
-    email: "info@amoagc.sa",
-    website: "www.amoagc.sa",
-    iban: "SA1234567890123456789012",
-    bankName: "National Commercial Bank",
-    swiftCode: "NCBKSARI",
-  });
+  // const [sellerInfo, setSellerInfo] = useState({
+  //   companyNameEn: "AMOAGC Al-Majmaah",
+  //   companyNameAr: "أموجك المجمعة",
+  //   vatNumber: "300123456789003", // 15-digit TIN
+  //   crNumber: "1010123456",
+  //   addressEn: "King Abdulaziz Road, Al-Majmaah 11952, Saudi Arabia",
+  //   addressAr: "شارع الملك عبدالعزيز، المجمعة 11952، المملكة العربية السعودية",
+  //   city: "Al-Majmaah",
+  //   postalCode: "11952",
+  //   country: "Saudi Arabia",
+  //   phone: "+966 11 234 5678",
+  //   email: "info@amoagc.sa",
+  //   website: "www.amoagc.sa",
+  //   iban: "SA1234567890123456789012",
+  //   bankName: "National Commercial Bank",
+  //   swiftCode: "NCBKSARI",
+  // });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getCompany();
+        setSellerInfo(data);
+      } catch (error) {
+        console.error("Failed to load company info", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleSaveComapnyDetails = async () => {
+    try {
+      await updateCompany(sellerInfo);
+      alert(
+        isArabic ? "تم حفظ الإعدادات بنجاح" : "Settings saved successfully"
+      );
+    } catch (error) {
+      console.error("Failed to save company info", error);
+      alert(isArabic ? "فشل حفظ الإعدادات" : "Failed to save settings");
+    }
+  };
 
   // New invoice form state
   const [newInvoice, setNewInvoice] = useState({
@@ -145,7 +175,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
         status: "Issued",
         qrCodeData: generateQRCodeData(
           "INV-2024-00001",
-          sellerInfo.vatNumber,
+          sellerInfo?.vatNumber,
           17250,
           2250
         ),
@@ -164,7 +194,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
   function generateQRCodeData(invoiceNumber, vatNumber, total, vatAmount) {
     // ZATCA QR Code format (Base64-encoded TLV)
     const qrData = {
-      sellerName: sellerInfo.companyNameAr,
+      sellerName: sellerInfo?.companyNameAr,
       vatNumber: vatNumber,
       timestamp: new Date().toISOString(),
       totalAmount: total.toFixed(2),
@@ -184,7 +214,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
   function generateZATCAHash(invoiceNumber, total) {
     // Simplified hash generation (in production, use proper ECDSA signing)
     const hashData = `${invoiceNumber}-${total}-${new Date().toISOString()}-${
-      sellerInfo.vatNumber
+      sellerInfo?.vatNumber
     }`;
     return btoa(hashData).substring(0, 64).toUpperCase();
   }
@@ -192,7 +222,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
   function generateDigitalSignature(invoiceNumber) {
     // Simplified digital signature (in production, use PKI-based signing)
     const signatureData = `${invoiceNumber}-${
-      sellerInfo.crNumber
+      sellerInfo?.crNumber
     }-${new Date().getTime()}`;
     return btoa(signatureData).substring(0, 128).toUpperCase();
   }
@@ -224,7 +254,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
     const errors = [];
 
     // Validate seller information
-    if (!sellerInfo.vatNumber || sellerInfo.vatNumber.length !== 15) {
+    if (!sellerInfo?.vatNumber || sellerInfo?.vatNumber?.length !== 15) {
       errors.push(
         isArabic
           ? "رقم ضريبة القيمة المضافة يجب أن يكون 15 رقم"
@@ -278,7 +308,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
       seller: sellerInfo,
       qrCodeData: generateQRCodeData(
         invoiceNumber,
-        sellerInfo.vatNumber,
+        sellerInfo?.vatNumber,
         newInvoice.totalIncludingVat || 0,
         newInvoice.totalVatAmount || 0
       ),
@@ -904,7 +934,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                   </label>
                   <input
                     type="text"
-                    value={sellerInfo.companyNameEn}
+                    value={sellerInfo?.companyNameEn}
                     onChange={(e) =>
                       setSellerInfo({
                         ...sellerInfo,
@@ -920,7 +950,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                   </label>
                   <input
                     type="text"
-                    value={sellerInfo.companyNameAr}
+                    value={sellerInfo?.companyNameAr}
                     onChange={(e) =>
                       setSellerInfo({
                         ...sellerInfo,
@@ -938,7 +968,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                   </label>
                   <input
                     type="text"
-                    value={sellerInfo.vatNumber}
+                    value={sellerInfo?.vatNumber}
                     onChange={(e) =>
                       setSellerInfo({
                         ...sellerInfo,
@@ -955,9 +985,50 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                   </label>
                   <input
                     type="text"
-                    value={sellerInfo.crNumber}
+                    value={sellerInfo?.crNumber}
                     onChange={(e) =>
                       setSellerInfo({ ...sellerInfo, crNumber: e.target.value })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "تاريخ التأسيس" : "Establishment Date"}
+                  </label>
+                  <input
+                    type="date"
+                    value={
+                      sellerInfo?.establishmentDate
+                        ? sellerInfo.establishmentDate.split("T")[0]
+                        : ""
+                    }
+                    onChange={(e) =>
+                      setSellerInfo({
+                        ...sellerInfo,
+                        establishmentDate: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "انتهاء صلاحية الترخيص" : "License Expiry"}
+                  </label>
+                  <input
+                    type="date"
+                    value={
+                      sellerInfo?.licenseExpiry
+                        ? sellerInfo.licenseExpiry.split("T")[0]
+                        : ""
+                    }
+                    onChange={(e) =>
+                      setSellerInfo({
+                        ...sellerInfo,
+                        licenseExpiry: e.target.value,
+                      })
                     }
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
                   />
@@ -970,7 +1041,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                     {isArabic ? "العنوان (إنجليزي)" : "Address (English)"}
                   </label>
                   <textarea
-                    value={sellerInfo.addressEn}
+                    value={sellerInfo?.addressEn}
                     onChange={(e) =>
                       setSellerInfo({
                         ...sellerInfo,
@@ -986,7 +1057,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                     {isArabic ? "العنوان (عربي)" : "Address (Arabic)"}
                   </label>
                   <textarea
-                    value={sellerInfo.addressAr}
+                    value={sellerInfo?.addressAr}
                     onChange={(e) =>
                       setSellerInfo({
                         ...sellerInfo,
@@ -1006,7 +1077,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                   </label>
                   <input
                     type="tel"
-                    value={sellerInfo.phone}
+                    value={sellerInfo?.phone}
                     onChange={(e) =>
                       setSellerInfo({ ...sellerInfo, phone: e.target.value })
                     }
@@ -1019,7 +1090,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                   </label>
                   <input
                     type="email"
-                    value={sellerInfo.email}
+                    value={sellerInfo?.email}
                     onChange={(e) =>
                       setSellerInfo({ ...sellerInfo, email: e.target.value })
                     }
@@ -1032,7 +1103,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                   </label>
                   <input
                     type="url"
-                    value={sellerInfo.website}
+                    value={sellerInfo?.website}
                     onChange={(e) =>
                       setSellerInfo({ ...sellerInfo, website: e.target.value })
                     }
@@ -1048,7 +1119,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                   </label>
                   <input
                     type="text"
-                    value={sellerInfo.iban}
+                    value={sellerInfo?.iban}
                     onChange={(e) =>
                       setSellerInfo({ ...sellerInfo, iban: e.target.value })
                     }
@@ -1061,7 +1132,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                   </label>
                   <input
                     type="text"
-                    value={sellerInfo.bankName}
+                    value={sellerInfo?.bankName}
                     onChange={(e) =>
                       setSellerInfo({ ...sellerInfo, bankName: e.target.value })
                     }
@@ -1074,7 +1145,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                   </label>
                   <input
                     type="text"
-                    value={sellerInfo.swiftCode}
+                    value={sellerInfo?.swiftCode}
                     onChange={(e) =>
                       setSellerInfo({
                         ...sellerInfo,
@@ -1087,7 +1158,10 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
               </div>
 
               <div className="flex justify-end">
-                <button className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                <button
+                  onClick={handleSaveComapnyDetails}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                >
                   <Save className="w-4 h-4" />
                   {isArabic ? "حفظ الإعدادات" : "Save Settings"}
                 </button>
