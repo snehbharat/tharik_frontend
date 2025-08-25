@@ -179,7 +179,7 @@ export const Dashboard = ({ isArabic, projects }) => {
         <MetricCard
           title={isArabic ? "المشاريع النشطة" : "Active Projects"}
           value={metrics.activeProjects}
-          subtitle={`${projects.length} ${isArabic ? "إجمالي" : "total"}`}
+          subtitle={`${projects?.length} ${isArabic ? "إجمالي" : "total"}`}
           icon={Building2}
           gradient="from-green-50 to-green-100"
           borderColor="border-green-200"
@@ -228,8 +228,8 @@ export const Dashboard = ({ isArabic, projects }) => {
             <option value="">
               {isArabic ? "جميع المشاريع" : "All Projects"}
             </option>
-            {projects.map((project) => (
-              <option key={project.id} value={project.id}>
+            {projects?.map((project) => (
+              <option key={project._id} value={project._id}>
                 {project.name}
               </option>
             ))}
@@ -238,17 +238,17 @@ export const Dashboard = ({ isArabic, projects }) => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {projects
-            .filter(
-              (project) => !selectedProject || project.id === selectedProject
+            ?.filter(
+              (project) => !selectedProject || project._id === selectedProject
             )
             .map((project) => (
               <ProjectInfo
-                key={project.id}
+                key={project._id}
                 project={project}
-                metrics={getProjectMetrics(project.id)}
+                metrics={getProjectMetrics(project._id)}
                 isArabic={isArabic}
                 onSelect={() => {
-                  setSelectedProject(project.id);
+                  setSelectedProject(project._id);
                 }}
               />
             ))}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -34,7 +34,7 @@ import { TaskManagement } from "./components/TaskManagement";
 import { UserAccessRoles } from "./components/UserAccessRoles";
 import { ZATCAInvoicingSystem } from "./components/ZATCAInvoicingSystem";
 import { HourlyRateManagement } from "./components/HourlyRateManagement";
-import EmployeeManagementHub from './components/hrms/EmployeeManagementHub.jsx';
+import EmployeeManagementHub from "./components/hrms/EmployeeManagementHub.jsx";
 import { NotificationDashboard } from "./components/notifications/NotificationDashboard";
 import { NotificationTester } from "./components/notifications/NotificationTester";
 import { PrivateEmployeeDashboard } from "./components/dashboard/PrivateEmployeeDashboard";
@@ -44,6 +44,8 @@ import { AttendanceTracking } from "./components/attendance/AttendanceTracking";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { useApiIntegration } from "./hooks/useApiIntegration";
 import PermissionsPage from "./components/PermissionPage";
+import ProjectServiceClient from "./services/ProjectServiceClient.js";
+import ClientService from "./services/ClientService.js";
 
 const AppContent = () => {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -52,6 +54,89 @@ const AppContent = () => {
   const [isArabic, setIsArabic] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const [projects, setProjects] = useState([]);
+  const [attendance, setAttendance] = useState([]);
+  const [clients, setClients] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  console.log(projects);
+
+  // Helper function to safely extract projects data from API response
+  const extractProjectsData = (response) => {
+    // Handle different possible response structures
+    if (!response) return [];
+
+    // If response.data is an array, return it directly
+    if (Array.isArray(response.data)) {
+      return response.data;
+    }
+
+    // If response.data.projects exists, return it
+    if (response.data?.projects && Array.isArray(response.data.projects)) {
+      return response.data.projects;
+    }
+
+    // If response.data.data exists, return it
+    if (response.data?.data && Array.isArray(response.data.data)) {
+      return response.data.data;
+    }
+
+    // If response itself is an array, return it
+    if (Array.isArray(response)) {
+      return response;
+    }
+
+    // Default to empty array if no valid structure found
+    console.warn("Unexpected API response structure:", response);
+    return [];
+  };
+
+  // Helper function to safely extract clients data from API response
+  const extractClientsData = (response) => {
+    if (!response) return [];
+
+    // Handle different possible response structures for clients
+    if (Array.isArray(response.data)) {
+      return response.data;
+    }
+
+    if (response.data?.data && Array.isArray(response.data.data)) {
+      return response.data.data;
+    }
+
+    if (Array.isArray(response)) {
+      return response;
+    }
+
+    console.warn("Unexpected client API response structure:", response);
+    return [];
+  };
+
+  // Fetch projects and clients on component mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [projectResponse, clientResponse] = await Promise.all([
+          ProjectServiceClient.getAllProjects(1, 100),
+          ClientService.getAllClients(1, 100),
+        ]);
+
+        const projectsData = extractProjectsData(projectResponse);
+        const clientsData = extractClientsData(clientResponse);
+        console.log("projectres:", projectsData);
+        setProjects(projectsData);
+        setClients(clientsData);
+      } catch (err) {
+        console.error("Error fetching initial data:", err);
+        setError(isArabic ? "فشل في جلب البيانات" : "Failed to fetch data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [isArabic]);
 
   if (isLoading) {
     return (
@@ -67,7 +152,6 @@ const AppContent = () => {
   }
 
   const renderActiveModule = () => {
-
     switch (activeModule) {
       case "dashboard":
         const isAdmin = user?.role.level >= 8 || user?.role.id === "admin";
@@ -81,7 +165,7 @@ const AppContent = () => {
         return isArabic ? (
           <EnhancedBilingualDashboard />
         ) : (
-          <Dashboard isArabic={isArabic} />
+          <Dashboard isArabic={isArabic} projects={projects} />
         );
       case "company":
         return <CompanyManagement isArabic={isArabic} />;
@@ -124,10 +208,9 @@ const AppContent = () => {
       case "attendance-tracking":
         return <AttendanceTracking isArabic={isArabic} />;
       case "permissions":
-        return <PermissionsPage isArabic={isArabic}/>;  
+        return <PermissionsPage isArabic={isArabic} />;
       default:
-       
-        return <Dashboard isArabic={isArabic} />;
+        return <Dashboard isArabic={isArabic} projects={projects} />;
     }
   };
 
