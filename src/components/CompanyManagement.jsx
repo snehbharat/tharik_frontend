@@ -108,7 +108,6 @@ export const CompanyManagement = ({ isArabic }) => {
         page,
         pagination.limit
       );
-      // console.log("projectRes", res);
 
       setProjects(res?.data || []);
     } catch (err) {
@@ -118,6 +117,7 @@ export const CompanyManagement = ({ isArabic }) => {
       setLoading(false);
     }
   };
+  console.log("projectRes", projects);
   const fetchEmployees = async (page = 1) => {
     try {
       setLoading(true);
@@ -130,7 +130,7 @@ export const CompanyManagement = ({ isArabic }) => {
       setLoading(false);
     }
   };
-  console.log("em", employees.pagination);
+  // console.log("em", employees.pagination);
 
   const [newClient, setNewClient] = useState({
     nameEn: "",

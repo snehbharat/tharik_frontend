@@ -28,10 +28,9 @@ import {
   formatPercentage,
 } from "../utils/financialCalculations";
 
-export const Dashboard = ({ isArabic }) => {
+export const Dashboard = ({ isArabic, projects }) => {
   const {
     employees,
-    projects,
     attendance,
     insights,
     getDashboardMetrics,
@@ -42,6 +41,7 @@ export const Dashboard = ({ isArabic }) => {
   const [selectedProject, setSelectedProject] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(new Date());
+  console.log(projects);
 
   const metrics = getDashboardMetrics();
   const [refreshing, setRefreshing] = useState(false);

@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useMemo } from "react";
 import ProjectServiceClient from "../services/ProjectServiceClient";
 import ClientService from "../services/ClientService";
-import { validateProject, formatCurrency, formatPercentage } from "../utils/financialCalculations";
+import {
+  validateProject,
+  formatCurrency,
+  formatPercentage,
+} from "../utils/financialCalculations";
 import { Header } from "./Header";
 import { NavigationTabs } from "./NavigationTabs";
 import { Dashboard } from "./Dashboard";
@@ -75,7 +79,7 @@ export const ManpowerManagement = ({ isArabic }) => {
     }
 
     // Default to empty array if no valid structure found
-    console.warn('Unexpected API response structure:', response);
+    console.warn("Unexpected API response structure:", response);
     return [];
   };
 
@@ -96,7 +100,7 @@ export const ManpowerManagement = ({ isArabic }) => {
       return response;
     }
 
-    console.warn('Unexpected client API response structure:', response);
+    console.warn("Unexpected client API response structure:", response);
     return [];
   };
 
@@ -111,15 +115,11 @@ export const ManpowerManagement = ({ isArabic }) => {
           ClientService.getAllClients(1, 100),
         ]);
 
-
         const projectsData = extractProjectsData(projectResponse);
         const clientsData = extractClientsData(clientResponse);
-
-
-
+        console.log("projectres:", projectsData);
         setProjects(projectsData);
         setClients(clientsData);
-
       } catch (err) {
         console.error("Error fetching initial data:", err);
         setError(isArabic ? "فشل في جلب البيانات" : "Failed to fetch data");
@@ -132,30 +132,23 @@ export const ManpowerManagement = ({ isArabic }) => {
   }, [isArabic]);
 
   // Log projects state for debugging
-  useEffect(() => {
-  }, [projects]);
+  useEffect(() => {}, [projects]);
 
   // Refresh data function to reload projects and clients
   const refreshData = async () => {
     setLoading(true);
     setError(null);
     try {
-
       const [projectResponse, clientResponse] = await Promise.all([
         ProjectServiceClient.getAllProjects(1, 100),
         ClientService.getAllClients(1, 100),
       ]);
 
-
-
       const projectsData = extractProjectsData(projectResponse);
       const clientsData = extractClientsData(clientResponse);
 
-
-
       setProjects(projectsData);
       setClients(clientsData);
-
     } catch (err) {
       console.error("Error refreshing data:", err);
       setError(isArabic ? "فشل في تحديث البيانات" : "Failed to refresh data");
@@ -167,42 +160,67 @@ export const ManpowerManagement = ({ isArabic }) => {
   // Filter clients based on search query
   const filteredClients = useMemo(() => {
     if (!clientSearchQuery) return clients;
-    return clients.filter((client) =>
-      (client.client_name_eng || "").toLowerCase().includes(clientSearchQuery.toLowerCase()) ||
-      (client.client_name_arb || "").toLowerCase().includes(clientSearchQuery.toLowerCase())
+    return clients.filter(
+      (client) =>
+        (client.client_name_eng || "")
+          .toLowerCase()
+          .includes(clientSearchQuery.toLowerCase()) ||
+        (client.client_name_arb || "")
+          .toLowerCase()
+          .includes(clientSearchQuery.toLowerCase())
     );
   }, [clients, clientSearchQuery]);
 
   // Add attendance record (mock implementation)
   const addAttendanceRecord = async (record) => {
-    setAttendance((prev) => [...prev, { ...record, id: Math.random().toString(36).substr(2, 9) }]);
+    setAttendance((prev) => [
+      ...prev,
+      { ...record, id: Math.random().toString(36).substr(2, 9) },
+    ]);
   };
 
   // Calculate dashboard metrics
   const dashboardMetrics = useMemo(() => {
-    const validProjects = Array.isArray(projects) ? projects.filter(p => p && typeof p === 'object') : [];
+    const validProjects = Array.isArray(projects)
+      ? projects.filter((p) => p && typeof p === "object")
+      : [];
     return {
-      activeProjects: validProjects.filter((p) => p.status?.toLowerCase() === "active").length,
-      crossProjectRevenue: validProjects.reduce((sum, p) => sum + (p.budget || 0), 0),
-      realTimeProfits: validProjects.reduce((sum, p) => sum + ((p.budget || 0) * (p.profitMargin || 0) / 100), 0),
+      activeProjects: validProjects.filter(
+        (p) => p.status?.toLowerCase() === "active"
+      ).length,
+      crossProjectRevenue: validProjects.reduce(
+        (sum, p) => sum + (p.budget || 0),
+        0
+      ),
+      realTimeProfits: validProjects.reduce(
+        (sum, p) => sum + ((p.budget || 0) * (p.profitMargin || 0)) / 100,
+        0
+      ),
       averageProfitMargin: validProjects.length
-        ? validProjects.reduce((sum, p) => sum + (p.profitMargin || 0), 0) / validProjects.length
+        ? validProjects.reduce((sum, p) => sum + (p.profitMargin || 0), 0) /
+          validProjects.length
         : 0,
       aggregateHours: Array.isArray(attendance)
         ? attendance.reduce((sum, a) => sum + (a?.hoursWorked || 0), 0)
         : 0,
-      productivityIndex: Array.isArray(attendance) && validProjects.length
-        ? attendance.reduce((sum, a) => sum + (a?.hoursWorked || 0), 0) / validProjects.length
-        : 0,
+      productivityIndex:
+        Array.isArray(attendance) && validProjects.length
+          ? attendance.reduce((sum, a) => sum + (a?.hoursWorked || 0), 0) /
+            validProjects.length
+          : 0,
       utilizationRate: validProjects.length
-        ? (Array.isArray(attendance) ? attendance.length / validProjects.length : 0) * 100
+        ? (Array.isArray(attendance)
+            ? attendance.length / validProjects.length
+            : 0) * 100
         : 0,
     };
   }, [projects, attendance]);
 
   // Calculate payroll summary
   const payrollSummary = useMemo(() => {
-    const validProjects = Array.isArray(projects) ? projects.filter(p => p && typeof p === 'object') : [];
+    const validProjects = Array.isArray(projects)
+      ? projects.filter((p) => p && typeof p === "object")
+      : [];
     return {
       projectCount: validProjects.length,
       totalBudget: validProjects.reduce((sum, p) => sum + (p?.budget || 0), 0),
@@ -211,26 +229,33 @@ export const ManpowerManagement = ({ isArabic }) => {
 
   // Generate workforce analytics
   const workforceAnalytics = useMemo(() => {
-    const validProjects = Array.isArray(projects) ? projects.filter(p => p && typeof p === 'object') : [];
+    const validProjects = Array.isArray(projects)
+      ? projects.filter((p) => p && typeof p === "object")
+      : [];
     return {
       profitTrends: validProjects.map((p) => ({
         date: p.startDate,
-        profit: (p.budget || 0) * (p.profitMargin || 0) / 100,
+        profit: ((p.budget || 0) * (p.profitMargin || 0)) / 100,
       })),
     };
   }, [projects]);
 
   // Generate actionable insights
-  const actionableInsights = useMemo(() => [
-    {
-      id: "1",
-      title: isArabic ? "تحسين تخصيص المشاريع" : "Optimize Project Allocation",
-      description: isArabic
-        ? "إعادة تخصيص الموارد لتحسين هامش الربح بنسبة 15%"
-        : "Reallocate resources to improve profit margin by 15%",
-      priority: "high",
-    },
-  ], [isArabic]);
+  const actionableInsights = useMemo(
+    () => [
+      {
+        id: "1",
+        title: isArabic
+          ? "تحسين تخصيص المشاريع"
+          : "Optimize Project Allocation",
+        description: isArabic
+          ? "إعادة تخصيص الموارد لتحسين هامش الربح بنسبة 15%"
+          : "Reallocate resources to improve profit margin by 15%",
+        priority: "high",
+      },
+    ],
+    [isArabic]
+  );
 
   // Filter attendance based on selected project
   const projectAttendance = useMemo(() => {
@@ -241,8 +266,14 @@ export const ManpowerManagement = ({ isArabic }) => {
   // Get selected project data
   const selectedProjectData = useMemo(() => {
     if (selectedProject === "all") return null;
-    const validProjects = Array.isArray(projects) ? projects.filter(p => p && typeof p === 'object') : [];
-    return validProjects.find((p) => p.id === selectedProject || p._id === selectedProject) || null;
+    const validProjects = Array.isArray(projects)
+      ? projects.filter((p) => p && typeof p === "object")
+      : [];
+    return (
+      validProjects.find(
+        (p) => p.id === selectedProject || p._id === selectedProject
+      ) || null
+    );
   }, [projects, selectedProject]);
 
   // Handle adding a new project
@@ -278,13 +309,18 @@ export const ManpowerManagement = ({ isArabic }) => {
       setShowAddProject(false);
 
       // Show success message
-      alert(isArabic ? "تم إضافة المشروع بنجاح!" : "Project added successfully!");
-
+      alert(
+        isArabic ? "تم إضافة المشروع بنجاح!" : "Project added successfully!"
+      );
     } catch (err) {
       console.error("Error refreshing data after project creation:", err);
       // Even if refresh fails, close the modal since the project was likely created
       setShowAddProject(false);
-      setError(isArabic ? "تم إنشاء المشروع ولكن فشل في تحديث القائمة" : "Project created but failed to refresh list");
+      setError(
+        isArabic
+          ? "تم إنشاء المشروع ولكن فشل في تحديث القائمة"
+          : "Project created but failed to refresh list"
+      );
     } finally {
       setLoading(false);
     }
@@ -317,12 +353,13 @@ export const ManpowerManagement = ({ isArabic }) => {
       }
 
       // Modal will be closed by the parent component after successful refresh
-
     } catch (error) {
       console.error("Error creating project:", error);
       setApiError(
         error.message ||
-        (isArabic ? "حدث خطأ أثناء حفظ المشروع" : "An error occurred while saving the project")
+          (isArabic
+            ? "حدث خطأ أثناء حفظ المشروع"
+            : "An error occurred while saving the project")
       );
     } finally {
       setIsSubmitting(false);
@@ -349,7 +386,9 @@ export const ManpowerManagement = ({ isArabic }) => {
       hoursWorked: 8,
       notes: "",
     });
-    alert(isArabic ? "تم تسجيل الحضور بنجاح!" : "Attendance recorded successfully!");
+    alert(
+      isArabic ? "تم تسجيل الحضور بنجاح!" : "Attendance recorded successfully!"
+    );
   };
 
   // Handle project actions (view, edit, delete)
@@ -360,7 +399,13 @@ export const ManpowerManagement = ({ isArabic }) => {
       case "edit":
         break;
       case "delete":
-        if (window.confirm(isArabic ? "هل تريد حذف هذا المشروع؟" : "Are you sure you want to delete this project?")) {
+        if (
+          window.confirm(
+            isArabic
+              ? "هل تريد حذف هذا المشروع؟"
+              : "Are you sure you want to delete this project?"
+          )
+        ) {
           // Add actual delete logic here
           refreshData(); // Refresh after delete
         }
@@ -406,7 +451,7 @@ export const ManpowerManagement = ({ isArabic }) => {
         <Header
           isArabic={isArabic}
           onRefresh={refreshData}
-          onExport={() => { }}
+          onExport={() => {}}
           onAddProject={() => setShowAddProject(true)}
         />
 
@@ -456,7 +501,11 @@ export const ManpowerManagement = ({ isArabic }) => {
             />
           )}
           {activeView === "analytics" && (
-            <Analytics projects={projects} isArabic={isArabic} loading={loading} />
+            <Analytics
+              projects={projects}
+              isArabic={isArabic}
+              loading={loading}
+            />
           )}
           {activeView === "reports" && (
             <Reports dashboardMetrics={dashboardMetrics} isArabic={isArabic} />
