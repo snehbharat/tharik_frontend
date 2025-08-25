@@ -19,6 +19,7 @@ export const ProjectInfo = ({
   metrics,
   isArabic = false,
   onSelect,
+  key,
 }) => {
   const getStatusColor = (status) => {
     switch (status) {
@@ -61,6 +62,7 @@ export const ProjectInfo = ({
         onSelect ? "cursor-pointer hover:border-green-300" : ""
       }`}
       onClick={onSelect}
+      key={key}
     >
       {/* Project Header */}
       <div className="flex items-start justify-between mb-4">
@@ -69,7 +71,7 @@ export const ProjectInfo = ({
             {project.name}
           </h3>
           <p className="text-sm text-gray-600 mb-2 font-medium">
-            {project.client}
+            {project.client_name}
           </p>
           <div className="flex items-center gap-4 text-sm text-gray-500">
             <div className="flex items-center gap-1">

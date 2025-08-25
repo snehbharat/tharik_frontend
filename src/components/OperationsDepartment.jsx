@@ -42,8 +42,7 @@ export const OperationsDepartment = ({ isArabic }) => {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [selectedProject, setSelectedProject] = useState("all");
   const [selectedDateRange, setSelectedDateRange] = useState("week");
-  const [connectionStatus, setConnectionStatus] =
-    (useState < "online") | ("offline" > "online");
+  const [connectionStatus, setConnectionStatus] = "online";
   const [lastSync, setLastSync] = useState(new Date());
 
   const [newSchedule, setNewSchedule] = useState({
