@@ -32,6 +32,8 @@ import {
   Settings,
 } from "lucide-react";
 import { getCompany, updateCompany } from "../services/CompanyService";
+import InvoiceService from "../services/InvoiceService";
+import { QRCodeCanvas } from "qrcode.react";
 
 export const ZATCAInvoicingSystem = ({ isArabic }) => {
   const [activeTab, setActiveTab] = useState("invoices");
@@ -42,7 +44,14 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [showPreview, setShowPreview] = useState(false);
   const [sellerInfo, setSellerInfo] = useState(null);
+  const [editingInvoice, setEditingInvoice] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [pagination, setPagination] = useState({
+    total: 0,
+    page: 1,
+    limit: 10,
+    totalPages: 1,
+  });
 
   // Default seller information
   // const [sellerInfo, setSellerInfo] = useState({
@@ -89,15 +98,25 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
       alert(isArabic ? "فشل حفظ الإعدادات" : "Failed to save settings");
     }
   };
+  console.log("sellerinfo", sellerInfo);
 
   // New invoice form state
   const [newInvoice, setNewInvoice] = useState({
+    invoiceNumber: "",
     invoiceType: "Standard",
     currency: "SAR",
+    issueDate: new Date().toISOString().split("T")[0],
+    issueDateGregorian: "",
+    issueTimeGregorian: "",
+    issueDateHijri: "",
+    dueDate: "",
+    status: "Draft",
     paymentTerms: "Net 30 days",
+    subtotalExcludingVat: 0,
+    totalVatAmount: 0,
+    subtotalIncludingVat: 0,
     items: [
       {
-        id: "1",
         descriptionEn: "",
         descriptionAr: "",
         quantity: 1,
@@ -124,71 +143,96 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
       contactPerson: "",
     },
   });
-
   // Sample invoices for demonstration
+  // useEffect(() => {
+  //   const sampleInvoices = [
+  //     {
+  //       id: "1",
+  //       invoiceNumber: "INV-2024-00001",
+  //       invoiceType: "Standard",
+  //       issueDateGregorian: "2024-12-15",
+  //       issueTimeGregorian: "14:30:00",
+  //       issueDateHijri: "13 جمادى الآخرة 1446",
+  //       seller: sellerInfo,
+  //       buyer: {
+  //         type: "B2B",
+  //         nameEn: "Saudi Aramco",
+  //         nameAr: "أرامكو السعودية",
+  //         vatNumber: "311279658100003",
+  //         addressEn: "Dhahran Industrial Complex, Dhahran 31311",
+  //         addressAr: "مجمع الظهران الصناعي، الظهران 31311",
+  //         city: "Dhahran",
+  //         postalCode: "31311",
+  //         country: "Saudi Arabia",
+  //         phone: "+966 13 876 5432",
+  //         email: "procurement@aramco.com",
+  //         contactPerson: "Ahmed Al-Mansouri",
+  //       },
+  //       items: [
+  //         {
+  //           id: "1",
+  //           descriptionEn: "Heavy Equipment Maintenance Services",
+  //           descriptionAr: "خدمات صيانة المعدات الثقيلة",
+  //           quantity: 1,
+  //           unitPrice: 15000,
+  //           discount: 0,
+  //           vatRate: 15,
+  //           vatAmount: 2250,
+  //           totalExcludingVat: 15000,
+  //           totalIncludingVat: 17250,
+  //           category: "Service",
+  //         },
+  //       ],
+  //       subtotalExcludingVat: 15000,
+  //       totalVatAmount: 2250,
+  //       totalIncludingVat: 17250,
+  //       currency: "SAR",
+  //       paymentTerms: "Net 30 days",
+  //       notes: "Payment due within 30 days of invoice date.",
+  //       notesAr: "الدفع مستحق خلال 30 يوماً من تاريخ الفاتورة.",
+  //       status: "Issued",
+  //       qrCodeData: generateQRCodeData(
+  //         "INV-2024-00001",
+  //         sellerInfo?.vatNumber,
+  //         17250,
+  //         2250
+  //       ),
+  //       zatcaHash: generateZATCAHash("INV-2024-00001", 17250),
+  //       digitalSignature: generateDigitalSignature("INV-2024-00001"),
+  //       createdBy: "Finance Manager",
+  //       createdAt: "2024-12-15T14:30:00Z",
+  //       submittedToZATCA: true,
+  //       zatcaSubmissionId: "ZATCA-2024-001",
+  //     },
+  //   ];
+  //   setInvoices(sampleInvoices);
+  // }, []);
+
+  const fetchInvoices = async () => {
+    try {
+      setLoading(true);
+      const data = await InvoiceService.getAllInvoices(1, 10);
+      console.log("invoice res:", data);
+
+      setInvoices(data.data.data);
+      setPagination({
+        total: data?.data?.total || 0,
+        page: data?.data?.page || 1,
+        limit: data?.data?.limit || 10,
+        totalPages: data?.data?.totalPages || 1,
+      });
+    } catch (error) {
+      console.error("Failed to load invoices", error);
+      alert(isArabic ? "فشل تحميل الفواتير" : "Failed to load invoices");
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
-    const sampleInvoices = [
-      {
-        id: "1",
-        invoiceNumber: "INV-2024-00001",
-        invoiceType: "Standard",
-        issueDateGregorian: "2024-12-15",
-        issueTimeGregorian: "14:30:00",
-        issueDateHijri: "13 جمادى الآخرة 1446",
-        seller: sellerInfo,
-        buyer: {
-          type: "B2B",
-          nameEn: "Saudi Aramco",
-          nameAr: "أرامكو السعودية",
-          vatNumber: "311279658100003",
-          addressEn: "Dhahran Industrial Complex, Dhahran 31311",
-          addressAr: "مجمع الظهران الصناعي، الظهران 31311",
-          city: "Dhahran",
-          postalCode: "31311",
-          country: "Saudi Arabia",
-          phone: "+966 13 876 5432",
-          email: "procurement@aramco.com",
-          contactPerson: "Ahmed Al-Mansouri",
-        },
-        items: [
-          {
-            id: "1",
-            descriptionEn: "Heavy Equipment Maintenance Services",
-            descriptionAr: "خدمات صيانة المعدات الثقيلة",
-            quantity: 1,
-            unitPrice: 15000,
-            discount: 0,
-            vatRate: 15,
-            vatAmount: 2250,
-            totalExcludingVat: 15000,
-            totalIncludingVat: 17250,
-            category: "Service",
-          },
-        ],
-        subtotalExcludingVat: 15000,
-        totalVatAmount: 2250,
-        totalIncludingVat: 17250,
-        currency: "SAR",
-        paymentTerms: "Net 30 days",
-        notes: "Payment due within 30 days of invoice date.",
-        notesAr: "الدفع مستحق خلال 30 يوماً من تاريخ الفاتورة.",
-        status: "Issued",
-        qrCodeData: generateQRCodeData(
-          "INV-2024-00001",
-          sellerInfo?.vatNumber,
-          17250,
-          2250
-        ),
-        zatcaHash: generateZATCAHash("INV-2024-00001", 17250),
-        digitalSignature: generateDigitalSignature("INV-2024-00001"),
-        createdBy: "Finance Manager",
-        createdAt: "2024-12-15T14:30:00Z",
-        submittedToZATCA: true,
-        zatcaSubmissionId: "ZATCA-2024-001",
-      },
-    ];
-    setInvoices(sampleInvoices);
+    fetchInvoices();
   }, []);
+
+  console.log("invoices", invoices);
 
   // Helper functions for ZATCA compliance
   function generateQRCodeData(invoiceNumber, vatNumber, total, vatAmount) {
@@ -227,28 +271,28 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
     return btoa(signatureData).substring(0, 128).toUpperCase();
   }
 
-  function convertToHijri(gregorianDate) {
-    // Simplified Hijri conversion (in production, use proper Hijri calendar library)
-    const months = [
-      "محرم",
-      "صفر",
-      "ربيع الأول",
-      "ربيع الآخر",
-      "جمادى الأولى",
-      "جمادى الآخرة",
-      "رجب",
-      "شعبان",
-      "رمضان",
-      "شوال",
-      "ذو القعدة",
-      "ذو الحجة",
-    ];
-    const date = new Date(gregorianDate);
-    const hijriYear = date.getFullYear() - 579; // Approximate conversion
-    const hijriMonth = months[date.getMonth()];
-    const hijriDay = date.getDate();
-    return `${hijriDay} ${hijriMonth} ${hijriYear}`;
-  }
+  // function convertToHijri(gregorianDate) {
+  //   // Simplified Hijri conversion (in production, use proper Hijri calendar library)
+  //   const months = [
+  //     "محرم",
+  //     "صفر",
+  //     "ربيع الأول",
+  //     "ربيع الآخر",
+  //     "جمادى الأولى",
+  //     "جمادى الآخرة",
+  //     "رجب",
+  //     "شعبان",
+  //     "رمضان",
+  //     "شوال",
+  //     "ذو القعدة",
+  //     "ذو الحجة",
+  //   ];
+  //   const date = new Date(gregorianDate);
+  //   const hijriYear = date.getFullYear() - 579; // Approximate conversion
+  //   const hijriMonth = months[date.getMonth()];
+  //   const hijriDay = date.getDate();
+  //   return `${hijriDay} ${hijriMonth} ${hijriYear}`;
+  // }
 
   function validateInvoice(invoice) {
     const errors = [];
@@ -263,7 +307,10 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
     }
 
     // Validate buyer information for B2B
-    if (invoice.buyer?.type === "B2B" && !invoice.buyer.vatNumber) {
+    if (
+      invoice.buyer?.type === "B2B - Business to Business" &&
+      !invoice.buyer.vatNumber
+    ) {
       errors.push(
         isArabic
           ? "رقم ضريبة القيمة المضافة للعميل مطلوب للمعاملات التجارية"
@@ -283,62 +330,95 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
     return errors;
   }
 
-  const handleCreateInvoice = () => {
+  // const handleCreateInvoice = () => {
+  //   const errors = validateInvoice(newInvoice);
+  //   if (errors.length > 0) {
+  //     alert(errors.join("\n"));
+  //     return;
+  //   }
+
+  //   const invoiceNumber = `INV-${new Date().getFullYear()}-${String(
+  //     invoices.length + 1
+  //   ).padStart(5, "0")}`;
+  //   const now = new Date();
+  //   const gregorianDate = now.toISOString().split("T")[0];
+  //   const gregorianTime = now.toTimeString().split(" ")[0];
+  //   const hijriDate = convertToHijri(gregorianDate);
+
+  //   const invoice = {
+  //     ...newInvoice,
+  //     id: String(invoices.length + 1),
+  //     invoiceNumber,
+  //     issueDateGregorian: gregorianDate,
+  //     issueTimeGregorian: gregorianTime,
+  //     issueDateHijri: hijriDate,
+  //     seller: sellerInfo,
+  //     qrCodeData: generateQRCodeData(
+  //       invoiceNumber,
+  //       sellerInfo?.vatNumber,
+  //       newInvoice.totalIncludingVat || 0,
+  //       newInvoice.totalVatAmount || 0
+  //     ),
+  //     zatcaHash: generateZATCAHash(
+  //       invoiceNumber,
+  //       newInvoice.totalIncludingVat || 0
+  //     ),
+  //     digitalSignature: generateDigitalSignature(invoiceNumber),
+  //     createdBy: "Current User",
+  //     createdAt: now.toISOString(),
+  //     submittedToZATCA: false,
+  //     status: "Draft",
+  //   };
+
+  //   setInvoices([...invoices, invoice]);
+  //   setShowCreateModal(false);
+  //   resetNewInvoice();
+  //   alert(
+  //     isArabic ? "تم إنشاء الفاتورة بنجاح!" : "Invoice created successfully!"
+  //   );
+  // };
+
+  const handleCreateInvoice = async () => {
     const errors = validateInvoice(newInvoice);
     if (errors.length > 0) {
       alert(errors.join("\n"));
       return;
     }
 
-    const invoiceNumber = `INV-${new Date().getFullYear()}-${String(
-      invoices.length + 1
-    ).padStart(5, "0")}`;
-    const now = new Date();
-    const gregorianDate = now.toISOString().split("T")[0];
-    const gregorianTime = now.toTimeString().split(" ")[0];
-    const hijriDate = convertToHijri(gregorianDate);
+    try {
+      const createdInvoice = await InvoiceService.createInvoice({
+        ...newInvoice,
+        seller: sellerInfo?._id,
+      });
 
-    const invoice = {
-      ...newInvoice,
-      id: String(invoices.length + 1),
-      invoiceNumber,
-      issueDateGregorian: gregorianDate,
-      issueTimeGregorian: gregorianTime,
-      issueDateHijri: hijriDate,
-      seller: sellerInfo,
-      qrCodeData: generateQRCodeData(
-        invoiceNumber,
-        sellerInfo?.vatNumber,
-        newInvoice.totalIncludingVat || 0,
-        newInvoice.totalVatAmount || 0
-      ),
-      zatcaHash: generateZATCAHash(
-        invoiceNumber,
-        newInvoice.totalIncludingVat || 0
-      ),
-      digitalSignature: generateDigitalSignature(invoiceNumber),
-      createdBy: "Current User",
-      createdAt: now.toISOString(),
-      submittedToZATCA: false,
-      status: "Draft",
-    };
-
-    setInvoices([...invoices, invoice]);
-    setShowCreateModal(false);
-    resetNewInvoice();
-    alert(
-      isArabic ? "تم إنشاء الفاتورة بنجاح!" : "Invoice created successfully!"
-    );
+      // setInvoices((prev) => [...prev, createdInvoice.invoiceDetails]);
+      fetchInvoices();
+      setShowCreateModal(false);
+      resetNewInvoice();
+      alert(
+        isArabic ? "تم إنشاء الفاتورة بنجاح!" : "Invoice created successfully!"
+      );
+    } catch (error) {
+      console.error("Create invoice error:", error);
+      alert(isArabic ? "فشل إنشاء الفاتورة" : "Failed to create invoice");
+    }
   };
 
   const resetNewInvoice = () => {
     setNewInvoice({
+      invoiceNumber: "",
       invoiceType: "Standard",
       currency: "SAR",
+      issueDate: new Date().toISOString().split("T")[0],
+      issueDateGregorian: "",
+      issueTimeGregorian: "",
+      issueDateHijri: "",
+      status: "Draft",
+      dueDate: "",
       paymentTerms: "Net 30 days",
+      totalAmount: 0,
       items: [
         {
-          id: "1",
           descriptionEn: "",
           descriptionAr: "",
           quantity: 1,
@@ -367,6 +447,17 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
     });
   };
 
+  const convertToHijri = (gregorianDate) => {
+    if (!gregorianDate) return "";
+    const date = new Date(gregorianDate);
+    return new Intl.DateTimeFormat("ar-SA", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+      calendar: "islamic",
+    }).format(date);
+  };
+
   const calculateItemTotals = (item) => {
     const subtotal = item.quantity * item.unitPrice;
     const discountAmount = subtotal * (item.discount / 100);
@@ -382,6 +473,17 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
     };
   };
 
+  const recalcInvoiceTotals = (items) => {
+    const subtotalExcludingVat = items.reduce(
+      (sum, item) => sum + item.totalExcludingVat,
+      0
+    );
+    const totalVatAmount = items.reduce((sum, item) => sum + item.vatAmount, 0);
+    const subtotalIncludingVat = subtotalExcludingVat + totalVatAmount;
+
+    return { subtotalExcludingVat, totalVatAmount, subtotalIncludingVat };
+  };
+
   const updateItem = (index, field, value) => {
     if (!newInvoice.items) return;
 
@@ -389,30 +491,22 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
     updatedItems[index] = { ...updatedItems[index], [field]: value };
     updatedItems[index] = calculateItemTotals(updatedItems[index]);
 
-    const subtotalExcludingVat = updatedItems.reduce(
-      (sum, item) => sum + item.totalExcludingVat,
-      0
-    );
-    const totalVatAmount = updatedItems.reduce(
-      (sum, item) => sum + item.vatAmount,
-      0
-    );
-    const totalIncludingVat = subtotalExcludingVat + totalVatAmount;
+    const { subtotalExcludingVat, totalVatAmount, subtotalIncludingVat } =
+      recalcInvoiceTotals(updatedItems);
 
     setNewInvoice({
       ...newInvoice,
       items: updatedItems,
       subtotalExcludingVat,
       totalVatAmount,
-      totalIncludingVat,
+      subtotalIncludingVat,
     });
   };
 
   const addItem = () => {
     if (!newInvoice.items) return;
 
-    const newItem = {
-      id: String(newInvoice.items.length + 1),
+    const newItem = calculateItemTotals({
       descriptionEn: "",
       descriptionAr: "",
       quantity: 1,
@@ -423,35 +517,179 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
       totalExcludingVat: 0,
       totalIncludingVat: 0,
       category: "Service",
-    };
-
-    setNewInvoice({
-      ...newInvoice,
-      items: [...newInvoice.items, newItem],
     });
-  };
 
-  const removeItem = (index) => {
-    if (!newInvoice.items || newInvoice.items.length <= 1) return;
-
-    const updatedItems = newInvoice.items.filter((_, i) => i !== index);
-    const subtotalExcludingVat = updatedItems.reduce(
-      (sum, item) => sum + item.totalExcludingVat,
-      0
-    );
-    const totalVatAmount = updatedItems.reduce(
-      (sum, item) => sum + item.vatAmount,
-      0
-    );
-    const totalIncludingVat = subtotalExcludingVat + totalVatAmount;
+    const updatedItems = [...newInvoice.items, newItem];
+    const { subtotalExcludingVat, totalVatAmount, subtotalIncludingVat } =
+      recalcInvoiceTotals(updatedItems);
 
     setNewInvoice({
       ...newInvoice,
       items: updatedItems,
       subtotalExcludingVat,
       totalVatAmount,
-      totalIncludingVat,
+      subtotalIncludingVat,
     });
+  };
+
+  const removeItem = (index) => {
+    if (!newInvoice.items) return;
+
+    const updatedItems = newInvoice.items.filter((_, i) => i !== index);
+    const { subtotalExcludingVat, totalVatAmount, subtotalIncludingVat } =
+      recalcInvoiceTotals(updatedItems);
+
+    setNewInvoice({
+      ...newInvoice,
+      items: updatedItems,
+      subtotalExcludingVat,
+      totalVatAmount,
+      subtotalIncludingVat,
+    });
+  };
+
+  // 🔹 Update an existing item inside editingInvoice
+  const updateEditingItem = (index, field, value) => {
+    if (!editingInvoice.items) return;
+
+    const updatedItems = [...editingInvoice.items];
+    updatedItems[index] = { ...updatedItems[index], [field]: value };
+    updatedItems[index] = calculateItemTotals(updatedItems[index]);
+
+    const { subtotalExcludingVat, totalVatAmount, subtotalIncludingVat } =
+      recalcInvoiceTotals(updatedItems);
+
+    setEditingInvoice({
+      ...editingInvoice,
+      items: updatedItems,
+      subtotalExcludingVat,
+      totalVatAmount,
+      subtotalIncludingVat,
+    });
+  };
+
+  // 🔹 Add a new blank item to editingInvoice
+  const addEditingItem = () => {
+    if (!editingInvoice.items) return;
+
+    const newItem = calculateItemTotals({
+      descriptionEn: "",
+      descriptionAr: "",
+      quantity: 1,
+      unitPrice: 0,
+      discount: 0,
+      vatRate: 15,
+      vatAmount: 0,
+      totalExcludingVat: 0,
+      totalIncludingVat: 0,
+      category: "Service",
+    });
+
+    const updatedItems = [...editingInvoice.items, newItem];
+    const { subtotalExcludingVat, totalVatAmount, subtotalIncludingVat } =
+      recalcInvoiceTotals(updatedItems);
+
+    setEditingInvoice({
+      ...editingInvoice,
+      items: updatedItems,
+      subtotalExcludingVat,
+      totalVatAmount,
+      subtotalIncludingVat,
+    });
+  };
+
+  // 🔹 Remove an item from editingInvoice
+  const removeEditingItem = (index) => {
+    if (!editingInvoice.items) return;
+
+    const updatedItems = editingInvoice.items.filter((_, i) => i !== index);
+    const { subtotalExcludingVat, totalVatAmount, subtotalIncludingVat } =
+      recalcInvoiceTotals(updatedItems);
+
+    setEditingInvoice({
+      ...editingInvoice,
+      items: updatedItems,
+      subtotalExcludingVat,
+      totalVatAmount,
+      subtotalIncludingVat,
+    });
+  };
+
+  const handleEditInvoice = (id) => {
+    const invoice = invoices.find((i) => i._id === id);
+    setEditingInvoice(invoice);
+  };
+
+  const handleSaveInvoice = async () => {
+    if (!editingInvoice) return;
+
+    try {
+      const payload = {
+        invoiceNumber: editingInvoice.invoiceNumber,
+        invoiceType: editingInvoice.invoiceType,
+        currency: editingInvoice.currency,
+        issueDate: editingInvoice.issueDate,
+        issueDateGregorian: editingInvoice.issueDateGregorian,
+        issueTimeGregorian: editingInvoice.issueTimeGregorian,
+        issueDateHijri: editingInvoice.issueDateHijri,
+        status: editingInvoice.status,
+        dueDate: editingInvoice.dueDate,
+        paymentTerms: editingInvoice.paymentTerms,
+        totalAmount: editingInvoice.totalAmount,
+
+        items: editingInvoice.items.map((item) => ({
+          descriptionEn: item.descriptionEn,
+          descriptionAr: item.descriptionAr,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          discount: item.discount,
+          vatRate: item.vatRate,
+          vatAmount: item.vatAmount,
+          totalExcludingVat: item.totalExcludingVat,
+          totalIncludingVat: item.totalIncludingVat,
+          category: item.category,
+        })),
+
+        buyer: {
+          type: editingInvoice.buyer?.type,
+          nameEn: editingInvoice.buyer?.nameEn,
+          nameAr: editingInvoice.buyer?.nameAr,
+          addressEn: editingInvoice.buyer?.addressEn,
+          addressAr: editingInvoice.buyer?.addressAr,
+          city: editingInvoice.buyer?.city,
+          postalCode: editingInvoice.buyer?.postalCode,
+          country: editingInvoice.buyer?.country,
+          phone: editingInvoice.buyer?.phone,
+          email: editingInvoice.buyer?.email,
+          contactPerson: editingInvoice.buyer?.contactPerson,
+        },
+      };
+
+      // ✅ API call with ID + payload
+      const res = await InvoiceService.updateInvoice(
+        editingInvoice._id,
+        payload
+      );
+
+      if (res?.status === 200) {
+        fetchInvoices();
+        setEditingInvoice(null);
+      }
+    } catch (err) {
+      // setError("Failed to edit invoice");
+      console.error("Error updating invoice:", err.message);
+    }
+  };
+
+  const handleDeleteInvoice = async (id) => {
+    try {
+      const res = await InvoiceService.deleteInvoice(id);
+      if (res?.status === 200) {
+        fetchInvoices(pagination.page);
+      }
+    } catch (err) {
+      console.error("Error deleting client:", err.message);
+    }
   };
 
   const handleExportInvoices = () => {
@@ -524,36 +762,36 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
     input.click();
   };
 
-  const handleSubmitToZATCA = async (invoice) => {
-    try {
-      // Simulate ZATCA submission
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+  // const handleSubmitToZATCA = async (invoice) => {
+  //   try {
+  //     // Simulate ZATCA submission
+  //     await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      const updatedInvoices = invoices.map((inv) =>
-        inv.id === invoice.id
-          ? {
-              ...inv,
-              submittedToZATCA: true,
-              zatcaSubmissionId: `ZATCA-${Date.now()}`,
-            }
-          : inv
-      );
+  //     const updatedInvoices = invoices.map((inv) =>
+  //       inv.id === invoice.id
+  //         ? {
+  //             ...inv,
+  //             submittedToZATCA: true,
+  //             zatcaSubmissionId: `ZATCA-${Date.now()}`,
+  //           }
+  //         : inv
+  //     );
 
-      setInvoices(updatedInvoices);
-      alert(
-        isArabic
-          ? "تم إرسال الفاتورة إلى ZATCA بنجاح!"
-          : "Invoice submitted to ZATCA successfully!"
-      );
-    } catch (error) {
-      console.error("ZATCA submission error:", error);
-      alert(
-        isArabic
-          ? "فشل في إرسال الفاتورة إلى ZATCA"
-          : "Failed to submit invoice to ZATCA"
-      );
-    }
-  };
+  //     setInvoices(updatedInvoices);
+  //     alert(
+  //       isArabic
+  //         ? "تم إرسال الفاتورة إلى ZATCA بنجاح!"
+  //         : "Invoice submitted to ZATCA successfully!"
+  //     );
+  //   } catch (error) {
+  //     console.error("ZATCA submission error:", error);
+  //     alert(
+  //       isArabic
+  //         ? "فشل في إرسال الفاتورة إلى ZATCA"
+  //         : "Failed to submit invoice to ZATCA"
+  //     );
+  //   }
+  // };
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -574,7 +812,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
     }
   };
 
-  const filteredInvoices = invoices.filter((invoice) => {
+  const filteredInvoices = invoices?.filter((invoice) => {
     const matchesSearch =
       invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
       invoice.buyer.nameEn.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -583,15 +821,14 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
       statusFilter === "all" || invoice.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+  console.log(filteredInvoices);
 
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">
-          {isArabic
-            ? "نظام الفوترة الإلكترونية ZATCA"
-            : "ZATCA E-Invoicing System"}
+          {isArabic ? "نظام الفوترة الإلكترونية" : "E-Invoicing System"}
         </h1>
         <div className="flex items-center gap-3">
           <button
@@ -619,7 +856,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
       </div>
 
       {/* ZATCA Compliance Banner */}
-      <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-4">
+      {/* <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-4">
         <div className="flex items-center gap-3">
           <Shield className="w-6 h-6 text-green-600" />
           <div className="flex-1">
@@ -641,10 +878,10 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6 border border-blue-200">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
@@ -652,7 +889,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
             </div>
             <div>
               <div className="text-2xl font-bold text-blue-900">
-                {invoices.length}
+                {invoices?.length}
               </div>
               <div className="text-sm text-blue-700">
                 {isArabic ? "إجمالي الفواتير" : "Total Invoices"}
@@ -668,32 +905,20 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
             </div>
             <div>
               <div className="text-2xl font-bold text-green-900">
-                {(
-                  invoices.reduce(
-                    (sum, inv) => sum + inv.totalIncludingVat,
-                    0
-                  ) / 1000
-                ).toFixed(0)}
-                K
+                {(() => {
+                  const total =
+                    invoices?.reduce(
+                      (sum, inv) => sum + (inv.subtotalIncludingVat || 0),
+                      0
+                    ) || 0;
+
+                  return total >= 1000
+                    ? (total / 1000).toFixed(0) + "K"
+                    : total;
+                })()}
               </div>
               <div className="text-sm text-green-700">
                 {isArabic ? "إجمالي القيمة" : "Total Value"}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-6 border border-purple-200">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
-              <Zap className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-purple-900">
-                {invoices.filter((inv) => inv.submittedToZATCA).length}
-              </div>
-              <div className="text-sm text-purple-700">
-                {isArabic ? "مرسل إلى ZATCA" : "Submitted to ZATCA"}
               </div>
             </div>
           </div>
@@ -706,7 +931,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
             </div>
             <div>
               <div className="text-2xl font-bold text-yellow-900">
-                {invoices.filter((inv) => inv.status === "Paid").length}
+                {invoices?.filter((inv) => inv.status === "Paid").length}
               </div>
               <div className="text-sm text-yellow-700">
                 {isArabic ? "فواتير مدفوعة" : "Paid Invoices"}
@@ -746,7 +971,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                 {isArabic ? "إعدادات الشركة" : "Company Settings"}
               </div>
             </button>
-            <button
+            {/* <button
               onClick={() => setActiveTab("compliance")}
               className={`px-6 py-4 font-medium transition-colors ${
                 activeTab === "compliance"
@@ -758,7 +983,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                 <Shield className="w-4 h-4" />
                 {isArabic ? "الامتثال" : "Compliance"}
               </div>
-            </button>
+            </button> */}
           </nav>
         </div>
 
@@ -772,7 +997,9 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                   <input
                     type="text"
                     placeholder={
-                      isArabic ? "البحث في الفواتير..." : "Search invoices..."
+                      isArabic
+                        ? "البحث في الفواتير..."
+                        : "Search invoices by invoice number or buyer name..."
                     }
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -820,7 +1047,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                         {isArabic ? "الحالة" : "Status"}
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                        {isArabic ? "ZATCA" : "ZATCA"}
+                        {isArabic ? "تاريخ الإصدار" : "Issued Date"}
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                         {isArabic ? "الإجراءات" : "Actions"}
@@ -828,7 +1055,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {filteredInvoices.map((invoice) => (
+                    {filteredInvoices?.map((invoice) => (
                       <tr key={invoice.id} className="hover:bg-gray-50">
                         <td className="px-4 py-4">
                           <div className="font-medium text-gray-900">
@@ -850,13 +1077,33 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                           </div>
                         </td>
                         <td className="px-4 py-4 text-sm text-gray-900">
-                          <div>{invoice.issueDateGregorian}</div>
+                          <div>
+                            {new Date(invoice.createdAt).toLocaleDateString(
+                              "en-GB",
+                              {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                              }
+                            )}
+                          </div>
                           <div className="text-xs text-gray-500">
-                            {invoice.issueDateHijri}
+                            {new Date(invoice.createdAt).toLocaleString(
+                              "en-US",
+                              {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: true, // ✅ ensures AM/PM
+                              }
+                            )}
                           </div>
                         </td>
+
                         <td className="px-4 py-4 text-sm font-semibold text-gray-900">
-                          {invoice.totalIncludingVat.toLocaleString()}{" "}
+                          {invoice.subtotalIncludingVat.toLocaleString()}{" "}
                           {invoice.currency}
                         </td>
                         <td className="px-4 py-4">
@@ -868,21 +1115,25 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                             {invoice.status}
                           </span>
                         </td>
-                        <td className="px-4 py-4">
-                          {invoice.submittedToZATCA ? (
-                            <div className="flex items-center gap-1 text-green-600">
-                              <CheckCircle className="w-4 h-4" />
-                              <span className="text-xs">Submitted</span>
-                            </div>
-                          ) : (
-                            <button
-                              onClick={() => handleSubmitToZATCA(invoice)}
-                              className="text-blue-600 hover:text-blue-800 text-xs"
-                            >
-                              Submit
-                            </button>
-                          )}
+                        <td className="px-4 py-4 text-sm text-gray-900">
+                          <div>
+                            {invoice.issueDateGregorian
+                              ? `${new Date(
+                                  invoice.issueDateGregorian
+                                ).toLocaleDateString("en-GB", {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
+                                })} • ${invoice.issueTimeGregorian}`
+                              : "NA"}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {invoice.issueDateGregorian
+                              ? `${invoice.issueDateHijri} • ${invoice.issueTimeGregorian}`
+                              : ""}
+                          </div>
                         </td>
+
                         <td className="px-4 py-4">
                           <div className="flex items-center gap-2">
                             <button
@@ -896,16 +1147,16 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                               <Eye className="w-4 h-4" />
                             </button>
                             <button
-                              className="text-green-600 hover:text-green-800 p-1 rounded"
-                              title={isArabic ? "طباعة" : "Print"}
+                              onClick={() => handleEditInvoice(invoice._id)}
+                              className="text-green-600 hover:text-green-800 p-1 rounded transition-colors"
                             >
-                              <Printer className="w-4 h-4" />
+                              <Edit className="w-4 h-4" />
                             </button>
                             <button
-                              className="text-purple-600 hover:text-purple-800 p-1 rounded"
-                              title={isArabic ? "إرسال" : "Send"}
+                              onClick={() => handleDeleteInvoice(invoice._id)}
+                              className="text-red-600 hover:text-red-800 p-1 rounded transition-colors"
                             >
-                              <Send className="w-4 h-4" />
+                              <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
                         </td>
@@ -913,6 +1164,52 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                     ))}
                   </tbody>
                 </table>
+              </div>
+
+              <div className="flex items-center justify-center gap-4 mt-6">
+                {/* Previous Button */}
+                <button
+                  onClick={() =>
+                    fetchInvoices(Math.max(1, pagination.page - 1))
+                  }
+                  disabled={pagination.page <= 1}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                  ${
+                    pagination.page <= 1
+                      ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                      : "bg-green-600 text-white hover:bg-green-700"
+                  }`}
+                >
+                  {isArabic ? "السابق" : "Previous"}
+                </button>
+
+                {/* Page Info */}
+                <div className="px-4 py-2 bg-gray-100 rounded-lg text-sm font-medium text-gray-700">
+                  {isArabic ? "صفحة" : "Page"}{" "}
+                  {Number.isFinite(pagination.page) ? pagination.page : 0}{" "}
+                  {isArabic ? "من" : "of"}{" "}
+                  {Number.isFinite(pagination.totalPages)
+                    ? pagination.totalPages
+                    : 0}
+                </div>
+
+                {/* Next Button */}
+                <button
+                  onClick={() =>
+                    fetchInvoices(
+                      Math.min(pagination.totalPages, pagination.page + 1)
+                    )
+                  }
+                  disabled={pagination.page >= pagination.totalPages}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                ${
+                  pagination.page >= pagination.totalPages
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-green-600 text-white hover:bg-green-700"
+                }`}
+                >
+                  {isArabic ? "التالي" : "Next"}
+                </button>
               </div>
             </div>
           )}
@@ -1169,7 +1466,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
             </div>
           )}
 
-          {activeTab === "compliance" && (
+          {/* {activeTab === "compliance" && (
             <div className="space-y-6">
               <div className="bg-green-50 border border-green-200 rounded-lg p-6">
                 <h3 className="font-semibold text-green-800 mb-4 flex items-center gap-2">
@@ -1272,7 +1569,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                 </p>
               </div>
             </div>
-          )}
+          )} */}
         </div>
       </div>
 
@@ -1351,6 +1648,98 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                     <option value="Net 60 days">Net 60 days</option>
                   </select>
                 </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {/* Status */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "حالة" : "Status"}
+                  </label>
+                  <select
+                    value={newInvoice.status}
+                    onChange={(e) => {
+                      const status = e.target.value;
+
+                      if (status === "Issued") {
+                        const today = new Date();
+                        const currentDate = today.toISOString().split("T")[0];
+                        const currentTime = today.toLocaleTimeString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        });
+
+                        setNewInvoice({
+                          ...newInvoice,
+                          status,
+                          issueDateGregorian: currentDate,
+                          issueTimeGregorian: currentTime,
+                          issueDateHijri: convertToHijri(currentDate),
+                        });
+                      } else {
+                        setNewInvoice({
+                          ...newInvoice,
+                          status,
+                          issueDateGregorian: "",
+                          issueTimeGregorian: "",
+                          issueDateHijri: "",
+                        });
+                      }
+                    }}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  >
+                    <option value="Draft">Draft</option>
+                    <option value="Issued">Issued</option>
+                    <option value="Paid">Paid</option>
+                    <option value="Overdue">Overdue</option>
+                    <option value="Sent">Sent</option>
+                    <option value="Cancelled">Cancelled</option>
+                  </select>
+                </div>
+
+                {/* Show only when status === Issued */}
+                {newInvoice.status === "Issued" && (
+                  <>
+                    {/* Issue Date */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {isArabic ? "تاريخ الإصدار" : "Issue Date"}
+                      </label>
+                      <input
+                        type="date"
+                        value={newInvoice.issueDateGregorian}
+                        readOnly
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100"
+                      />
+                    </div>
+
+                    {/* Issue Time */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {isArabic ? "وقت الإصدار" : "Issue Time"}
+                      </label>
+                      <input
+                        type="text"
+                        value={newInvoice.issueTimeGregorian}
+                        readOnly
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100"
+                      />
+                    </div>
+
+                    {/* Issue Date Hijri */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {isArabic ? "تاريخ الإصدار هجري" : "Issue Date Hijri"}
+                      </label>
+                      <input
+                        type="text"
+                        value={newInvoice.issueDateHijri}
+                        readOnly
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100"
+                      />
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Buyer Information */}
@@ -1454,7 +1843,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       {isArabic ? "البريد الإلكتروني" : "Email"}
@@ -1506,6 +1895,103 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                           buyer: {
                             ...(newInvoice.buyer || {}),
                             contactPerson: e.target.value,
+                          },
+                        })
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {isArabic ? "دولة" : "Country"}
+                    </label>
+                    <input
+                      type="text"
+                      value={newInvoice.buyer?.country || ""}
+                      onChange={(e) =>
+                        setNewInvoice({
+                          ...newInvoice,
+                          buyer: {
+                            ...(newInvoice.buyer || {}),
+                            country: e.target.value,
+                          },
+                        })
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {isArabic ? "عنوان (بالإنجليزية)" : "Address (English)"}
+                    </label>
+                    <input
+                      type="text"
+                      value={newInvoice.buyer?.addressEn || ""}
+                      onChange={(e) =>
+                        setNewInvoice({
+                          ...newInvoice,
+                          buyer: {
+                            ...(newInvoice.buyer || {}),
+                            addressEn: e.target.value,
+                          },
+                        })
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {isArabic ? "العنوان (عربي)" : "Address (Arabic)"}
+                    </label>
+                    <input
+                      type="text"
+                      value={newInvoice.buyer?.addressAr || ""}
+                      onChange={(e) =>
+                        setNewInvoice({
+                          ...newInvoice,
+                          buyer: {
+                            ...(newInvoice.buyer || {}),
+                            addressAr: e.target.value,
+                          },
+                        })
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {isArabic ? "مدينة" : "City"}
+                    </label>
+                    <input
+                      type="text"
+                      value={newInvoice.buyer?.city || ""}
+                      onChange={(e) =>
+                        setNewInvoice({
+                          ...newInvoice,
+                          buyer: {
+                            ...(newInvoice.buyer || {}),
+                            city: e.target.value,
+                          },
+                        })
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {isArabic ? "الرمز البريدي" : "Postal Code"}
+                    </label>
+                    <input
+                      type="text"
+                      value={newInvoice.buyer?.postalCode || ""}
+                      onChange={(e) =>
+                        setNewInvoice({
+                          ...newInvoice,
+                          buyer: {
+                            ...(newInvoice.buyer || {}),
+                            postalCode: e.target.value,
                           },
                         })
                       }
@@ -1564,6 +2050,25 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                             }
                             className="w-full border border-gray-300 rounded-lg px-3 py-2"
                           />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            {isArabic ? "فئة" : "Category"}
+                          </label>
+                          <select
+                            value={item.category}
+                            onChange={(e) =>
+                              updateItem(index, "category", e.target.value)
+                            }
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white"
+                          >
+                            <option value="Service">
+                              {isArabic ? "خدمة" : "Service"}
+                            </option>
+                            <option value="Product">
+                              {isArabic ? "منتج" : "Product"}
+                            </option>
+                          </select>
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1681,7 +2186,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                           : "Total (Incl. VAT):"}
                       </span>
                       <span>
-                        {(newInvoice.totalIncludingVat || 0).toFixed(2)}{" "}
+                        {(newInvoice.subtotalIncludingVat || 0).toFixed(2)}{" "}
                         {newInvoice.currency}
                       </span>
                     </div>
@@ -1790,7 +2295,30 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                       {selectedInvoice.invoiceNumber}
                     </p>
                     <div className="w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center mt-4">
-                      <QrCode className="w-12 h-12 text-gray-500" />
+                      <QRCodeCanvas
+                        value={`Seller: ${
+                          isArabic
+                            ? sellerInfo.companyNameAr
+                            : sellerInfo.companyNameEn
+                        }\nVAT No: ${sellerInfo.vatNumber}\nInvoice: ${
+                          selectedInvoice.invoiceNumber
+                        }\nDate: ${new Date(
+                          selectedInvoice.issueDateGregorian
+                        ).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })}\nTime: ${
+                          selectedInvoice.issueTimeGregorian
+                        }\nNo. of Items: ${
+                          selectedInvoice.items.length
+                        }\nTotal: ${
+                          selectedInvoice.subtotalIncludingVat
+                        }\nVAT: ${selectedInvoice.totalVatAmount}`}
+                        size={96}
+                        includeMargin={true}
+                        level="M"
+                      />
                     </div>
                   </div>
                 </div>
@@ -1842,7 +2370,15 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                         : "Issue Date (Gregorian):"}
                     </p>
                     <p className="font-medium">
-                      {selectedInvoice.issueDateGregorian}
+                      {selectedInvoice.issueDateGregorian
+                        ? new Date(
+                            selectedInvoice.issueDateGregorian
+                          ).toLocaleDateString("en-GB", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })
+                        : "NA"}
                     </p>
                   </div>
                   <div>
@@ -1943,7 +2479,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                             : "Total (Incl. VAT):"}
                         </span>
                         <span>
-                          {selectedInvoice.totalIncludingVat.toFixed(2)}{" "}
+                          {selectedInvoice.subtotalIncludingVat}{" "}
                           {selectedInvoice.currency}
                         </span>
                       </div>
@@ -1980,7 +2516,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                 </div>
 
                 {/* Digital Signature */}
-                <div className="bg-green-50 p-4 rounded-lg">
+                {/* <div className="bg-green-50 p-4 rounded-lg">
                   <h3 className="font-semibold text-green-900 mb-2">
                     {isArabic
                       ? "التوقيع الرقمي والامتثال"
@@ -1989,7 +2525,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                   <div className="text-sm text-green-700 space-y-1">
                     <p>
                       {isArabic ? "رمز التوقيع الرقمي:" : "Digital Signature:"}{" "}
-                      {selectedInvoice.digitalSignature.substring(0, 32)}...
+                      {selectedInvoice?.digitalSignature?.substring(0, 32)}...
                     </p>
                     <p>
                       {isArabic ? "رمز ZATCA:" : "ZATCA Hash:"}{" "}
@@ -2001,7 +2537,700 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                         : "✓ ZATCA Phase 2 Compliant"}
                     </p>
                   </div>
+                </div> */}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Update Invoice Modal */}
+      {editingInvoice && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-6xl max-h-screen overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-gray-900">
+                {isArabic ? "إنشاء فاتورة جديدة" : "Create New Invoice"}
+              </h3>
+              <button
+                onClick={() => setEditingInvoice(null)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              {/* Invoice Type and Basic Info */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "نوع الفاتورة" : "Invoice Type"}
+                  </label>
+                  <select
+                    value={editingInvoice.invoiceType}
+                    onChange={(e) =>
+                      setEditingInvoice({
+                        ...editingInvoice,
+                        invoiceType: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  >
+                    <option value="Standard">Standard</option>
+                    <option value="Simplified">Simplified</option>
+                    <option value="Credit">Credit Note</option>
+                    <option value="Debit">Debit Note</option>
+                  </select>
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "العملة" : "Currency"}
+                  </label>
+                  <select
+                    value={editingInvoice.currency}
+                    onChange={(e) =>
+                      setEditingInvoice({
+                        ...editingInvoice,
+                        currency: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  >
+                    <option value="SAR">SAR - Saudi Riyal</option>
+                    <option value="USD">USD - US Dollar</option>
+                    <option value="EUR">EUR - Euro</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "شروط الدفع" : "Payment Terms"}
+                  </label>
+                  <select
+                    value={editingInvoice.paymentTerms}
+                    onChange={(e) =>
+                      setEditingInvoice({
+                        ...editingInvoice,
+                        paymentTerms: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  >
+                    <option value="Net 30 days">Net 30 days</option>
+                    <option value="Net 15 days">Net 15 days</option>
+                    <option value="Due on receipt">Due on receipt</option>
+                    <option value="Net 60 days">Net 60 days</option>
+                  </select>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {/* Status */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "حالة" : "Status"}
+                  </label>
+                  <select
+                    value={editingInvoice.status}
+                    onChange={(e) => {
+                      const status = e.target.value;
+
+                      if (status === "Issued") {
+                        const today = new Date();
+                        const currentDate = today.toISOString().split("T")[0];
+                        const currentTime = today.toLocaleTimeString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        });
+
+                        setEditingInvoice({
+                          ...editingInvoice,
+                          status,
+                          issueDateGregorian: currentDate,
+                          issueTimeGregorian: currentTime,
+                          issueDateHijri: convertToHijri(currentDate),
+                        });
+                      } else {
+                        setEditingInvoice({
+                          ...editingInvoice,
+                          status,
+                          issueDateGregorian: "",
+                          issueTimeGregorian: "",
+                          issueDateHijri: "",
+                        });
+                      }
+                    }}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  >
+                    <option value="Draft">Draft</option>
+                    <option value="Issued">Issued</option>
+                    <option value="Paid">Paid</option>
+                    <option value="Overdue">Overdue</option>
+                    <option value="Sent">Sent</option>
+                    <option value="Cancelled">Cancelled</option>
+                  </select>
+                </div>
+
+                {/* Show only when status === Issued */}
+                {editingInvoice.status === "Issued" && (
+                  <>
+                    {/* Issue Date */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {isArabic ? "تاريخ الإصدار" : "Issue Date"}
+                      </label>
+                      <input
+                        type="date"
+                        value={editingInvoice.issueDateGregorian}
+                        readOnly
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100"
+                      />
+                    </div>
+
+                    {/* Issue Time */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {isArabic ? "وقت الإصدار" : "Issue Time"}
+                      </label>
+                      <input
+                        type="text"
+                        value={editingInvoice.issueTimeGregorian}
+                        readOnly
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100"
+                      />
+                    </div>
+
+                    {/* Issue Date Hijri */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {isArabic ? "تاريخ الإصدار هجري" : "Issue Date Hijri"}
+                      </label>
+                      <input
+                        type="text"
+                        value={editingInvoice.issueDateHijri}
+                        readOnly
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100"
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Buyer Information */}
+              <div className="bg-gray-50 rounded-lg p-6">
+                <h4 className="font-semibold text-gray-900 mb-4">
+                  {isArabic ? "معلومات العميل" : "Customer Information"}
+                </h4>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {isArabic ? "نوع العميل" : "Customer Type"}
+                    </label>
+                    <select
+                      value={editingInvoice.buyer?.type || "B2B"}
+                      onChange={(e) =>
+                        setEditingInvoice({
+                          ...editingInvoice,
+                          buyer: {
+                            ...(editingInvoice.buyer || {}),
+                            type: e.target.value,
+                          },
+                        })
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    >
+                      <option value="B2B">B2B - Business to Business</option>
+                      <option value="B2C">B2C - Business to Consumer</option>
+                    </select>
+                  </div>
+                  {editingInvoice.buyer?.type === "B2B" && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {isArabic
+                          ? "رقم ضريبة القيمة المضافة للعميل"
+                          : "Customer VAT Number"}{" "}
+                        *
+                      </label>
+                      <input
+                        type="text"
+                        value={editingInvoice.buyer?.vatNumber || ""}
+                        onChange={(e) =>
+                          setEditingInvoice({
+                            ...editingInvoice,
+                            buyer: {
+                              ...(editingInvoice.buyer || {}),
+                              vatNumber: e.target.value,
+                            },
+                          })
+                        }
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                        maxLength={15}
+                        required
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {isArabic
+                        ? "اسم العميل (إنجليزي)"
+                        : "Customer Name (English)"}
+                    </label>
+                    <input
+                      type="text"
+                      value={editingInvoice.buyer?.nameEn || ""}
+                      onChange={(e) =>
+                        setEditingInvoice({
+                          ...editingInvoice,
+                          buyer: {
+                            ...(editingInvoice.buyer || {}),
+                            nameEn: e.target.value,
+                          },
+                        })
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {isArabic
+                        ? "اسم العميل (عربي)"
+                        : "Customer Name (Arabic)"}
+                    </label>
+                    <input
+                      type="text"
+                      value={editingInvoice.buyer?.nameAr || ""}
+                      onChange={(e) =>
+                        setEditingInvoice({
+                          ...editingInvoice,
+                          buyer: {
+                            ...(editingInvoice.buyer || {}),
+                            nameAr: e.target.value,
+                          },
+                        })
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {isArabic ? "البريد الإلكتروني" : "Email"}
+                    </label>
+                    <input
+                      type="email"
+                      value={editingInvoice.buyer?.email || ""}
+                      onChange={(e) =>
+                        setEditingInvoice({
+                          ...editingInvoice,
+                          buyer: {
+                            ...(editingInvoice.buyer || {}),
+                            email: e.target.value,
+                          },
+                        })
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {isArabic ? "رقم الهاتف" : "Phone"}
+                    </label>
+                    <input
+                      type="tel"
+                      value={editingInvoice.buyer?.phone || ""}
+                      onChange={(e) =>
+                        setEditingInvoice({
+                          ...editingInvoice,
+                          buyer: {
+                            ...(editingInvoice.buyer || {}),
+                            phone: e.target.value,
+                          },
+                        })
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {isArabic ? "جهة الاتصال" : "Contact Person"}
+                    </label>
+                    <input
+                      type="text"
+                      value={editingInvoice.buyer?.contactPerson || ""}
+                      onChange={(e) =>
+                        setEditingInvoice({
+                          ...editingInvoice,
+                          buyer: {
+                            ...(editingInvoice.buyer || {}),
+                            contactPerson: e.target.value,
+                          },
+                        })
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {isArabic ? "دولة" : "Country"}
+                    </label>
+                    <input
+                      type="text"
+                      value={editingInvoice.buyer?.country || ""}
+                      onChange={(e) =>
+                        setEditingInvoice({
+                          ...editingInvoice,
+                          buyer: {
+                            ...(editingInvoice.buyer || {}),
+                            country: e.target.value,
+                          },
+                        })
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {isArabic ? "عنوان (بالإنجليزية)" : "Address (English)"}
+                    </label>
+                    <input
+                      type="text"
+                      value={editingInvoice.buyer?.addressEn || ""}
+                      onChange={(e) =>
+                        setEditingInvoice({
+                          ...editingInvoice,
+                          buyer: {
+                            ...(editingInvoice.buyer || {}),
+                            addressEn: e.target.value,
+                          },
+                        })
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {isArabic ? "العنوان (عربي)" : "Address (Arabic)"}
+                    </label>
+                    <input
+                      type="text"
+                      value={editingInvoice.buyer?.addressAr || ""}
+                      onChange={(e) =>
+                        setEditingInvoice({
+                          ...editingInvoice,
+                          buyer: {
+                            ...(editingInvoice.buyer || {}),
+                            addressAr: e.target.value,
+                          },
+                        })
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {isArabic ? "مدينة" : "City"}
+                    </label>
+                    <input
+                      type="text"
+                      value={editingInvoice.buyer?.city || ""}
+                      onChange={(e) =>
+                        setEditingInvoice({
+                          ...editingInvoice,
+                          buyer: {
+                            ...(editingInvoice.buyer || {}),
+                            city: e.target.value,
+                          },
+                        })
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {isArabic ? "الرمز البريدي" : "Postal Code"}
+                    </label>
+                    <input
+                      type="text"
+                      value={editingInvoice.buyer?.postalCode || ""}
+                      onChange={(e) =>
+                        setEditingInvoice({
+                          ...editingInvoice,
+                          buyer: {
+                            ...(editingInvoice.buyer || {}),
+                            postalCode: e.target.value,
+                          },
+                        })
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Invoice Items */}
+              <div className="bg-gray-50 rounded-lg p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="font-semibold text-gray-900">
+                    {isArabic ? "بنود الفاتورة" : "Invoice Items"}
+                  </h4>
+                  <button
+                    onClick={addEditingItem}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    {isArabic ? "إضافة بند" : "Add Item"}
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {editingInvoice.items?.map((item, index) => (
+                    <div
+                      key={index}
+                      className="bg-white rounded-lg p-4 border border-gray-200"
+                    >
+                      <div className="grid grid-cols-1 md:grid-cols-8 gap-4 items-end">
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            {isArabic
+                              ? "الوصف (إنجليزي)"
+                              : "Description (English)"}
+                          </label>
+                          <input
+                            type="text"
+                            value={item.descriptionEn}
+                            onChange={(e) =>
+                              updateEditingItem(
+                                index,
+                                "descriptionEn",
+                                e.target.value
+                              )
+                            }
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                          />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            {isArabic ? "الوصف (عربي)" : "Description (Arabic)"}
+                          </label>
+                          <input
+                            type="text"
+                            value={item.descriptionAr}
+                            onChange={(e) =>
+                              updateEditingItem(
+                                index,
+                                "descriptionAr",
+                                e.target.value
+                              )
+                            }
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            {isArabic ? "فئة" : "Category"}
+                          </label>
+                          <select
+                            value={item.category}
+                            onChange={(e) =>
+                              updateEditingItem(
+                                index,
+                                "category",
+                                e.target.value
+                              )
+                            }
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white"
+                          >
+                            <option value="Service">
+                              {isArabic ? "خدمة" : "Service"}
+                            </option>
+                            <option value="Product">
+                              {isArabic ? "منتج" : "Product"}
+                            </option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            {isArabic ? "الكمية" : "Quantity"}
+                          </label>
+                          <input
+                            type="number"
+                            value={item.quantity}
+                            onChange={(e) =>
+                              updateEditingItem(
+                                index,
+                                "quantity",
+                                parseFloat(e.target.value) || 0
+                              )
+                            }
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                            min="0"
+                            step="0.01"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            {isArabic ? "سعر الوحدة" : "Unit Price"}
+                          </label>
+                          <input
+                            type="number"
+                            value={item.unitPrice}
+                            onChange={(e) =>
+                              updateEditingItem(
+                                index,
+                                "unitPrice",
+                                parseFloat(e.target.value) || 0
+                              )
+                            }
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                            min="0"
+                            step="0.01"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            {isArabic ? "خصم%" : "Discount%"}
+                          </label>
+                          <input
+                            type="number"
+                            value={item.discount}
+                            onChange={(e) =>
+                              updateEditingItem(
+                                index,
+                                "discount",
+                                parseFloat(e.target.value) || 0
+                              )
+                            }
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                            min="0"
+                            max="100"
+                            step="0.01"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            {isArabic ? "الإجمالي" : "Total"}
+                          </label>
+                          <input
+                            type="text"
+                            value={`${item.totalIncludingVat.toFixed(2)} ${
+                              editingInvoice.currency
+                            }`}
+                            readOnly
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100"
+                          />
+                        </div>
+                        <div>
+                          {editingInvoice.items &&
+                            editingInvoice.items.length > 1 && (
+                              <button
+                                onClick={() => removeEditingItem(index)}
+                                className="w-full bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg"
+                              >
+                                <Trash2 className="w-4 h-4 mx-auto" />
+                              </button>
+                            )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Totals */}
+                <div className="mt-6 bg-blue-50 rounded-lg p-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    <div className="flex justify-between">
+                      <span>
+                        {isArabic
+                          ? "المجموع (بدون ضريبة):"
+                          : "Subtotal (Excl. VAT):"}
+                      </span>
+                      <span className="font-semibold">
+                        {(editingInvoice.subtotalExcludingVat || 0).toFixed(2)}{" "}
+                        {editingInvoice.currency}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>
+                        {isArabic ? "ضريبة القيمة المضافة:" : "VAT Amount:"}
+                      </span>
+                      <span className="font-semibold">
+                        {(editingInvoice.totalVatAmount || 0).toFixed(2)}{" "}
+                        {editingInvoice.currency}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-lg font-bold">
+                      <span>
+                        {isArabic
+                          ? "الإجمالي (شامل الضريبة):"
+                          : "Total (Incl. VAT):"}
+                      </span>
+                      <span>
+                        {(editingInvoice.subtotalIncludingVat || 0).toFixed(2)}{" "}
+                        {editingInvoice.currency}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "ملاحظات (إنجليزي)" : "Notes (English)"}
+                  </label>
+                  <textarea
+                    value={editingInvoice.notes || ""}
+                    onChange={(e) =>
+                      setEditingInvoice({
+                        ...editingInvoice,
+                        notes: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    rows={3}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "ملاحظات (عربي)" : "Notes (Arabic)"}
+                  </label>
+                  <textarea
+                    value={editingInvoice.notesAr || ""}
+                    onChange={(e) =>
+                      setEditingInvoice({
+                        ...editingInvoice,
+                        notesAr: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    rows={3}
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 pt-4">
+                <button
+                  onClick={handleSaveInvoice}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg flex items-center gap-2"
+                >
+                  <Save className="w-4 h-4" />
+                  {isArabic ? "إنشاء الفاتورة" : "Create Invoice"}
+                </button>
+                <button
+                  onClick={() => setEditingInvoice(null)}
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-lg"
+                >
+                  {isArabic ? "إلغاء" : "Cancel"}
+                </button>
               </div>
             </div>
           </div>
