@@ -20,12 +20,9 @@ export const deleteEmployee = (id) =>
   axios.delete(`${API_URL}/employees/${id}`);
 
 // Enum APIs
-export const getEmployeeRoles = () =>
-  apiClient.get(`/enum/getEmployeeRole`);
+export const getEmployeeRoles = () => apiClient.get(`/enum/getEmployeeRole`);
 
-export const getNationalities = () =>
-  apiClient.get(`/enum/getNationality`);
-
+export const getNationalities = () => apiClient.get(`/enum/getNationality`);
 
 // const [employees] = useState([
 //   {
@@ -215,11 +212,10 @@ const departments = [
   },
 ];
 
-
 class EmployeeService {
-  constructor(baseURL = 'http://localhost:3001/api') {
+  constructor(baseURL = "http://localhost:3001/api") {
     this.baseURL = baseURL;
-    this.token = localStorage.getItem('authToken'); // Assuming JWT token storage
+    this.token = localStorage.getItem("authToken"); // Assuming JWT token storage
   }
 
   // Helper method for API calls
@@ -227,8 +223,8 @@ class EmployeeService {
     const url = `${this.baseURL}${endpoint}`;
     const config = {
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': this.token ? `Bearer ${this.token}` : '',
+        "Content-Type": "application/json",
+        Authorization: this.token ? `Bearer ${this.token}` : "",
         ...options.headers,
       },
       ...options,
@@ -239,7 +235,9 @@ class EmployeeService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        throw new Error(
+          errorData.message || `HTTP error! status: ${response.status}`
+        );
       }
 
       return await response.json();
@@ -249,27 +247,26 @@ class EmployeeService {
     }
   }
 
-
   async getEmployeeRoles() {
-    return await apiClient.get(`/enum/getEmployeeRole`)
-  };
+    return await apiClient.get(`/enum/getEmployeeRole`);
+  }
 
   async getNationalities() {
-    return await apiClient.get(`/enum/getNationality`)
-  };
+    return await apiClient.get(`/enum/getNationality`);
+  }
 
   // Employee CRUD Operations
   async getAllEmployees(filters = {}) {
     const queryParams = new URLSearchParams();
 
-    Object.keys(filters).forEach(key => {
+    Object.keys(filters).forEach((key) => {
       if (filters[key]) {
         queryParams.append(key, filters[key]);
       }
     });
 
     const queryString = queryParams.toString();
-    const endpoint = queryString ? `/employees?${queryString}` : '/employees';
+    const endpoint = queryString ? `/employees?${queryString}` : "/employees";
 
     return await this.apiCall(endpoint);
   }
@@ -279,25 +276,25 @@ class EmployeeService {
   }
 
   async createEmployee(employeeData) {
-    return await apiClient.post('/employees/comprehensive', employeeData);
+    return await apiClient.post("/employees/comprehensive", employeeData);
   }
 
   async updateEmployee(employeeId, employeeData) {
     return await this.apiCall(`/employees/${employeeId}`, {
-      method: 'PUT',
+      method: "PUT",
       body: JSON.stringify(employeeData),
     });
   }
 
   async deleteEmployee(employeeId) {
     return await this.apiCall(`/employees/${employeeId}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
   }
 
   async updateEmployeeStatus(employeeId, status) {
     return await this.apiCall(`/employees/${employeeId}/status`, {
-      method: 'PATCH',
+      method: "PATCH",
       body: JSON.stringify({ status }),
     });
   }
@@ -316,15 +313,15 @@ class EmployeeService {
   }
 
   async createDepartment(departmentData) {
-    return await this.apiCall('/departments', {
-      method: 'POST',
+    return await this.apiCall("/departments", {
+      method: "POST",
       body: JSON.stringify(departmentData),
     });
   }
 
   async updateDepartment(departmentId, departmentData) {
     return await this.apiCall(`/departments/${departmentId}`, {
-      method: 'PUT',
+      method: "PUT",
       body: JSON.stringify(departmentData),
     });
   }
@@ -336,9 +333,9 @@ class EmployeeService {
 
   async uploadEmployeeDocument(employeeId, formData) {
     return await this.apiCall(`/employees/${employeeId}/documents`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Authorization': this.token ? `Bearer ${this.token}` : '',
+        Authorization: this.token ? `Bearer ${this.token}` : "",
         // Don't set Content-Type for FormData
       },
       body: formData,
@@ -346,9 +343,12 @@ class EmployeeService {
   }
 
   async deleteEmployeeDocument(employeeId, documentId) {
-    return await this.apiCall(`/employees/${employeeId}/documents/${documentId}`, {
-      method: 'DELETE',
-    });
+    return await this.apiCall(
+      `/employees/${employeeId}/documents/${documentId}`,
+      {
+        method: "DELETE",
+      }
+    );
   }
 
   // Performance Operations
@@ -357,45 +357,47 @@ class EmployeeService {
   }
 
   async createPerformanceReview(performanceData) {
-    return await this.apiCall('/performance-reviews', {
-      method: 'POST',
+    return await this.apiCall("/performance-reviews", {
+      method: "POST",
       body: JSON.stringify(performanceData),
     });
   }
 
   async updatePerformanceReview(reviewId, performanceData) {
     return await this.apiCall(`/performance-reviews/${reviewId}`, {
-      method: 'PUT',
+      method: "PUT",
       body: JSON.stringify(performanceData),
     });
   }
 
   // Analytics Operations
-  async getEmployeeAnalytics(timeRange = '30d') {
+  async getEmployeeAnalytics(timeRange = "30d") {
     return await this.apiCall(`/analytics/employees?range=${timeRange}`);
   }
 
-  async getDepartmentAnalytics(departmentId, timeRange = '30d') {
-    return await this.apiCall(`/analytics/departments/${departmentId}?range=${timeRange}`);
+  async getDepartmentAnalytics(departmentId, timeRange = "30d") {
+    return await this.apiCall(
+      `/analytics/departments/${departmentId}?range=${timeRange}`
+    );
   }
 
-  async getPerformanceAnalytics(timeRange = '30d') {
+  async getPerformanceAnalytics(timeRange = "30d") {
     return await this.apiCall(`/analytics/performance?range=${timeRange}`);
   }
 
   // Bulk Operations
   async bulkUpdateEmployees(updates) {
-    return await this.apiCall('/employees/bulk-update', {
-      method: 'PATCH',
+    return await this.apiCall("/employees/bulk-update", {
+      method: "PATCH",
       body: JSON.stringify({ updates }),
     });
   }
 
-  async exportEmployeeData(format = 'csv', filters = {}) {
+  async exportEmployeeData(format = "csv", filters = {}) {
     const queryParams = new URLSearchParams();
-    queryParams.append('format', format);
+    queryParams.append("format", format);
 
-    Object.keys(filters).forEach(key => {
+    Object.keys(filters).forEach((key) => {
       if (filters[key]) {
         queryParams.append(key, filters[key]);
       }
@@ -405,7 +407,7 @@ class EmployeeService {
       `${this.baseURL}/employees/export?${queryParams.toString()}`,
       {
         headers: {
-          'Authorization': this.token ? `Bearer ${this.token}` : '',
+          Authorization: this.token ? `Bearer ${this.token}` : "",
         },
       }
     );
@@ -418,10 +420,10 @@ class EmployeeService {
   }
 
   async importEmployeeData(formData) {
-    return await this.apiCall('/employees/import', {
-      method: 'POST',
+    return await this.apiCall("/employees/import", {
+      method: "POST",
       headers: {
-        'Authorization': this.token ? `Bearer ${this.token}` : '',
+        Authorization: this.token ? `Bearer ${this.token}` : "",
       },
       body: formData,
     });
@@ -430,9 +432,9 @@ class EmployeeService {
   // Search Operations
   async searchEmployees(query, filters = {}) {
     const queryParams = new URLSearchParams();
-    queryParams.append('q', query);
+    queryParams.append("q", query);
 
-    Object.keys(filters).forEach(key => {
+    Object.keys(filters).forEach((key) => {
       if (filters[key]) {
         queryParams.append(key, filters[key]);
       }
@@ -444,12 +446,12 @@ class EmployeeService {
   // Utility Methods
   setAuthToken(token) {
     this.token = token;
-    localStorage.setItem('authToken', token);
+    localStorage.setItem("authToken", token);
   }
 
   clearAuthToken() {
     this.token = null;
-    localStorage.removeItem('authToken');
+    localStorage.removeItem("authToken");
   }
 
   // Lifecycle Operations
@@ -459,26 +461,26 @@ class EmployeeService {
 
   async updateOnboardingTask(employeeId, taskId, status) {
     return await this.apiCall(`/employees/${employeeId}/onboarding/${taskId}`, {
-      method: 'PATCH',
+      method: "PATCH",
       body: JSON.stringify({ status }),
     });
   }
 
   async initiateOffboarding(employeeId, offboardingData) {
     return await this.apiCall(`/employees/${employeeId}/offboarding`, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify(offboardingData),
     });
   }
 
   // Organization Chart Data
   async getOrganizationHierarchy() {
-    return await this.apiCall('/organization/hierarchy');
+    return await this.apiCall("/organization/hierarchy");
   }
 
   async updateReportingStructure(employeeId, reportingData) {
     return await this.apiCall(`/employees/${employeeId}/reporting`, {
-      method: 'PUT',
+      method: "PUT",
       body: JSON.stringify(reportingData),
     });
   }

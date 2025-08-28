@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   X,
   Save,
@@ -10,9 +10,13 @@ import {
   Calendar,
   Building2,
   DollarSign,
-  AlertTriangle
-} from 'lucide-react';
-import { useDepartments, useEnums, useEmployeeActions } from '../../hooks/useEmployees';
+  AlertTriangle,
+} from "lucide-react";
+import {
+  useDepartments,
+  useEnums,
+  useEmployeeActions,
+} from "../../hooks/useEmployees";
 
 const FormSection = ({ title, icon: Icon, children, isArabic }) => (
   <div className="border border-gray-200 rounded-lg p-6 space-y-4">
@@ -43,70 +47,82 @@ const EmployeeForm = ({
   employee = null,
   onSave,
   onClose,
-  isArabic = false
+  isArabic = false,
 }) => {
   const isEditing = Boolean(employee);
 
   // Use custom hooks for data fetching and actions
-  const { departments, loading: departmentsLoading, error: departmentsError } = useDepartments();
-  const { employeeRoles, nationalities, loading: enumsLoading, error: enumsError } = useEnums();
-  const { createEmployee, loading: actionLoading, error: actionError } = useEmployeeActions();
+  const {
+    departments,
+    loading: departmentsLoading,
+    error: departmentsError,
+  } = useDepartments();
+  const {
+    employeeRoles,
+    nationalities,
+    loading: enumsLoading,
+    error: enumsError,
+  } = useEnums();
+  const {
+    createEmployee,
+    loading: actionLoading,
+    error: actionError,
+  } = useEmployeeActions();
 
   // Combined loading state
   const apiLoading = departmentsLoading || enumsLoading;
 
   const [formData, setFormData] = useState({
     // Personal Information
-    firstName: employee?.personalInfo?.firstName || '',
-    lastName: employee?.personalInfo?.lastName || '',
-    fullNameAr: employee?.personalInfo?.fullNameAr || '',
-    dateOfBirth: employee?.personalInfo?.dateOfBirth || '',
-    nationality: employee?.personalInfo?.nationality || '',
-    nationalId: employee?.personalInfo?.nationalId || '',
-    maritalStatus: employee?.personalInfo?.maritalStatus || '',
-    gender: employee?.personalInfo?.gender || '',
-    personalPhone: employee?.personalInfo?.personalPhone || '',
-    personalEmail: employee?.personalInfo?.personalEmail || '',
+    firstName: employee?.personalInfo?.firstName || "",
+    lastName: employee?.personalInfo?.lastName || "",
+    fullNameAr: employee?.personalInfo?.fullNameAr || "",
+    dateOfBirth: employee?.personalInfo?.dateOfBirth || "",
+    nationality: employee?.personalInfo?.nationality || "",
+    nationalId: employee?.personalInfo?.nationalId || "",
+    maritalStatus: employee?.personalInfo?.maritalStatus || "",
+    gender: employee?.personalInfo?.gender || "",
+    personalPhone: employee?.personalInfo?.personalPhone || "",
+    personalEmail: employee?.personalInfo?.personalEmail || "",
 
     // Address
-    street: employee?.personalInfo?.homeAddress?.street || '',
-    city: employee?.personalInfo?.homeAddress?.city || '',
-    state: employee?.personalInfo?.homeAddress?.state || '',
-    postalCode: employee?.personalInfo?.homeAddress?.postalCode || '',
-    country: employee?.personalInfo?.homeAddress?.country || 'Saudi Arabia',
+    street: employee?.personalInfo?.homeAddress?.street || "",
+    city: employee?.personalInfo?.homeAddress?.city || "",
+    state: employee?.personalInfo?.homeAddress?.state || "",
+    postalCode: employee?.personalInfo?.homeAddress?.postalCode || "",
+    country: employee?.personalInfo?.homeAddress?.country || "Saudi Arabia",
 
     // Professional Information
-    jobTitle: employee?.professionalInfo?.jobTitle || '',
-    jobTitleAr: employee?.professionalInfo?.jobTitleAr || '',
-    departmentId: employee?.professionalInfo?.departmentId || '',
-    employmentType: employee?.professionalInfo?.employmentType || 'full-time',
-    workLocation: employee?.professionalInfo?.workLocation || '',
-    hireDate: employee?.professionalInfo?.hireDate || '',
-    workEmail: employee?.professionalInfo?.workEmail || '',
-    workPhone: employee?.professionalInfo?.workPhone || '',
+    jobTitle: employee?.professionalInfo?.jobTitle || "",
+    jobTitleAr: employee?.professionalInfo?.jobTitleAr || "",
+    departmentId: employee?.professionalInfo?.departmentId || "",
+    employmentType: employee?.professionalInfo?.employmentType || "full-time",
+    workLocation: employee?.professionalInfo?.workLocation || "",
+    hireDate: employee?.professionalInfo?.hireDate || "",
+    workEmail: employee?.professionalInfo?.workEmail || "",
+    workPhone: employee?.professionalInfo?.workPhone || "",
 
     // Salary Information
-    baseSalary: employee?.professionalInfo?.salaryInfo?.baseSalary || '',
-    currency: employee?.professionalInfo?.salaryInfo?.currency || 'SAR',
+    baseSalary: employee?.professionalInfo?.salaryInfo?.baseSalary || "",
+    currency: employee?.professionalInfo?.salaryInfo?.currency || "SAR",
 
     // Emergency Contact
-    emergencyName: employee?.emergencyContacts?.[0]?.name || '',
-    emergencyRelationship: employee?.emergencyContacts?.[0]?.relationship || '',
-    emergencyPhone: employee?.emergencyContacts?.[0]?.phone || '',
-    emergencyEmail: employee?.emergencyContacts?.[0]?.email || '',
+    emergencyName: employee?.emergencyContacts?.[0]?.name || "",
+    emergencyRelationship: employee?.emergencyContacts?.[0]?.relationship || "",
+    emergencyPhone: employee?.emergencyContacts?.[0]?.phone || "",
+    emergencyEmail: employee?.emergencyContacts?.[0]?.email || "",
 
     // Status
-    status: employee?.status || 'active',
+    status: employee?.status || "active",
   });
-
 
   const [errors, setErrors] = useState({});
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
@@ -115,30 +131,36 @@ const EmployeeForm = ({
 
     // Required field validation
     const requiredFields = [
-      'firstName',
-      'lastName',
-      'nationalId',
-      'personalPhone',
-      'personalEmail',
-      'jobTitle',
-      'departmentId',
-      'hireDate',
-      'workEmail'
+      "firstName",
+      "lastName",
+      "nationalId",
+      "personalPhone",
+      "personalEmail",
+      "jobTitle",
+      "departmentId",
+      "hireDate",
+      "workEmail",
     ];
 
-    requiredFields.forEach(field => {
+    requiredFields.forEach((field) => {
       if (!formData[field]) {
-        newErrors[field] = isArabic ? 'هذا الحقل مطلوب' : 'This field is required';
+        newErrors[field] = isArabic
+          ? "هذا الحقل مطلوب"
+          : "This field is required";
       }
     });
 
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (formData.personalEmail && !emailRegex.test(formData.personalEmail)) {
-      newErrors.personalEmail = isArabic ? 'البريد الإلكتروني غير صحيح' : 'Invalid email format';
+      newErrors.personalEmail = isArabic
+        ? "البريد الإلكتروني غير صحيح"
+        : "Invalid email format";
     }
     if (formData.workEmail && !emailRegex.test(formData.workEmail)) {
-      newErrors.workEmail = isArabic ? 'البريد الإلكتروني غير صحيح' : 'Invalid email format';
+      newErrors.workEmail = isArabic
+        ? "البريد الإلكتروني غير صحيح"
+        : "Invalid email format";
     }
 
     // Phone validation - Updated logic to match your backend expectation
@@ -195,19 +217,23 @@ const EmployeeForm = ({
             currency: formData.currency,
           },
         },
-        emergencyContacts: formData.emergencyName ? [{
-          name: formData.emergencyName,
-          relationship: formData.emergencyRelationship,
-          phone: formData.emergencyPhone,
-          email: formData.emergencyEmail,
-          isPrimary: true,
-        }] : [],
+        emergencyContacts: formData.emergencyName
+          ? [
+              {
+                name: formData.emergencyName,
+                relationship: formData.emergencyRelationship,
+                phone: formData.emergencyPhone,
+                email: formData.emergencyEmail,
+                isPrimary: true,
+              },
+            ]
+          : [],
         status: formData.status,
       };
 
       await onSave(employeeData);
     } catch (error) {
-      console.error('Form submission error:', error);
+      console.error("Form submission error:", error);
     }
   };
 
@@ -216,10 +242,12 @@ const EmployeeForm = ({
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white rounded-lg p-8 text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">{isArabic ? 'جاري التحميل...' : 'Loading...'}</p>
+          <p className="text-gray-600">
+            {isArabic ? "جاري التحميل..." : "Loading..."}
+          </p>
           {(departmentsError || enumsError) && (
             <p className="text-red-500 text-sm mt-2">
-              {isArabic ? 'خطأ في تحميل البيانات' : 'Error loading data'}
+              {isArabic ? "خطأ في تحميل البيانات" : "Error loading data"}
             </p>
           )}
         </div>
@@ -234,9 +262,12 @@ const EmployeeForm = ({
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-2xl font-semibold text-gray-900">
             {isEditing
-              ? (isArabic ? 'تعديل موظف' : 'Edit Employee')
-              : (isArabic ? 'إضافة موظف جديد' : 'Add New Employee')
-            }
+              ? isArabic
+                ? "تعديل موظف"
+                : "Edit Employee"
+              : isArabic
+              ? "إضافة موظف جديد"
+              : "Add New Employee"}
           </h2>
           <button
             onClick={onClose}
@@ -248,27 +279,31 @@ const EmployeeForm = ({
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
+        <form
+          onSubmit={handleSubmit}
+          className="p-6 space-y-6 max-h-[80vh] overflow-y-auto"
+        >
           {/* Display any action errors */}
           {actionError && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
               <div className="flex items-center gap-2 text-red-700">
                 <AlertTriangle className="w-4 h-4" />
                 <span className="text-sm">
-                  {isArabic ? 'حدث خطأ: ' : 'Error: '}{actionError}
+                  {isArabic ? "حدث خطأ: " : "Error: "}
+                  {actionError}
                 </span>
               </div>
             </div>
           )}
           {/* Personal Information */}
           <FormSection
-            title={isArabic ? 'المعلومات الشخصية' : 'Personal Information'}
+            title={isArabic ? "المعلومات الشخصية" : "Personal Information"}
             icon={User}
             isArabic={isArabic}
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
-                label={isArabic ? 'الاسم الأول' : 'First Name'}
+                label={isArabic ? "الاسم الأول" : "First Name"}
                 required
                 error={errors.firstName}
                 isArabic={isArabic}
@@ -276,14 +311,18 @@ const EmployeeForm = ({
                 <input
                   type="text"
                   value={formData.firstName}
-                  onChange={(e) => handleInputChange('firstName', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("firstName", e.target.value)
+                  }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder={isArabic ? 'أدخل الاسم الأول' : 'Enter first name'}
+                  placeholder={
+                    isArabic ? "أدخل الاسم الأول" : "Enter first name"
+                  }
                 />
               </FormField>
 
               <FormField
-                label={isArabic ? 'اسم العائلة' : 'Last Name'}
+                label={isArabic ? "اسم العائلة" : "Last Name"}
                 required
                 error={errors.lastName}
                 isArabic={isArabic}
@@ -291,51 +330,65 @@ const EmployeeForm = ({
                 <input
                   type="text"
                   value={formData.lastName}
-                  onChange={(e) => handleInputChange('lastName', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("lastName", e.target.value)
+                  }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder={isArabic ? 'أدخل اسم العائلة' : 'Enter last name'}
+                  placeholder={
+                    isArabic ? "أدخل اسم العائلة" : "Enter last name"
+                  }
                 />
               </FormField>
 
               <FormField
-                label={isArabic ? 'الاسم بالعربية' : 'Arabic Name'}
+                label={isArabic ? "الاسم بالعربية" : "Arabic Name"}
                 error={errors.fullNameAr}
                 isArabic={isArabic}
               >
                 <input
                   type="text"
                   value={formData.fullNameAr}
-                  onChange={(e) => handleInputChange('fullNameAr', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("fullNameAr", e.target.value)
+                  }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder={isArabic ? 'أدخل الاسم بالعربية' : 'Enter Arabic name'}
+                  placeholder={
+                    isArabic ? "أدخل الاسم بالعربية" : "Enter Arabic name"
+                  }
                 />
               </FormField>
 
               <FormField
-                label={isArabic ? 'تاريخ الميلاد' : 'Date of Birth'}
+                label={isArabic ? "تاريخ الميلاد" : "Date of Birth"}
                 error={errors.dateOfBirth}
                 isArabic={isArabic}
               >
                 <input
                   type="date"
                   value={formData.dateOfBirth}
-                  onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("dateOfBirth", e.target.value)
+                  }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </FormField>
 
               <FormField
-                label={isArabic ? 'الجنسية' : 'Nationality'}
+                label={isArabic ? "الجنسية" : "Nationality"}
                 error={errors.nationality}
                 isArabic={isArabic}
               >
                 <select
                   value={formData.nationality}
-                  onChange={(e) => handleInputChange('nationality', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("nationality", e.target.value)
+                  }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="">{isArabic ? 'اختر الجنسية' : 'Select Nationality'}</option>
-                  {nationalities.map(nationality => (
+                  <option value="">
+                    {isArabic ? "اختر الجنسية" : "Select Nationality"}
+                  </option>
+                  {nationalities.map((nationality) => (
                     <option key={nationality.key} value={nationality.value}>
                       {nationality.value}
                     </option>
@@ -344,7 +397,7 @@ const EmployeeForm = ({
               </FormField>
 
               <FormField
-                label={isArabic ? 'رقم الهوية' : 'National ID'}
+                label={isArabic ? "رقم الهوية" : "National ID"}
                 required
                 error={errors.nationalId}
                 isArabic={isArabic}
@@ -352,50 +405,68 @@ const EmployeeForm = ({
                 <input
                   type="text"
                   value={formData.nationalId}
-                  onChange={(e) => handleInputChange('nationalId', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("nationalId", e.target.value)
+                  }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder={isArabic ? 'أدخل رقم الهوية' : 'Enter national ID'}
+                  placeholder={
+                    isArabic ? "أدخل رقم الهوية" : "Enter national ID"
+                  }
                 />
               </FormField>
 
               <FormField
-                label={isArabic ? 'الحالة الاجتماعية' : 'Marital Status'}
+                label={isArabic ? "الحالة الاجتماعية" : "Marital Status"}
                 error={errors.maritalStatus}
                 isArabic={isArabic}
               >
                 <select
                   value={formData.maritalStatus}
-                  onChange={(e) => handleInputChange('maritalStatus', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("maritalStatus", e.target.value)
+                  }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="">{isArabic ? 'اختر الحالة الاجتماعية' : 'Select Marital Status'}</option>
-                  <option value="single">{isArabic ? 'أعزب' : 'Single'}</option>
-                  <option value="married">{isArabic ? 'متزوج' : 'Married'}</option>
-                  <option value="divorced">{isArabic ? 'مطلق' : 'Divorced'}</option>
-                  <option value="widowed">{isArabic ? 'أرمل' : 'Widowed'}</option>
+                  <option value="">
+                    {isArabic
+                      ? "اختر الحالة الاجتماعية"
+                      : "Select Marital Status"}
+                  </option>
+                  <option value="single">{isArabic ? "أعزب" : "Single"}</option>
+                  <option value="married">
+                    {isArabic ? "متزوج" : "Married"}
+                  </option>
+                  <option value="divorced">
+                    {isArabic ? "مطلق" : "Divorced"}
+                  </option>
+                  <option value="widowed">
+                    {isArabic ? "أرمل" : "Widowed"}
+                  </option>
                 </select>
               </FormField>
 
               <FormField
-                label={isArabic ? 'الجنس' : 'Gender'}
+                label={isArabic ? "الجنس" : "Gender"}
                 error={errors.gender}
                 isArabic={isArabic}
               >
                 <select
                   value={formData.gender}
-                  onChange={(e) => handleInputChange('gender', e.target.value)}
+                  onChange={(e) => handleInputChange("gender", e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="">{isArabic ? 'اختر الجنس' : 'Select Gender'}</option>
-                  <option value="male">{isArabic ? 'ذكر' : 'Male'}</option>
-                  <option value="female">{isArabic ? 'أنثى' : 'Female'}</option>
+                  <option value="">
+                    {isArabic ? "اختر الجنس" : "Select Gender"}
+                  </option>
+                  <option value="male">{isArabic ? "ذكر" : "Male"}</option>
+                  <option value="female">{isArabic ? "أنثى" : "Female"}</option>
                 </select>
               </FormField>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
-                label={isArabic ? 'الهاتف الشخصي' : 'Personal Phone'}
+                label={isArabic ? "الهاتف الشخصي" : "Personal Phone"}
                 required
                 error={errors.personalPhone}
                 isArabic={isArabic}
@@ -403,14 +474,16 @@ const EmployeeForm = ({
                 <input
                   type="tel"
                   value={formData.personalPhone}
-                  onChange={(e) => handleInputChange('personalPhone', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("personalPhone", e.target.value)
+                  }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="+966501234567"
                 />
               </FormField>
 
               <FormField
-                label={isArabic ? 'البريد الإلكتروني الشخصي' : 'Personal Email'}
+                label={isArabic ? "البريد الإلكتروني الشخصي" : "Personal Email"}
                 required
                 error={errors.personalEmail}
                 isArabic={isArabic}
@@ -418,9 +491,13 @@ const EmployeeForm = ({
                 <input
                   type="email"
                   value={formData.personalEmail}
-                  onChange={(e) => handleInputChange('personalEmail', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("personalEmail", e.target.value)
+                  }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder={isArabic ? 'example@email.com' : 'example@email.com'}
+                  placeholder={
+                    isArabic ? "example@email.com" : "example@email.com"
+                  }
                 />
               </FormField>
             </div>
@@ -428,24 +505,28 @@ const EmployeeForm = ({
 
           {/* Professional Information */}
           <FormSection
-            title={isArabic ? 'المعلومات المهنية' : 'Professional Information'}
+            title={isArabic ? "المعلومات المهنية" : "Professional Information"}
             icon={Briefcase}
             isArabic={isArabic}
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
-                label={isArabic ? 'المسمى الوظيفي' : 'Job Title'}
+                label={isArabic ? "المسمى الوظيفي" : "Job Title"}
                 required
                 error={errors.jobTitle}
                 isArabic={isArabic}
               >
                 <select
                   value={formData.jobTitle}
-                  onChange={(e) => handleInputChange('jobTitle', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("jobTitle", e.target.value)
+                  }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="">{isArabic ? 'اختر المسمى الوظيفي' : 'Select Job Title'}</option>
-                  {employeeRoles.map(role => (
+                  <option value="">
+                    {isArabic ? "اختر المسمى الوظيفي" : "Select Job Title"}
+                  </option>
+                  {employeeRoles.map((role) => (
                     <option key={role.key} value={role.value}>
                       {role.value}
                     </option>
@@ -454,32 +535,44 @@ const EmployeeForm = ({
               </FormField>
 
               <FormField
-                label={isArabic ? 'المسمى الوظيفي بالعربية' : 'Job Title (Arabic)'}
+                label={
+                  isArabic ? "المسمى الوظيفي بالعربية" : "Job Title (Arabic)"
+                }
                 error={errors.jobTitleAr}
                 isArabic={isArabic}
               >
                 <input
                   type="text"
                   value={formData.jobTitleAr}
-                  onChange={(e) => handleInputChange('jobTitleAr', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("jobTitleAr", e.target.value)
+                  }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder={isArabic ? 'أدخل المسمى الوظيفي بالعربية' : 'Enter Arabic job title'}
+                  placeholder={
+                    isArabic
+                      ? "أدخل المسمى الوظيفي بالعربية"
+                      : "Enter Arabic job title"
+                  }
                 />
               </FormField>
 
               <FormField
-                label={isArabic ? 'القسم' : 'Department'}
+                label={isArabic ? "القسم" : "Department"}
                 required
                 error={errors.departmentId}
                 isArabic={isArabic}
               >
                 <select
                   value={formData.departmentId}
-                  onChange={(e) => handleInputChange('departmentId', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("departmentId", e.target.value)
+                  }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="">{isArabic ? 'اختر القسم' : 'Select Department'}</option>
-                  {departments.map(dept => (
+                  <option value="">
+                    {isArabic ? "اختر القسم" : "Select Department"}
+                  </option>
+                  {departments.map((dept) => (
                     <option key={dept.id} value={dept.id}>
                       {isArabic ? dept.nameAr : dept.name}
                     </option>
@@ -488,38 +581,52 @@ const EmployeeForm = ({
               </FormField>
 
               <FormField
-                label={isArabic ? 'نوع التوظيف' : 'Employment Type'}
+                label={isArabic ? "نوع التوظيف" : "Employment Type"}
                 error={errors.employmentType}
                 isArabic={isArabic}
               >
                 <select
                   value={formData.employmentType}
-                  onChange={(e) => handleInputChange('employmentType', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("employmentType", e.target.value)
+                  }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="full-time">{isArabic ? 'دوام كامل' : 'Full Time'}</option>
-                  <option value="part-time">{isArabic ? 'دوام جزئي' : 'Part Time'}</option>
-                  <option value="contract">{isArabic ? 'تعاقد' : 'Contract'}</option>
-                  <option value="temporary">{isArabic ? 'مؤقت' : 'Temporary'}</option>
+                  <option value="full-time">
+                    {isArabic ? "دوام كامل" : "Full Time"}
+                  </option>
+                  <option value="part-time">
+                    {isArabic ? "دوام جزئي" : "Part Time"}
+                  </option>
+                  <option value="contract">
+                    {isArabic ? "تعاقد" : "Contract"}
+                  </option>
+                  <option value="temporary">
+                    {isArabic ? "مؤقت" : "Temporary"}
+                  </option>
                 </select>
               </FormField>
 
               <FormField
-                label={isArabic ? 'موقع العمل' : 'Work Location'}
+                label={isArabic ? "موقع العمل" : "Work Location"}
                 error={errors.workLocation}
                 isArabic={isArabic}
               >
                 <input
                   type="text"
                   value={formData.workLocation}
-                  onChange={(e) => handleInputChange('workLocation', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("workLocation", e.target.value)
+                  }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder={isArabic ? 'أدخل موقع العمل' : 'Enter work location'}
+                  placeholder={
+                    isArabic ? "أدخل موقع العمل" : "Enter work location"
+                  }
                 />
               </FormField>
 
               <FormField
-                label={isArabic ? 'تاريخ التوظيف' : 'Hire Date'}
+                label={isArabic ? "تاريخ التوظيف" : "Hire Date"}
                 required
                 error={errors.hireDate}
                 isArabic={isArabic}
@@ -527,13 +634,15 @@ const EmployeeForm = ({
                 <input
                   type="date"
                   value={formData.hireDate}
-                  onChange={(e) => handleInputChange('hireDate', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("hireDate", e.target.value)
+                  }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </FormField>
 
               <FormField
-                label={isArabic ? 'البريد الإلكتروني للعمل' : 'Work Email'}
+                label={isArabic ? "البريد الإلكتروني للعمل" : "Work Email"}
                 required
                 error={errors.workEmail}
                 isArabic={isArabic}
@@ -541,21 +650,27 @@ const EmployeeForm = ({
                 <input
                   type="email"
                   value={formData.workEmail}
-                  onChange={(e) => handleInputChange('workEmail', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("workEmail", e.target.value)
+                  }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder={isArabic ? 'employee@company.com' : 'employee@company.com'}
+                  placeholder={
+                    isArabic ? "employee@company.com" : "employee@company.com"
+                  }
                 />
               </FormField>
 
               <FormField
-                label={isArabic ? 'هاتف العمل' : 'Work Phone'}
+                label={isArabic ? "هاتف العمل" : "Work Phone"}
                 error={errors.workPhone}
                 isArabic={isArabic}
               >
                 <input
                   type="tel"
                   value={formData.workPhone}
-                  onChange={(e) => handleInputChange('workPhone', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("workPhone", e.target.value)
+                  }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="+966112345678"
                 />
@@ -564,14 +679,16 @@ const EmployeeForm = ({
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <FormField
-                label={isArabic ? 'الراتب الأساسي' : 'Base Salary'}
+                label={isArabic ? "الراتب الأساسي" : "Base Salary"}
                 error={errors.baseSalary}
                 isArabic={isArabic}
               >
                 <input
                   type="number"
                   value={formData.baseSalary}
-                  onChange={(e) => handleInputChange('baseSalary', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("baseSalary", e.target.value)
+                  }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="0"
                   min="0"
@@ -580,13 +697,15 @@ const EmployeeForm = ({
               </FormField>
 
               <FormField
-                label={isArabic ? 'العملة' : 'Currency'}
+                label={isArabic ? "العملة" : "Currency"}
                 error={errors.currency}
                 isArabic={isArabic}
               >
                 <select
                   value={formData.currency}
-                  onChange={(e) => handleInputChange('currency', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("currency", e.target.value)
+                  }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="SAR">SAR</option>
@@ -596,18 +715,22 @@ const EmployeeForm = ({
               </FormField>
 
               <FormField
-                label={isArabic ? 'الحالة' : 'Status'}
+                label={isArabic ? "الحالة" : "Status"}
                 error={errors.status}
                 isArabic={isArabic}
               >
                 <select
                   value={formData.status}
-                  onChange={(e) => handleInputChange('status', e.target.value)}
+                  onChange={(e) => handleInputChange("status", e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="active">{isArabic ? 'نشط' : 'Active'}</option>
-                  <option value="inactive">{isArabic ? 'غير نشط' : 'Inactive'}</option>
-                  <option value="on-leave">{isArabic ? 'في إجازة' : 'On Leave'}</option>
+                  <option value="active">{isArabic ? "نشط" : "Active"}</option>
+                  <option value="inactive">
+                    {isArabic ? "غير نشط" : "Inactive"}
+                  </option>
+                  <option value="on-leave">
+                    {isArabic ? "في إجازة" : "On Leave"}
+                  </option>
                 </select>
               </FormField>
             </div>
@@ -615,78 +738,90 @@ const EmployeeForm = ({
 
           {/* Address Information */}
           <FormSection
-            title={isArabic ? 'العنوان' : 'Address Information'}
+            title={isArabic ? "العنوان" : "Address Information"}
             icon={MapPin}
             isArabic={isArabic}
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
-                label={isArabic ? 'الشارع' : 'Street'}
+                label={isArabic ? "الشارع" : "Street"}
                 error={errors.street}
                 isArabic={isArabic}
               >
                 <input
                   type="text"
                   value={formData.street}
-                  onChange={(e) => handleInputChange('street', e.target.value)}
+                  onChange={(e) => handleInputChange("street", e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder={isArabic ? 'أدخل اسم الشارع' : 'Enter street name'}
+                  placeholder={
+                    isArabic ? "أدخل اسم الشارع" : "Enter street name"
+                  }
                 />
               </FormField>
 
               <FormField
-                label={isArabic ? 'المدينة' : 'City'}
+                label={isArabic ? "المدينة" : "City"}
                 error={errors.city}
                 isArabic={isArabic}
               >
                 <input
                   type="text"
                   value={formData.city}
-                  onChange={(e) => handleInputChange('city', e.target.value)}
+                  onChange={(e) => handleInputChange("city", e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder={isArabic ? 'أدخل اسم المدينة' : 'Enter city name'}
+                  placeholder={
+                    isArabic ? "أدخل اسم المدينة" : "Enter city name"
+                  }
                 />
               </FormField>
 
               <FormField
-                label={isArabic ? 'المنطقة' : 'State/Province'}
+                label={isArabic ? "المنطقة" : "State/Province"}
                 error={errors.state}
                 isArabic={isArabic}
               >
                 <input
                   type="text"
                   value={formData.state}
-                  onChange={(e) => handleInputChange('state', e.target.value)}
+                  onChange={(e) => handleInputChange("state", e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder={isArabic ? 'أدخل اسم المنطقة' : 'Enter state/province'}
+                  placeholder={
+                    isArabic ? "أدخل اسم المنطقة" : "Enter state/province"
+                  }
                 />
               </FormField>
 
               <FormField
-                label={isArabic ? 'الرمز البريدي' : 'Postal Code'}
+                label={isArabic ? "الرمز البريدي" : "Postal Code"}
                 error={errors.postalCode}
                 isArabic={isArabic}
               >
                 <input
                   type="text"
                   value={formData.postalCode}
-                  onChange={(e) => handleInputChange('postalCode', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("postalCode", e.target.value)
+                  }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder={isArabic ? 'أدخل الرمز البريدي' : 'Enter postal code'}
+                  placeholder={
+                    isArabic ? "أدخل الرمز البريدي" : "Enter postal code"
+                  }
                 />
               </FormField>
 
               <FormField
-                label={isArabic ? 'الدولة' : 'Country'}
+                label={isArabic ? "الدولة" : "Country"}
                 error={errors.country}
                 isArabic={isArabic}
               >
                 <input
                   type="text"
                   value={formData.country}
-                  onChange={(e) => handleInputChange('country', e.target.value)}
+                  onChange={(e) => handleInputChange("country", e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder={isArabic ? 'أدخل اسم الدولة' : 'Enter country name'}
+                  placeholder={
+                    isArabic ? "أدخل اسم الدولة" : "Enter country name"
+                  }
                 />
               </FormField>
             </div>
@@ -694,68 +829,88 @@ const EmployeeForm = ({
 
           {/* Emergency Contact */}
           <FormSection
-            title={isArabic ? 'جهة الاتصال للطوارئ' : 'Emergency Contact'}
+            title={isArabic ? "جهة الاتصال للطوارئ" : "Emergency Contact"}
             icon={Phone}
             isArabic={isArabic}
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
-                label={isArabic ? 'اسم جهة الاتصال' : 'Contact Name'}
+                label={isArabic ? "اسم جهة الاتصال" : "Contact Name"}
                 error={errors.emergencyName}
                 isArabic={isArabic}
               >
                 <input
                   type="text"
                   value={formData.emergencyName}
-                  onChange={(e) => handleInputChange('emergencyName', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("emergencyName", e.target.value)
+                  }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder={isArabic ? 'أدخل اسم جهة الاتصال' : 'Enter contact name'}
+                  placeholder={
+                    isArabic ? "أدخل اسم جهة الاتصال" : "Enter contact name"
+                  }
                 />
               </FormField>
 
               <FormField
-                label={isArabic ? 'صلة القرابة' : 'Relationship'}
+                label={isArabic ? "صلة القرابة" : "Relationship"}
                 error={errors.emergencyRelationship}
                 isArabic={isArabic}
               >
                 <select
                   value={formData.emergencyRelationship}
-                  onChange={(e) => handleInputChange('emergencyRelationship', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("emergencyRelationship", e.target.value)
+                  }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="">{isArabic ? 'اختر صلة القرابة' : 'Select relationship'}</option>
-                  <option value="Spouse">{isArabic ? 'الزوج/الزوجة' : 'Spouse'}</option>
-                  <option value="Parent">{isArabic ? 'والد/والدة' : 'Parent'}</option>
-                  <option value="Sibling">{isArabic ? 'أخ/أخت' : 'Sibling'}</option>
-                  <option value="Child">{isArabic ? 'ابن/ابنة' : 'Child'}</option>
-                  <option value="Friend">{isArabic ? 'صديق' : 'Friend'}</option>
-                  <option value="Other">{isArabic ? 'أخرى' : 'Other'}</option>
+                  <option value="">
+                    {isArabic ? "اختر صلة القرابة" : "Select relationship"}
+                  </option>
+                  <option value="Spouse">
+                    {isArabic ? "الزوج/الزوجة" : "Spouse"}
+                  </option>
+                  <option value="Parent">
+                    {isArabic ? "والد/والدة" : "Parent"}
+                  </option>
+                  <option value="Sibling">
+                    {isArabic ? "أخ/أخت" : "Sibling"}
+                  </option>
+                  <option value="Child">
+                    {isArabic ? "ابن/ابنة" : "Child"}
+                  </option>
+                  <option value="Friend">{isArabic ? "صديق" : "Friend"}</option>
+                  <option value="Other">{isArabic ? "أخرى" : "Other"}</option>
                 </select>
               </FormField>
 
               <FormField
-                label={isArabic ? 'هاتف الطوارئ' : 'Emergency Phone'}
+                label={isArabic ? "هاتف الطوارئ" : "Emergency Phone"}
                 error={errors.emergencyPhone}
                 isArabic={isArabic}
               >
                 <input
                   type="tel"
                   value={formData.emergencyPhone}
-                  onChange={(e) => handleInputChange('emergencyPhone', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("emergencyPhone", e.target.value)
+                  }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="+966501234567"
                 />
               </FormField>
 
               <FormField
-                label={isArabic ? 'بريد جهة الاتصال' : 'Emergency Email'}
+                label={isArabic ? "بريد جهة الاتصال" : "Emergency Email"}
                 error={errors.emergencyEmail}
                 isArabic={isArabic}
               >
                 <input
                   type="email"
                   value={formData.emergencyEmail}
-                  onChange={(e) => handleInputChange('emergencyEmail', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("emergencyEmail", e.target.value)
+                  }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="emergency@email.com"
                 />
@@ -772,7 +927,7 @@ const EmployeeForm = ({
             disabled={actionLoading}
             className="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors"
           >
-            {isArabic ? 'إلغاء' : 'Cancel'}
+            {isArabic ? "إلغاء" : "Cancel"}
           </button>
           <button
             type="submit"
@@ -783,12 +938,12 @@ const EmployeeForm = ({
             {actionLoading ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                {isArabic ? 'جاري الحفظ...' : 'Saving...'}
+                {isArabic ? "جاري الحفظ..." : "Saving..."}
               </>
             ) : (
               <>
                 <Save className="w-4 h-4" />
-                {isArabic ? 'حفظ' : 'Save'}
+                {isArabic ? "حفظ" : "Save"}
               </>
             )}
           </button>
