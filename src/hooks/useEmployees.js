@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { employeeService } from '../services/EmployeeService';
+import { useState, useEffect, useCallback } from "react";
+import { employeeService } from "../services/EmployeeService";
 
 export const useEmployees = (initialFilters = {}) => {
   const [employees, setEmployees] = useState([]);
@@ -15,7 +15,7 @@ export const useEmployees = (initialFilters = {}) => {
       setEmployees(response.data || response);
     } catch (err) {
       setError(err.message);
-      console.error('Error fetching employees:', err);
+      console.error("Error fetching employees:", err);
     } finally {
       setLoading(false);
     }
@@ -26,7 +26,7 @@ export const useEmployees = (initialFilters = {}) => {
   }, [fetchEmployees]);
 
   const updateFilters = useCallback((newFilters) => {
-    setFilters(prev => ({ ...prev, ...newFilters }));
+    setFilters((prev) => ({ ...prev, ...newFilters }));
   }, []);
 
   const clearFilters = useCallback(() => {
@@ -64,7 +64,7 @@ export const useEmployee = (employeeId) => {
       setEmployee(response.data || response);
     } catch (err) {
       setError(err.message);
-      console.error('Error fetching employee:', err);
+      console.error("Error fetching employee:", err);
     } finally {
       setLoading(false);
     }
@@ -74,16 +74,22 @@ export const useEmployee = (employeeId) => {
     fetchEmployee();
   }, [fetchEmployee]);
 
-  const updateEmployee = useCallback(async (updateData) => {
-    try {
-      const response = await employeeService.updateEmployee(employeeId, updateData);
-      setEmployee(response.data || response);
-      return response;
-    } catch (err) {
-      setError(err.message);
-      throw err;
-    }
-  }, [employeeId]);
+  const updateEmployee = useCallback(
+    async (updateData) => {
+      try {
+        const response = await employeeService.updateEmployee(
+          employeeId,
+          updateData
+        );
+        setEmployee(response.data || response);
+        return response;
+      } catch (err) {
+        setError(err.message);
+        throw err;
+      }
+    },
+    [employeeId]
+  );
 
   const deleteEmployee = useCallback(async () => {
     try {
@@ -119,7 +125,7 @@ export const useDepartments = () => {
       setDepartments(response.data || response);
     } catch (err) {
       setError(err.message);
-      console.error('Error fetching departments:', err);
+      console.error("Error fetching departments:", err);
     } finally {
       setLoading(false);
     }
@@ -132,7 +138,7 @@ export const useDepartments = () => {
   const createDepartment = useCallback(async (departmentData) => {
     try {
       const response = await employeeService.createDepartment(departmentData);
-      setDepartments(prev => [...prev, response.data || response]);
+      setDepartments((prev) => [...prev, response.data || response]);
       return response;
     } catch (err) {
       setError(err.message);
@@ -142,10 +148,13 @@ export const useDepartments = () => {
 
   const updateDepartment = useCallback(async (departmentId, updateData) => {
     try {
-      const response = await employeeService.updateDepartment(departmentId, updateData);
-      setDepartments(prev =>
-        prev.map(dept =>
-          dept.id === departmentId ? (response.data || response) : dept
+      const response = await employeeService.updateDepartment(
+        departmentId,
+        updateData
+      );
+      setDepartments((prev) =>
+        prev.map((dept) =>
+          dept.id === departmentId ? response.data || response : dept
         )
       );
       return response;
@@ -178,24 +187,29 @@ export const useEnums = () => {
 
       const [rolesResponse, nationalitiesResponse] = await Promise.allSettled([
         employeeService.getEmployeeRoles(),
-        employeeService.getNationalities()
+        employeeService.getNationalities(),
       ]);
 
-      if (rolesResponse.status === 'fulfilled' && rolesResponse.value?.data) {
+      if (rolesResponse.status === "fulfilled" && rolesResponse.value?.data) {
         setEmployeeRoles(rolesResponse.value.data);
       } else {
-        console.warn('Failed to load employee roles:', rolesResponse.reason);
+        console.warn("Failed to load employee roles:", rolesResponse.reason);
       }
 
-      if (nationalitiesResponse.status === 'fulfilled' && nationalitiesResponse.value?.data) {
+      if (
+        nationalitiesResponse.status === "fulfilled" &&
+        nationalitiesResponse.value?.data
+      ) {
         setNationalities(nationalitiesResponse.value.data);
       } else {
-        console.warn('Failed to load nationalities:', nationalitiesResponse.reason);
+        console.warn(
+          "Failed to load nationalities:",
+          nationalitiesResponse.reason
+        );
       }
-
     } catch (err) {
       setError(err.message);
-      console.error('Error fetching enums:', err);
+      console.error("Error fetching enums:", err);
     } finally {
       setLoading(false);
     }
@@ -231,7 +245,7 @@ export const useEmployeeDocuments = (employeeId) => {
       setDocuments(response.data || response);
     } catch (err) {
       setError(err.message);
-      console.error('Error fetching documents:', err);
+      console.error("Error fetching documents:", err);
     } finally {
       setLoading(false);
     }
@@ -241,30 +255,39 @@ export const useEmployeeDocuments = (employeeId) => {
     fetchDocuments();
   }, [fetchDocuments]);
 
-  const uploadDocument = useCallback(async (formData) => {
-    try {
-      setUploading(true);
-      setError(null);
-      const response = await employeeService.uploadEmployeeDocument(employeeId, formData);
-      setDocuments(prev => [...prev, response.data || response]);
-      return response;
-    } catch (err) {
-      setError(err.message);
-      throw err;
-    } finally {
-      setUploading(false);
-    }
-  }, [employeeId]);
+  const uploadDocument = useCallback(
+    async (formData) => {
+      try {
+        setUploading(true);
+        setError(null);
+        const response = await employeeService.uploadEmployeeDocument(
+          employeeId,
+          formData
+        );
+        setDocuments((prev) => [...prev, response.data || response]);
+        return response;
+      } catch (err) {
+        setError(err.message);
+        throw err;
+      } finally {
+        setUploading(false);
+      }
+    },
+    [employeeId]
+  );
 
-  const deleteDocument = useCallback(async (documentId) => {
-    try {
-      await employeeService.deleteEmployeeDocument(employeeId, documentId);
-      setDocuments(prev => prev.filter(doc => doc.id !== documentId));
-    } catch (err) {
-      setError(err.message);
-      throw err;
-    }
-  }, [employeeId]);
+  const deleteDocument = useCallback(
+    async (documentId) => {
+      try {
+        await employeeService.deleteEmployeeDocument(employeeId, documentId);
+        setDocuments((prev) => prev.filter((doc) => doc.id !== documentId));
+      } catch (err) {
+        setError(err.message);
+        throw err;
+      }
+    },
+    [employeeId]
+  );
 
   return {
     documents,
@@ -278,7 +301,7 @@ export const useEmployeeDocuments = (employeeId) => {
 };
 
 // hooks/useEmployeeAnalytics.js
-export const useEmployeeAnalytics = (timeRange = '30d') => {
+export const useEmployeeAnalytics = (timeRange = "30d") => {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -291,7 +314,7 @@ export const useEmployeeAnalytics = (timeRange = '30d') => {
       setAnalytics(response.data || response);
     } catch (err) {
       setError(err.message);
-      console.error('Error fetching analytics:', err);
+      console.error("Error fetching analytics:", err);
     } finally {
       setLoading(false);
     }
@@ -328,7 +351,7 @@ export const useEmployeeActions = () => {
     }
   }, []);
 
-  const exportEmployees = useCallback(async (format = 'csv', filters = {}) => {
+  const exportEmployees = useCallback(async (format = "csv", filters = {}) => {
     try {
       setLoading(true);
       setError(null);
@@ -336,9 +359,11 @@ export const useEmployeeActions = () => {
 
       // Create download link
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.download = `employees_export_${new Date().toISOString().split('T')[0]}.${format}`;
+      link.download = `employees_export_${
+        new Date().toISOString().split("T")[0]
+      }.${format}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -358,7 +383,7 @@ export const useEmployeeActions = () => {
       setLoading(true);
       setError(null);
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append("file", file);
       const response = await employeeService.importEmployeeData(formData);
       return response;
     } catch (err) {
@@ -412,7 +437,7 @@ export const useSearch = () => {
       setResults(response.data || response);
     } catch (err) {
       setError(err.message);
-      console.error('Error searching employees:', err);
+      console.error("Error searching employees:", err);
     } finally {
       setLoading(false);
     }

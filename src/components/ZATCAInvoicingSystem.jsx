@@ -131,6 +131,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
     ],
     buyer: {
       type: "B2B",
+      vatNumber: null,
       nameEn: "",
       nameAr: "",
       addressEn: "",
@@ -652,6 +653,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
 
         buyer: {
           type: editingInvoice.buyer?.type,
+          vatNumber: editingInvoice.buyer?.vatNumber,
           nameEn: editingInvoice.buyer?.nameEn,
           nameAr: editingInvoice.buyer?.nameAr,
           addressEn: editingInvoice.buyer?.addressEn,
