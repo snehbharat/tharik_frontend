@@ -177,6 +177,7 @@ export const useDepartments = () => {
 export const useEnums = () => {
   const [employeeRoles, setEmployeeRoles] = useState([]);
   const [nationalities, setNationalities] = useState([]);
+  const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -185,9 +186,10 @@ export const useEnums = () => {
       setLoading(true);
       setError(null);
 
-      const [rolesResponse, nationalitiesResponse] = await Promise.allSettled([
+      const [rolesResponse, nationalitiesResponse, teamsResponse] = await Promise.allSettled([
         employeeService.getEmployeeRoles(),
         employeeService.getNationalities(),
+        employeeService.getTeamsForEmployee(),
       ]);
 
       if (rolesResponse.status === "fulfilled" && rolesResponse.value?.data) {
@@ -207,6 +209,13 @@ export const useEnums = () => {
           nationalitiesResponse.reason
         );
       }
+
+      if (teamsResponse.status === "fulfilled" && teamsResponse.value?.data) {
+        setTeams(teamsResponse.value.data);
+      } else {
+        console.warn("Failed to load employee roles:", teamsResponse.reason);
+      }
+
     } catch (err) {
       setError(err.message);
       console.error("Error fetching enums:", err);
@@ -222,6 +231,7 @@ export const useEnums = () => {
   return {
     employeeRoles,
     nationalities,
+    teams,
     loading,
     error,
     refetch: fetchEnums,

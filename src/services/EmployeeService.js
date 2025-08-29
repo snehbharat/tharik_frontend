@@ -255,6 +255,10 @@ class EmployeeService {
     return await apiClient.get(`/enum/getNationality`);
   }
 
+  async getTeamsForEmployee() {
+    return await apiClient.get(`/teams/get/all/teams/employee`);
+  }
+
   // Employee CRUD Operations
   async getAllEmployees(filters = {}) {
     const queryParams = new URLSearchParams();
