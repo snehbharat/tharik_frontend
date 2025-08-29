@@ -60,6 +60,7 @@ const EmployeeForm = ({
   const {
     employeeRoles,
     nationalities,
+    teams,
     loading: enumsLoading,
     error: enumsError,
   } = useEnums();
@@ -69,8 +70,31 @@ const EmployeeForm = ({
     error: actionError,
   } = useEmployeeActions();
 
+  console.log("teams", teams);
+
   // Combined loading state
   const apiLoading = departmentsLoading || enumsLoading;
+
+  function decimalToNumber(value) {
+    if (!value) return null;
+
+    // If it’s a BSON Decimal128 object
+    if (typeof value.toString === "function" && value._bsontype === "Decimal128") {
+      return parseFloat(value.toString());
+    }
+
+    // If it’s the raw JSON form { $numberDecimal: "10000" }
+    if (value.$numberDecimal) {
+      return parseFloat(value.$numberDecimal);
+    }
+
+    // Already a number or string
+    if (typeof value === "number") return value;
+    if (typeof value === "string") return parseFloat(value);
+
+    return null;
+  }
+
 
   const [formData, setFormData] = useState({
     // Personal Information
@@ -95,7 +119,7 @@ const EmployeeForm = ({
     // Professional Information
     jobTitle: employee?.professionalInfo?.jobTitle || "",
     jobTitleAr: employee?.professionalInfo?.jobTitleAr || "",
-    departmentId: employee?.professionalInfo?.departmentId || "",
+    departmentId: employee?.professionalInfo?.departmentId?._id || "",
     employmentType: employee?.professionalInfo?.employmentType || "full-time",
     workLocation: employee?.professionalInfo?.workLocation || "",
     hireDate: employee?.professionalInfo?.hireDate || "",
@@ -103,7 +127,10 @@ const EmployeeForm = ({
     workPhone: employee?.professionalInfo?.workPhone || "",
 
     // Salary Information
-    baseSalary: employee?.professionalInfo?.salaryInfo?.baseSalary || "",
+    baseSalary: employee?.professionalInfo?.salaryInfo?.baseSalary || 0,
+    hourly_rate: employee?.professionalInfo?.salaryInfo?.hourly_rate || 0,
+    actual_rate: employee?.professionalInfo?.salaryInfo?.actual_rate || 0,
+    overtimeMultiplier: employee?.professionalInfo?.salaryInfo?.overtimeMultiplier || 0,
     currency: employee?.professionalInfo?.salaryInfo?.currency || "SAR",
 
     // Emergency Contact
@@ -114,6 +141,10 @@ const EmployeeForm = ({
 
     // Status
     status: employee?.status || "active",
+
+    // pass team Id
+    teamId: employee?.team_id,
+
   });
 
   const [errors, setErrors] = useState({});
@@ -175,13 +206,13 @@ const EmployeeForm = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    console.log("Form submitted, validating...");
     if (!validateForm()) {
+      console.log("Validation failed:", errors);
       return;
     }
-
+    console.log("Validation passed, preparing employeeData...");
     try {
-      // Structure data according to your backend's comprehensive format
       const employeeData = {
         personalInfo: {
           firstName: formData.firstName,
@@ -214,28 +245,36 @@ const EmployeeForm = ({
           workPhone: formData.workPhone,
           salaryInfo: {
             baseSalary: parseFloat(formData.baseSalary) || 0,
+            hourly_rate: parseFloat(formData?.hourly_rate) || 0,
+            actual_rate: parseFloat(formData?.actual_rate) || 0,
+            overtimeMultiplier: parseFloat(formData?.overtimeMultiplier) || 0,
             currency: formData.currency,
           },
         },
         emergencyContacts: formData.emergencyName
           ? [
-              {
-                name: formData.emergencyName,
-                relationship: formData.emergencyRelationship,
-                phone: formData.emergencyPhone,
-                email: formData.emergencyEmail,
-                isPrimary: true,
-              },
-            ]
+            {
+              name: formData.emergencyName,
+              relationship: formData.emergencyRelationship,
+              phone: formData.emergencyPhone,
+              email: formData.emergencyEmail,
+              isPrimary: true,
+            },
+          ]
           : [],
         status: formData.status,
+        teamId: formData.teamId, // Include teamId
       };
-
+      console.log("employeeData:", JSON.stringify(employeeData, null, 2));
+      console.log("Calling onSave...");
       await onSave(employeeData);
+      console.log("onSave completed successfully");
     } catch (error) {
       console.error("Form submission error:", error);
     }
   };
+
+  console.log("employee", employee);
 
   if (apiLoading) {
     return (
@@ -266,8 +305,8 @@ const EmployeeForm = ({
                 ? "تعديل موظف"
                 : "Edit Employee"
               : isArabic
-              ? "إضافة موظف جديد"
-              : "Add New Employee"}
+                ? "إضافة موظف جديد"
+                : "Add New Employee"}
           </h2>
           <button
             onClick={onClose}
@@ -685,9 +724,63 @@ const EmployeeForm = ({
               >
                 <input
                   type="number"
-                  value={formData.baseSalary}
+                  value={decimalToNumber(formData.baseSalary)}
                   onChange={(e) =>
                     handleInputChange("baseSalary", e.target.value)
+                  }
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="0"
+                  min="0"
+                  step="0.01"
+                />
+              </FormField>
+
+              <FormField
+                label={isArabic ? "الراتب الأساسي" : "Hourly Salary"}
+                error={errors.hourly_rate}
+                isArabic={isArabic}
+              >
+                <input
+                  type="number"
+                  value={decimalToNumber(formData.hourly_rate)}
+                  onChange={(e) =>
+                    handleInputChange("hourly_rate", e.target.value)
+                  }
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="0"
+                  min="0"
+                  step="0.01"
+                />
+              </FormField>
+
+              <FormField
+                label={isArabic ? "الراتب الأساسي" : "Actual Salary"}
+                error={errors.actual_rate}
+                isArabic={isArabic}
+              >
+                <input
+                  type="number"
+                  value={decimalToNumber(formData.actual_rate)}
+                  onChange={(e) =>
+                    handleInputChange("actual_rate", e.target.value)
+                  }
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="0"
+                  min="0"
+                  step="0.01"
+                />
+              </FormField>
+
+              <FormField
+                label={isArabic ? "الراتب الأساسي" : "OvertimeMultiplier Salary"}
+                error={errors.overtimeMultiplier}
+                isArabic={isArabic}
+              >
+                <input
+                  type="number"
+                  value={decimalToNumber(formData.overtimeMultiplier)}
+                  onChange={(e) =>
+                    handleInputChange("overtimeMultiplier", e.target.value)
                   }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="0"
@@ -917,6 +1010,40 @@ const EmployeeForm = ({
               </FormField>
             </div>
           </FormSection>
+
+          {/* Teams Section */}
+          <FormSection
+            title={isArabic ? "العنوان" : "Teams Information"}
+            icon={MapPin}
+            isArabic={isArabic}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                label={isArabic ? "الجنسية" : "Teams"}
+                error={errors.teams}
+                isArabic={isArabic}
+              >
+                <select
+                  value={formData.teamId}
+                  onChange={(e) =>
+                    handleInputChange("teamId", e.target.value)
+                  }
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">
+                    {isArabic ? "اختر الفريق" : "Select Team"}
+                  </option>
+                  {teams.map((team) => (
+                    <option key={team._id} value={team._id}>
+                      {team.nameEn}
+                    </option>
+                  ))}
+                </select>
+              </FormField>
+            </div>
+          </FormSection>
+
+
         </form>
 
         {/* Footer */}
