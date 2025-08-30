@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Briefcase,
   MapPin,
@@ -34,16 +34,31 @@ import {
   Database,
   Wifi,
   WifiOff,
+  Trash2,
 } from "lucide-react";
+import TeamService from "../services/TeamService";
 
 export const OperationsDepartment = ({ isArabic }) => {
   const [activeTab, setActiveTab] = useState("projects");
   const [showNewSchedule, setShowNewSchedule] = useState(false);
+  const [showNewTeamModal, setShowNewTeamModal] = useState(false);
+  const [teamStatusFilter, setTeamStatusFilter] = useState("all");
+  const [TeamSearchTerm, setTeamSearchTerm] = useState("");
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [selectedProject, setSelectedProject] = useState("all");
   const [selectedDateRange, setSelectedDateRange] = useState("week");
   const [connectionStatus, setConnectionStatus] = "online";
   const [lastSync, setLastSync] = useState(new Date());
+  const [teams, setTeams] = useState([]);
+  const [editingTeam, setEditingTeam] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState({
+    total: 0,
+    page: 1,
+    limit: 10,
+    totalPages: 1,
+  });
 
   const [newSchedule, setNewSchedule] = useState({
     project: "",
@@ -58,6 +73,11 @@ export const OperationsDepartment = ({ isArabic }) => {
     tasks: [""],
     priority: "Medium",
     notes: "",
+  });
+  const [newTeam, setNewTeam] = useState({
+    nameEn: "",
+    nameAr: "",
+    status: "active",
   });
 
   // Enhanced project data with additional metrics
@@ -311,6 +331,32 @@ export const OperationsDepartment = ({ isArabic }) => {
     },
   ];
 
+  const fetchTeams = async (page = 1) => {
+    try {
+      setLoading(true);
+      const res = await TeamService.getAllTeams(page, pagination.limit);
+
+      setTeams(res?.data?.data || []);
+      setPagination({
+        total: res?.data?.total || 0,
+        page: res?.data?.page || 1,
+        limit: res?.data?.limit || 10,
+        totalPages: res?.data?.totalPages || 1,
+      });
+    } catch (err) {
+      console.error("Error fetching teams:", err.message);
+      setError("Failed to load teams");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTeams();
+  }, []);
+
+  console.log(teams);
+
   // Enhanced functions with better error handling and user feedback
   const handleCreateSchedule = () => {
     if (!newSchedule.project || !newSchedule.team || !newSchedule.date) {
@@ -364,6 +410,81 @@ export const OperationsDepartment = ({ isArabic }) => {
     alert(
       isArabic ? "تم إنشاء الجدولة بنجاح!" : "Schedule created successfully!"
     );
+  };
+
+  // handle add Team
+  const handleAddTeam = async () => {
+    if (!newTeam.nameEn || !newTeam.nameAr) {
+      alert(
+        isArabic ? "يرجى ملء الحقول المطلوبة" : "Please fill in required fields"
+      );
+      return;
+    }
+
+    const teamPayload = {
+      nameEn: newTeam.nameEn,
+      nameAr: newTeam.nameAr,
+      status: newTeam.status,
+    };
+
+    try {
+      const res = await TeamService.createTeam(teamPayload);
+
+      // Update state with API response
+      setTeams([...teams, res.data]);
+
+      setNewTeam({
+        nameEn: "",
+        nameAr: "",
+        status: "active",
+      });
+
+      setShowNewTeamModal(false);
+      fetchTeams();
+      alert(isArabic ? "تم إضافة الفريق بنجاح!" : "Team added successfully!");
+    } catch (err) {
+      console.error("Error adding teams:", err.response?.data || err);
+      alert(isArabic ? "خطأ في إضافة الفرق" : "Error adding teams");
+    }
+  };
+
+  const handleEditTeam = (id) => {
+    const team = teams.find((i) => i._id === id);
+    setEditingTeam(team);
+  };
+
+  const handleSaveTeam = async () => {
+    if (!editingTeam) return;
+
+    try {
+      const payload = {
+        nameEn: editingTeam.nameEn,
+        nameAr: editingTeam.nameAr,
+        status: editingTeam.status,
+      };
+
+      // ✅ API call with ID + payload
+      const res = await TeamService.updateTeam(editingTeam._id, payload);
+
+      if (res?.status === 200) {
+        fetchTeams();
+        setEditingTeam(null);
+      }
+    } catch (err) {
+      // setError("Failed to edit invoice");
+      console.error("Error updating team:", err.message);
+    }
+  };
+
+  const handleDeleteTeam = async (id) => {
+    try {
+      const res = await TeamService.deleteTeam(id);
+      if (res?.status === 200) {
+        fetchTeams(pagination.page);
+      }
+    } catch (err) {
+      console.error("Error deleting teams:", err.message);
+    }
   };
 
   // Enhanced report generation with multiple formats and better data
@@ -570,6 +691,7 @@ export const OperationsDepartment = ({ isArabic }) => {
       case "On Track":
       case "Completed":
       case "Scheduled":
+      case "active":
         return "bg-green-100 text-green-800";
       case "Behind Schedule":
       case "Delayed":
@@ -577,6 +699,7 @@ export const OperationsDepartment = ({ isArabic }) => {
       case "In Progress":
         return "bg-blue-100 text-blue-800";
       default:
+      case "inactive":
         return "bg-gray-100 text-gray-800";
     }
   };
@@ -623,6 +746,15 @@ export const OperationsDepartment = ({ isArabic }) => {
         return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
+
+  const filteredTeam = teams?.filter((team) => {
+    const matchesSearch =
+      team?.nameEn?.toLowerCase().includes(TeamSearchTerm.toLowerCase()) ||
+      team?.nameAr?.includes(TeamSearchTerm);
+    const matchesStatus =
+      teamStatusFilter === "all" || team?.status === teamStatusFilter;
+    return matchesSearch && matchesStatus;
+  });
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -677,11 +809,11 @@ export const OperationsDepartment = ({ isArabic }) => {
             {isArabic ? "جدولة جديدة" : "New Schedule"}
           </button>
           <button
-            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+            onClick={() => setShowNewTeamModal(!showNewTeamModal)}
             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
           >
             <Target className="w-4 h-4" />
-            {isArabic ? "فلاتر متقدمة" : "Advanced Filters"}
+            {isArabic ? "إنشاء فريق" : "Create Team"}
           </button>
         </div>
       </div>
@@ -830,7 +962,7 @@ export const OperationsDepartment = ({ isArabic }) => {
       </div>
 
       {/* Advanced Filters Panel */}
-      {showAdvancedFilters && (
+      {/* {showAdvancedFilters && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             {isArabic ? "الفلاتر المتقدمة" : "Advanced Filters"}
@@ -876,7 +1008,7 @@ export const OperationsDepartment = ({ isArabic }) => {
             </button>
           </div>
         </div>
-      )}
+      )} */}
       {/* Tabs */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100">
         <div className="border-b border-gray-200">
@@ -905,6 +1037,19 @@ export const OperationsDepartment = ({ isArabic }) => {
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
                 {isArabic ? "الجدولة" : "Scheduling"}
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab("teams")}
+              className={`px-6 py-4 font-medium transition-colors ${
+                activeTab === "teams"
+                  ? "text-green-600 border-b-2 border-green-600"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                {isArabic ? "فرق" : "Teams"}
               </div>
             </button>
             <button
@@ -1178,6 +1323,190 @@ export const OperationsDepartment = ({ isArabic }) => {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === "teams" && (
+            <div className="space-y-6">
+              {/* Search and Filter */}
+              <div className="flex items-center gap-4">
+                <div className="relative flex-1">
+                  <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder={
+                      isArabic
+                        ? "البحث في الفواتير..."
+                        : "Search invoices by invoice number or buyer name..."
+                    }
+                    value={TeamSearchTerm}
+                    onChange={(e) => setTeamSearchTerm(e.target.value)}
+                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full"
+                  />
+                </div>
+                <select
+                  value={teamStatusFilter}
+                  onChange={(e) => setTeamStatusFilter(e.target.value)}
+                  className="border border-gray-300 rounded-lg px-3 py-2"
+                >
+                  <option value="all">
+                    {isArabic ? "جميع الحالات" : "All Status"}
+                  </option>
+                  <option value="active">{isArabic ? "نشط" : "Active"}</option>
+                  <option value="inactive">
+                    {isArabic ? "غير نشط" : "Inactive"}
+                  </option>
+                </select>
+              </div>
+
+              {/* Teams Table */}
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic
+                          ? "اسم الفريق (بالإنجليزية)"
+                          : "Team Name (English)"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic
+                          ? "اسم الفريق (بالعربية)"
+                          : "Team Name (Arabic)"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "مشروع" : "Project"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "عدد الموظفين" : "Number Of Employees"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "الحالة" : "Status"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "تاريخ الإنشاء" : "Created Date"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "الإجراءات" : "Actions"}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {filteredTeam?.map((team) => (
+                      <tr key={team._id} className="hover:bg-gray-50">
+                        <td className="px-4 py-4">
+                          <div className="font-medium text-gray-900">
+                            {team.nameEn}
+                          </div>
+                        </td>
+                        <td className="px-4 py-4">
+                          <div className="text-sm text-gray-500">
+                            {team.nameAr}
+                          </div>
+                        </td>
+                        <td className="px-4 py-4">
+                          <div className="font-medium text-gray-900">
+                            {team?.project ? team.project.name : "NA"}
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 text-sm text-gray-900">
+                          <div className="font-medium text-gray-900">
+                            {team?.employees?.length
+                              ? team.employees.length
+                              : "0"}
+                          </div>
+                        </td>
+                        <td className="px-4 py-4">
+                          <span
+                            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getStatusColor(
+                              team.status
+                            )}`}
+                          >
+                            {team.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4 text-sm text-gray-900">
+                          <div>
+                            {team.created_at
+                              ? `${new Date(team.created_at).toLocaleDateString(
+                                  "en-GB",
+                                  {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric",
+                                  }
+                                )}`
+                              : "NA"}
+                          </div>
+                        </td>
+
+                        <td className="px-4 py-4">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleEditTeam(team._id)}
+                              className="text-green-600 hover:text-green-800 p-1 rounded transition-colors"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteTeam(team._id)}
+                              className="text-red-600 hover:text-red-800 p-1 rounded transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="flex items-center justify-center gap-4 mt-6">
+                {/* Previous Button */}
+                <button
+                  onClick={() =>
+                    fetchInvoices(Math.max(1, pagination.page - 1))
+                  }
+                  disabled={pagination.page <= 1}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                  ${
+                    pagination.page <= 1
+                      ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                      : "bg-green-600 text-white hover:bg-green-700"
+                  }`}
+                >
+                  {isArabic ? "السابق" : "Previous"}
+                </button>
+
+                {/* Page Info */}
+                <div className="px-4 py-2 bg-gray-100 rounded-lg text-sm font-medium text-gray-700">
+                  {isArabic ? "صفحة" : "Page"}{" "}
+                  {Number.isFinite(pagination.page) ? pagination.page : 0}{" "}
+                  {isArabic ? "من" : "of"}{" "}
+                  {Number.isFinite(pagination.totalPages)
+                    ? pagination.totalPages
+                    : 0}
+                </div>
+
+                {/* Next Button */}
+                <button
+                  onClick={() =>
+                    fetchInvoices(
+                      Math.min(pagination.totalPages, pagination.page + 1)
+                    )
+                  }
+                  disabled={pagination.page >= pagination.totalPages}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                ${
+                  pagination.page >= pagination.totalPages
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-green-600 text-white hover:bg-green-700"
+                }`}
+                >
+                  {isArabic ? "التالي" : "Next"}
+                </button>
               </div>
             </div>
           )}
@@ -1895,6 +2224,234 @@ export const OperationsDepartment = ({ isArabic }) => {
                 </button>
                 <button
                   onClick={() => setShowNewSchedule(false)}
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-lg transition-colors"
+                >
+                  {isArabic ? "إلغاء" : "Cancel"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* New Team Modal */}
+      {showNewTeamModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-4xl max-h-screen overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-gray-900">
+                {isArabic ? "إنشاء فريق جديد" : "Create New Team"}
+              </h3>
+              <button
+                onClick={() => setShowNewTeamModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic
+                      ? "اسم الفريق (بالإنجليزية)"
+                      : "Team Name (English)"}{" "}
+                    *
+                  </label>
+                  <input
+                    value={newTeam.nameEn}
+                    onChange={(e) =>
+                      setNewTeam({
+                        ...newTeam,
+                        nameEn: e.target.value,
+                      })
+                    }
+                    className={`w-full border rounded-lg px-3 py-2 ${
+                      newTeam.nameEn
+                        ? "border-green-300 bg-green-50"
+                        : "border-gray-300"
+                    }`}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "اسم الفريق (بالعربية)" : "Team Name (Arabic)"}{" "}
+                    *
+                  </label>
+                  <input
+                    value={newTeam.nameAr}
+                    onChange={(e) =>
+                      setNewTeam({ ...newTeam, nameAr: e.target.value })
+                    }
+                    className={`w-full border rounded-lg px-3 py-2 ${
+                      newTeam.nameAr
+                        ? "border-green-300 bg-green-50"
+                        : "border-gray-300"
+                    }`}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "حالة" : "status"} *
+                  </label>
+                  <select
+                    value={newTeam.status}
+                    onChange={(e) =>
+                      setNewTeam({
+                        ...newTeam,
+                        status: e.target.value,
+                      })
+                    }
+                    className={`w-full border rounded-lg px-3 py-2 ${
+                      newTeam.status
+                        ? "border-green-300 bg-green-50"
+                        : "border-gray-300"
+                    }`}
+                    required
+                  >
+                    <option value="">
+                      {isArabic ? "اختر المشروع" : "Select Status"}
+                    </option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 pt-4">
+                <button
+                  onClick={handleAddTeam}
+                  className={`px-6 py-2 rounded-lg flex items-center gap-2 transition-colors ${
+                    newTeam.nameAr && newTeam.nameEn
+                      ? "bg-green-600 hover:bg-green-700 text-white"
+                      : "bg-gray-400 text-gray-200 cursor-not-allowed"
+                  }`}
+                  disabled={!newTeam.nameAr || !newTeam.nameEn}
+                >
+                  <Save className="w-4 h-4" />
+                  {isArabic ? "إنشاء فريق" : "Create Team"}
+                </button>
+                <button
+                  onClick={() => setShowNewTeamModal(false)}
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-lg transition-colors"
+                >
+                  {isArabic ? "إلغاء" : "Cancel"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Edit Team Modal */}
+      {editingTeam && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-4xl max-h-screen overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-gray-900">
+                {isArabic ? "إنشاء فريق جديد" : "Create New Team"}
+              </h3>
+              <button
+                onClick={() => setEditingTeam(null)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic
+                      ? "اسم الفريق (بالإنجليزية)"
+                      : "Team Name (English)"}{" "}
+                    *
+                  </label>
+                  <input
+                    value={editingTeam.nameEn}
+                    onChange={(e) =>
+                      setEditingTeam({
+                        ...editingTeam,
+                        nameEn: e.target.value,
+                      })
+                    }
+                    className={`w-full border rounded-lg px-3 py-2 ${
+                      editingTeam.nameEn
+                        ? "border-green-300 bg-green-50"
+                        : "border-gray-300"
+                    }`}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "اسم الفريق (بالعربية)" : "Team Name (Arabic)"}{" "}
+                    *
+                  </label>
+                  <input
+                    value={editingTeam.nameAr}
+                    onChange={(e) =>
+                      setEditingTeam({ ...editingTeam, nameAr: e.target.value })
+                    }
+                    className={`w-full border rounded-lg px-3 py-2 ${
+                      editingTeam.nameAr
+                        ? "border-green-300 bg-green-50"
+                        : "border-gray-300"
+                    }`}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "حالة" : "status"} *
+                  </label>
+                  <select
+                    value={editingTeam.status}
+                    onChange={(e) =>
+                      setEditingTeam({
+                        ...editingTeam,
+                        status: e.target.value,
+                      })
+                    }
+                    className={`w-full border rounded-lg px-3 py-2 ${
+                      editingTeam.status
+                        ? "border-green-300 bg-green-50"
+                        : "border-gray-300"
+                    }`}
+                    required
+                  >
+                    <option value="">
+                      {isArabic ? "اختر المشروع" : "Select Status"}
+                    </option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 pt-4">
+                <button
+                  onClick={handleSaveTeam}
+                  className={`px-6 py-2 rounded-lg flex items-center gap-2 transition-colors ${
+                    editingTeam.nameAr && editingTeam.nameEn
+                      ? "bg-green-600 hover:bg-green-700 text-white"
+                      : "bg-gray-400 text-gray-200 cursor-not-allowed"
+                  }`}
+                  disabled={!editingTeam.nameAr || !editingTeam.nameEn}
+                >
+                  <Save className="w-4 h-4" />
+                  {isArabic ? "فريق التحديث" : "Update Team"}
+                </button>
+                <button
+                  onClick={() => setEditingTeam(null)}
                   className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-lg transition-colors"
                 >
                   {isArabic ? "إلغاء" : "Cancel"}
