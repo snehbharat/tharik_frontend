@@ -37,8 +37,6 @@ export const LoginForm = ({
     rememberMe: false,
   });
 
-  console.log(credentials)
-
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {

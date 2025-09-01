@@ -3,13 +3,6 @@ import { BarChart3, Briefcase, Calendar, PieChart, TrendingUp } from "lucide-rea
 import { formatCurrency } from "../utils/financialCalculations";
 
 export const NavigationTabs = ({ activeView, setActiveView, isArabic, payrollSummary }) => {
-  // ✅ log all props
-  console.log("NavigationTabs props:", {
-    activeView,
-    setActiveView,
-    isArabic,
-    payrollSummary,
-  });
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100">

@@ -91,7 +91,6 @@ export const CompanyManagement = ({ isArabic }) => {
     try {
       setLoading(true);
       const res = await VehicleService.getAllVehicles(page, pagination.limit);
-      // console.log("vehicleRes", res);
       setVehicles(res?.data || []);
     } catch (err) {
       console.error("Error fetching vehicles:", err.message);
@@ -117,7 +116,6 @@ export const CompanyManagement = ({ isArabic }) => {
       setLoading(false);
     }
   };
-  console.log("projectRes", projects);
   const fetchEmployees = async (page = 1) => {
     try {
       setLoading(true);
@@ -130,7 +128,6 @@ export const CompanyManagement = ({ isArabic }) => {
       setLoading(false);
     }
   };
-  // console.log("em", employees.pagination);
 
   const [newClient, setNewClient] = useState({
     nameEn: "",
