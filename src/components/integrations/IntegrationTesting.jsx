@@ -131,7 +131,6 @@ export const IntegrationTesting = ({ isArabic }) => {
       ...prev,
       [scenario.id]: { status: "running", startTime: Date.now() },
     }));
-    console.log("Running integration test:", scenario.name);
 
     try {
       let result;

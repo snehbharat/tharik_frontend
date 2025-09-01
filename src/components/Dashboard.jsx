@@ -41,7 +41,6 @@ export const Dashboard = ({ isArabic, projects }) => {
   const [selectedProject, setSelectedProject] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(new Date());
-  console.log(projects);
 
   const metrics = getDashboardMetrics();
   const [refreshing, setRefreshing] = useState(false);

@@ -85,8 +85,6 @@ export const FleetManagement = ({ isArabic }) => {
     "Forklift",
   ];
 
-  // console.log("projects", projects);
-
   const vehicleStatus = ["Active", "Inactive", "Maintenance"];
 
   // const [vehicles, setVehicles] = useState([
@@ -389,7 +387,6 @@ export const FleetManagement = ({ isArabic }) => {
     }
 
     const selectedProject = projects.find((p) => p._id === newVehicle.project);
-    // console.log("selectedProject", selectedProject);
 
     const vehiclePayload = {
       plate_number: newVehicle.plateNumber,

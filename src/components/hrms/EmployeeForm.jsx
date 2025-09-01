@@ -70,8 +70,6 @@ const EmployeeForm = ({
     error: actionError,
   } = useEmployeeActions();
 
-  console.log("teams", teams);
-
   // Combined loading state
   const apiLoading = departmentsLoading || enumsLoading;
 
@@ -206,12 +204,10 @@ const EmployeeForm = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted, validating...");
     if (!validateForm()) {
       console.log("Validation failed:", errors);
       return;
     }
-    console.log("Validation passed, preparing employeeData...");
     try {
       const employeeData = {
         personalInfo: {
@@ -265,16 +261,11 @@ const EmployeeForm = ({
         status: formData.status,
         teamId: formData.teamId, // Include teamId
       };
-      console.log("employeeData:", JSON.stringify(employeeData, null, 2));
-      console.log("Calling onSave...");
       await onSave(employeeData);
-      console.log("onSave completed successfully");
     } catch (error) {
       console.error("Form submission error:", error);
     }
   };
-
-  console.log("employee", employee);
 
   if (apiLoading) {
     return (

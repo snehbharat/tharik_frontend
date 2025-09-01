@@ -387,8 +387,6 @@ export const OperationsDepartment = ({ isArabic }) => {
       tasks: newSchedule.tasks.filter((task) => task.trim() !== ""),
     };
 
-    console.log("New schedule created:", schedule);
-
     // Update last sync time
     setLastSync(new Date());
 

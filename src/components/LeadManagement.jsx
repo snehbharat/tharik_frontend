@@ -187,7 +187,6 @@ export const LeadManagement = ({ isArabic }) => {
     try {
       setLoading(true);
       const res = await LeadService.getAllLeads(page, pagination.limit);
-      // console.log("res", res);
 
       setLeads(res?.data?.data || []);
       setPagination({
@@ -203,7 +202,6 @@ export const LeadManagement = ({ isArabic }) => {
       setLoading(false);
     }
   };
-  // console.log("leads", leads);
 
   useEffect(() => {
     fetchLeads();
@@ -315,7 +313,6 @@ export const LeadManagement = ({ isArabic }) => {
 
     try {
       const created_date = new Date().toISOString();
-      // console.log("created data", created_date);
 
       await LeadService.createLead({
         ...vehiclePayload,
@@ -420,7 +417,6 @@ export const LeadManagement = ({ isArabic }) => {
   const handleViewLead = (id) => {
     const lead = leads.find((l) => l._id === id);
     setViewLead(lead);
-    // console.log("Viewing lead:", lead);
   };
 
   const getPriorityColor = (priority) => {

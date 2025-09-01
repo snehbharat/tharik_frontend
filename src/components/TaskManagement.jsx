@@ -104,8 +104,6 @@ export const TaskManagement = ({ isArabic, currentUser }) => {
     }
   };
 
-  console.log("task", tasks);
-
   const loadEmployee = async () => {
     try {
       setLoading(true);

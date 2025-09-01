@@ -36,9 +36,6 @@ export const calculateFinancials = (
 
 // Calculate dashboard metrics
 export const calculateDashboardMetrics = (employees, projects, attendance) => {
-  console.log("employees", employees);
-  console.log("projects", projects);
-  console.log("attendance", attendance);
 
   const totalWorkforce = employees.filter(
     (emp) => emp.status === "active"
@@ -499,7 +496,6 @@ export const validateEmployee = (employee) => {
 
 // Validate project data
 export const validateProject = (project) => {
-  console.log("project", project);
 
   const errors = [];
 
