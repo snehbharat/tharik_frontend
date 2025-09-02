@@ -85,6 +85,8 @@ export const FleetManagement = ({ isArabic }) => {
     "Forklift",
   ];
 
+  console.log("vehicles", vehicles);
+
   const vehicleStatus = ["Active", "Inactive", "Maintenance"];
 
   // const [vehicles, setVehicles] = useState([
@@ -1793,7 +1795,7 @@ export const FleetManagement = ({ isArabic }) => {
                         })
                       }
                       className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                      placeholder="White"
+                      placeholder="4"
                     />
                   </div>
                 </div>

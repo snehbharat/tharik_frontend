@@ -275,6 +275,12 @@ class EmployeeService {
     return await this.apiCall(endpoint);
   }
 
+  async getEmployees() {
+    const endpoint = "/employees";
+
+    return await this.apiCall(endpoint);
+  }
+
   async getEmployeeById(employeeId) {
     return await this.apiCall(`/employees/${employeeId}`);
   }
