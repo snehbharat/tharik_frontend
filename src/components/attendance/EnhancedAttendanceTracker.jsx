@@ -15,197 +15,126 @@ import {
   Users,
   Calculator,
   MapPin,
-  Timer,
-  Coffee,
-  Play,
-  Pause,
-  Square,
-  FileDigit,
+  RefreshCw,
+  Loader,
 } from "lucide-react";
+import { apiClient } from "../../services/ApiClient";
 
 export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0]
   );
   const [activeView, setActiveView] = useState("timesheet");
-  const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedProjectId, setSelectedProjectId] = useState("all");
   const [projectSearchTerm, setProjectSearchTerm] = useState("");
   const [showProjectDropdown, setShowProjectDropdown] = useState(false);
   const [attendanceRecords, setAttendanceRecords] = useState([]);
+  const [employees, setEmployees] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const [projects] = useState([
-    {
-      id: "proj_001",
-      name: "Aramco Facility Maintenance",
-      client: "Saudi Aramco",
-      location: "Dhahran Industrial Complex",
-      status: "active",
-    },
-    {
-      id: "proj_002",
-      name: "SABIC Construction Support",
-      client: "SABIC Industries",
-      location: "Jubail Industrial City",
-      status: "hold",
-    },
-    {
-      id: "proj_003",
-      name: "NEOM Infrastructure Development",
-      client: "NEOM Development",
-      location: "NEOM - Tabuk Province",
-      status: "finished",
-    },
-    {
-      id: "proj_004",
-      name: "Royal Commission Projects",
-      client: "Royal Commission",
-      location: "Yanbu Industrial City",
-      status: "active",
-    },
-  ]);
+  // Fetch all employees
+  const fetchEmployees = async () => {
+    try {
+      setLoading(true);
+      const response = await apiClient.getCC(`/attendance/get/all/employee`);
+      if (response.response) {
+        setEmployees(response.data || []);
+      } else {
+        setError(response.message || "Failed to fetch employees");
+      }
+    } catch (err) {
+      setError("Failed to connect to server");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const [allEmployees] = useState([
-    {
-      id: "EMP001",
-      name: "Ahmed Hassan",
-      employeeId: "EMP001",
-      trade: "Carpenter",
-      nationality: "Saudi",
-      phoneNumber: "+966501234567",
-      hourlyLaborCost: 50.0,
-      billingRate: 150.0,
-      overtimeMultiplier: 1.5,
-      projectId: "proj_001",
-      status: "active",
-      documents: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: "EMP002",
-      name: "Mohammad Ali",
-      employeeId: "EMP002",
-      trade: "Electrician",
-      nationality: "Pakistani",
-      phoneNumber: "+966502345678",
-      hourlyLaborCost: 60.0,
-      billingRate: 200.0,
-      overtimeMultiplier: 1.5,
-      projectId: "proj_001",
-      status: "active",
-      documents: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: "EMP003",
-      name: "Omar Khalil",
-      employeeId: "EMP003",
-      trade: "Mason",
-      nationality: "Egyptian",
-      phoneNumber: "+966503456789",
-      hourlyLaborCost: 45.0,
-      billingRate: 130.0,
-      overtimeMultiplier: 1.5,
-      projectId: "proj_001",
-      status: "active",
-      documents: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: "EMP004",
-      name: "Ali Rahman",
-      employeeId: "EMP004",
-      trade: "Plumber",
-      nationality: "Bangladeshi",
-      phoneNumber: "+966504567890",
-      hourlyLaborCost: 48.0,
-      billingRate: 140.0,
-      overtimeMultiplier: 1.5,
-      projectId: "proj_001",
-      status: "active",
-      documents: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: "EMP005",
-      name: "Hassan Al-Mutairi",
-      employeeId: "EMP005",
-      trade: "Site Supervisor",
-      nationality: "Saudi",
-      phoneNumber: "+966505678901",
-      hourlyLaborCost: 55.0,
-      billingRate: 180.0,
-      overtimeMultiplier: 1.5,
-      projectId: "proj_002",
-      status: "active",
-      documents: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: "EMP006",
-      name: "Khalid Al-Rashid",
-      employeeId: "EMP006",
-      trade: "Heavy Equipment Operator",
-      nationality: "Pakistani",
-      phoneNumber: "+966506789012",
-      hourlyLaborCost: 52.0,
-      billingRate: 170.0,
-      overtimeMultiplier: 1.5,
-      projectId: "proj_003",
-      status: "active",
-      documents: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: "EMP007",
-      name: "Mahmoud Ibrahim",
-      employeeId: "EMP007",
-      trade: "Safety Officer",
-      nationality: "Egyptian",
-      phoneNumber: "+966507890123",
-      hourlyLaborCost: 58.0,
-      billingRate: 190.0,
-      overtimeMultiplier: 1.5,
-      projectId: "proj_004",
-      status: "active",
-      documents: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  ]);
+  // Fetch projects by IDs
+  const fetchProjects = async (projectIds) => {
+    try {
+      const response = await apiClient.post(`/attendance/get/all/project/by-ids`, { ids: projectIds });
 
-  const employees =
-    selectedProjectId === "all"
-      ? allEmployees
-      : allEmployees.filter((emp) => emp.projectId === selectedProjectId);
+      if (response.response) {
+        setProjects(response.data || []);
+      } else {
+        setError(response.message || "Failed to fetch projects");
+      }
+    } catch (err) {
+      setError("Failed to fetch projects");
+    }
+  };
 
-  const filteredProjects = projects.filter(
-    (project) =>
-      project.name.toLowerCase().includes(projectSearchTerm.toLowerCase()) ||
-      project.client.toLowerCase().includes(projectSearchTerm.toLowerCase())
-  );
+  // Fetch attendance for specific date
+  const fetchAttendanceByDate = async (date, projectId = null) => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams({ date });
+      if (projectId && projectId !== "all") {
+        params.append('project_id', projectId);
+      }
 
-  const selectedProject =
-    selectedProjectId !== "all"
-      ? projects.find((p) => p.id === selectedProjectId)
-      : null;
+      const response = await apiClient.getCC(`/attendance/date?${params}`);
 
+      if (response.response) {
+        setAttendanceRecords(response.data || []);
+      } else {
+        setError(response.message || "Failed to fetch attendance");
+      }
+    } catch (err) {
+      setError("Failed to fetch attendance records");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Create or update attendance record
+  const updateAttendanceRecord = async (employeeId, date, field, value) => {
+    try {
+      const employee = employees.find((emp) => emp.id === employeeId);
+      if (!employee) return;
+
+      let existingRecord = getAttendanceRecord(employeeId, date);
+
+      const updatedData = {
+        employee_id: employeeId,
+        date: date,
+        hoursWorked: field === 'regularHours' ? value : (existingRecord?.hoursWorked || 0),
+        overtimeHours: field === 'overtimeHours' ? value : (existingRecord?.overtimeHours || 0),
+        project_id: employee.projectId,
+      };
+
+      console.log("updatedData", updatedData);
+
+      // If updating regular hours, set hoursWorked
+      if (field === 'regularHours') {
+        updatedData.hoursWorked = value;
+      }
+
+      const response = await apiClient.post(`/attendance`, updatedData);
+
+      if (response.response) {
+        // Refresh attendance data
+        await fetchAttendanceByDate(selectedDate, selectedProjectId);
+      } else {
+        setError(response.message || "Failed to update attendance");
+      }
+    } catch (err) {
+      setError("Failed to update attendance record");
+    }
+  };
+
+  // Calculate financials for display (client-side calculation)
   const calculateFinancials = (regularHours, overtimeHours, employee) => {
+
     const totalHours = regularHours + overtimeHours;
     const regularCost = regularHours * employee.hourlyLaborCost;
-    const overtimeCost =
-      overtimeHours * employee.hourlyLaborCost * employee.overtimeMultiplier;
+    const overtimeCost = overtimeHours * employee.hourlyLaborCost * employee.overtimeMultiplier;
     const laborCost = regularCost + overtimeCost;
 
     const regularRevenue = regularHours * employee.billingRate;
-    const overtimeRevenue =
-      overtimeHours * employee.billingRate * employee.overtimeMultiplier;
+    const overtimeRevenue = overtimeHours * employee.billingRate * employee.overtimeMultiplier;
     const revenueGenerated = regularRevenue + overtimeRevenue;
 
     const dailyProfit = revenueGenerated - laborCost;
@@ -218,84 +147,128 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
     };
   };
 
+  // Get attendance record for employee and date
   const getAttendanceRecord = (employeeId, date) => {
     return attendanceRecords.find(
-      (record) => record.employeeId === employeeId && record.date === date
+      (record) => {
+        // Handle both employee_id and employee._id from API
+        const recordEmployeeId = record.employee_id || record.employee?.id || record.employee?._id;
+        // Convert date to match format
+        const recordDate = new Date(record.date).toISOString().split("T")[0];
+        return recordEmployeeId === employeeId && recordDate === date;
+      }
     );
   };
 
-  const updateAttendanceRecord = (employeeId, date, field, value) => {
-    const employee = employees.find((emp) => emp.id === employeeId);
-    if (!employee) return;
-
-    let existingRecord = getAttendanceRecord(employeeId, date);
-
-    if (!existingRecord) {
-      existingRecord = {
-        id: `att_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        employeeId,
-        projectId: employee.projectId || "",
-        date,
-        regularHours: 0,
-        overtimeHours: 0,
-        totalHours: 0,
-        laborCost: 0,
-        revenueGenerated: 0,
-        dailyProfit: 0,
-        status: "draft",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      setAttendanceRecords((prev) => [...prev, existingRecord]);
+  // Export daily timesheet
+  const handleExportSalarySheet = async () => {
+  try {
+    const params = new URLSearchParams({
+      date: selectedDate,
+      format: "csv",
+    });
+    if (selectedProjectId !== "all") {
+      params.append("project_id", selectedProjectId);
     }
 
-    const updatedRecord = { ...existingRecord, [field]: value };
-    const financials = calculateFinancials(
-      updatedRecord.regularHours,
-      updatedRecord.overtimeHours,
-      employee
+    // 👇 Important: set responseType to 'blob' for file download
+    const response = await apiClient.get(
+      `/attendance/export/daily?${params.toString()}`,
+      { responseType: "blob" }
     );
 
-    updatedRecord.totalHours = financials.totalHours;
-    updatedRecord.laborCost = financials.laborCost;
-    updatedRecord.revenueGenerated = financials.revenueGenerated;
-    updatedRecord.dailyProfit = financials.dailyProfit;
-    updatedRecord.updatedAt = new Date();
+    // response.data is already a Blob
+    const blob = new Blob([response.data], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
 
-    setAttendanceRecords((prev) =>
-      prev.map((record) =>
-        record.id === updatedRecord.id ? updatedRecord : record
-      )
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `attendance_${selectedDate}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    alert(
+      isArabic
+        ? "تم تصدير كشف الرواتب بنجاح!"
+        : "Salary sheet exported successfully!"
     );
+  } catch (err) {
+    console.error("Export failed:", err);
+    setError("Export failed");
+  }
+};
+
+  // Get daily summary
+  const fetchDailySummary = async (date, projectId = null) => {
+    try {
+      const params = new URLSearchParams({ date });
+      if (projectId && projectId !== "all") {
+        params.append('project_id', projectId);
+      }
+
+      const response = await apiClient.getCC(`/attendance/summary/daily?${params}`);
+      const data = await response.json();
+
+      return data.response ? data.data : {};
+    } catch (err) {
+      console.error("Failed to fetch daily summary:", err);
+      return {};
+    }
   };
 
+  // Filter employees by project
+  const filteredEmployees = selectedProjectId === "all"
+    ? employees
+    : employees.filter((emp) => emp.projectId === selectedProjectId);
+
+  const filteredProjects = projects.filter(
+    (project) =>
+      project.name?.toLowerCase().includes(projectSearchTerm.toLowerCase()) ||
+      project.client_name?.toLowerCase().includes(projectSearchTerm.toLowerCase())
+  );
+
+  const selectedProject = selectedProjectId !== "all"
+    ? projects.find((p) => p.id === selectedProjectId)
+    : null;
+
+  // Calculate daily totals from current records
   const calculateDailyTotals = () => {
-    const todayRecords = attendanceRecords.filter(
-      (record) => record.date === selectedDate
-    );
+    const todayRecords = attendanceRecords.filter((record) => {
+      const recordDate = new Date(record.date).toISOString().split("T")[0];
+      return recordDate === selectedDate;
+    });
+
+    let totalHours = 0;
+    let totalLaborCost = 0;
+    let totalRevenue = 0;
+    let totalProfit = 0;
+
+    todayRecords.forEach(record => {
+      // Handle employee ID from different possible fields
+      const employeeId = record.employee_id || record.employee?.id || record.employee?._id;
+      const employee = employees.find(emp => emp.id === employeeId);
+      if (employee) {
+        const financials = calculateFinancials(
+          record.hoursWorked || 0,
+          record.overtimeHours || 0,
+          employee
+        );
+        totalHours += financials.totalHours;
+        totalLaborCost += financials.laborCost;
+        totalRevenue += financials.revenueGenerated;
+        totalProfit += financials.dailyProfit;
+      }
+    });
+
     return {
       totalEmployees: todayRecords.length,
-      totalHours: todayRecords.reduce(
-        (sum, record) => sum + record.totalHours,
-        0
-      ),
-      totalLaborCost: todayRecords.reduce(
-        (sum, record) => sum + record.laborCost,
-        0
-      ),
-      totalRevenue: todayRecords.reduce(
-        (sum, record) => sum + record.revenueGenerated,
-        0
-      ),
-      totalProfit: todayRecords.reduce(
-        (sum, record) => sum + record.dailyProfit,
-        0
-      ),
-      averageHours:
-        todayRecords.length > 0
-          ? todayRecords.reduce((sum, record) => sum + record.totalHours, 0) /
-            todayRecords.length
-          : 0,
+      totalHours,
+      totalLaborCost,
+      totalRevenue,
+      totalProfit,
+      averageHours: todayRecords.length > 0 ? totalHours / todayRecords.length : 0,
     };
   };
 
@@ -314,6 +287,8 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
     setSelectedProjectId(projectId);
     setProjectSearchTerm("");
     setShowProjectDropdown(false);
+    // Fetch attendance for new project filter
+    fetchAttendanceByDate(selectedDate, projectId);
   };
 
   const handleSearchChange = (value) => {
@@ -325,72 +300,91 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
     setSelectedProjectId("all");
     setProjectSearchTerm("");
     setShowProjectDropdown(false);
+    fetchAttendanceByDate(selectedDate, "all");
   };
 
-  const handleSaveAll = () => {
-    const todayRecords = attendanceRecords.filter(
-      (record) => record.date === selectedDate
-    );
-    const updatedRecords = todayRecords.map((record) => ({
-      ...record,
-      status: "submitted",
-      updatedAt: new Date(),
-    }));
+  const handleSaveAll = async () => {
+    try {
+      setLoading(true);
+      const todayRecords = attendanceRecords.filter(
+        (record) => record.date === selectedDate
+      );
 
-    setAttendanceRecords((prev) =>
-      prev.map((record) => {
-        const updated = updatedRecords.find((ur) => ur.id === record.id);
-        return updated || record;
-      })
-    );
+      // Bulk update all records
+      const response = await apiClient.post(`/attendance/bulk`, { attendanceRecords: todayRecords });
 
-    alert(
-      isArabic
-        ? "تم حفظ جميع السجلات بنجاح!"
-        : "All attendance records saved successfully!"
-    );
-  };
+      const data = await response.json();
 
-  const handleExportSalarySheet = () => {
-    const todayRecords = attendanceRecords.filter(
-      (record) => record.date === selectedDate
-    );
-
-    let csvContent =
-      "Employee Name,Employee ID,Trade,Regular Hours,Overtime Hours,Total Hours,Labor Cost (SAR),Revenue Generated (SAR),Daily Profit (SAR)\n";
-
-    todayRecords.forEach((record) => {
-      const employee = employees.find((emp) => emp.id === record.employeeId);
-      if (employee) {
-        csvContent += `${employee.name},${employee.employeeId},${
-          employee.trade
-        },${record.regularHours},${record.overtimeHours},${
-          record.totalHours
-        },${record.laborCost.toFixed(2)},${record.revenueGenerated.toFixed(
-          2
-        )},${record.dailyProfit.toFixed(2)}\n`;
+      if (data.response) {
+        alert(
+          isArabic
+            ? "تم حفظ جميع السجلات بنجاح!"
+            : "All attendance records saved successfully!"
+        );
+        // Refresh data
+        await fetchAttendanceByDate(selectedDate, selectedProjectId);
+      } else {
+        setError(data.message || "Failed to save records");
       }
-    });
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", `attendance_${selectedDate}.csv`);
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-
-    alert(
-      isArabic
-        ? "تم تصدير كشف الرواتب بنجاح!"
-        : "Salary sheet exported successfully!"
-    );
+    } catch (err) {
+      setError("Failed to save attendance records");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  // Load initial data
+  useEffect(() => {
+    const loadInitialData = async () => {
+      await fetchEmployees();
+    };
+    loadInitialData();
+  }, []);
+
+  // Load projects when employees are loaded
+  useEffect(() => {
+    if (employees.length > 0) {
+      const uniqueProjectIds = [...new Set(employees.map(emp => emp.projectId).filter(Boolean))];
+      if (uniqueProjectIds.length > 0) {
+        fetchProjects(uniqueProjectIds);
+      }
+    }
+  }, [employees]);
+
+  // Load attendance when date or project changes
+  useEffect(() => {
+    if (employees.length > 0) {
+      fetchAttendanceByDate(selectedDate, selectedProjectId);
+    }
+  }, [selectedDate, selectedProjectId, employees]);
+
   return (
     <div className="p-6 space-y-6">
+      {/* Loading and Error States */}
+      {loading && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center gap-3">
+          <Loader className="w-5 h-5 text-blue-600 animate-spin" />
+          <span className="text-blue-800">
+            {isArabic ? "جاري التحميل..." : "Loading..."}
+          </span>
+        </div>
+      )}
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="w-5 h-5 text-red-600" />
+            <span className="text-red-800">{error}</span>
+          </div>
+          <button
+            onClick={() => setError(null)}
+            className="text-red-600 hover:text-red-800"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -405,6 +399,16 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
               : "Comprehensive attendance management with cost and profit calculations"}
           </p>
         </div>
+        <button
+          onClick={() => {
+            fetchEmployees();
+            fetchAttendanceByDate(selectedDate, selectedProjectId);
+          }}
+          className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+        >
+          <RefreshCw className="w-4 h-4" />
+          {isArabic ? "تحديث" : "Refresh"}
+        </button>
       </div>
 
       {/* Project Filter Section */}
@@ -417,7 +421,7 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
             <span className="text-sm text-gray-600">
               {isArabic ? "عدد الموظفين:" : "Employees:"}
               <span className="font-semibold text-blue-600 ml-1">
-                {employees.length}
+                {filteredEmployees.length}
               </span>
             </span>
             {selectedProjectId !== "all" && (
@@ -457,12 +461,12 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                     </div>
                     <div className="text-sm text-gray-500">
                       {isArabic
-                        ? `عرض جميع الموظفين (${allEmployees.length})`
-                        : `Show all employees (${allEmployees.length})`}
+                        ? `عرض جميع الموظفين (${employees.length})`
+                        : `Show all employees (${employees.length})`}
                     </div>
                   </div>
                   {filteredProjects.map((project) => {
-                    const projectEmployeeCount = allEmployees.filter(
+                    const projectEmployeeCount = employees.filter(
                       (emp) => emp.projectId === project.id
                     ).length;
                     return (
@@ -475,7 +479,7 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                           {project.name}
                         </div>
                         <div className="text-sm text-gray-500">
-                          {project.client} • {project.location} •{" "}
+                          {project.client_name} • {project.location} •{" "}
                           {projectEmployeeCount}{" "}
                           {isArabic ? "موظف" : "employees"}
                         </div>
@@ -500,7 +504,7 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                   {selectedProject.name}
                 </div>
                 <div className="text-sm text-green-600">
-                  {selectedProject.client} • {employees.length}{" "}
+                  {selectedProject.client_name} • {filteredEmployees.length}{" "}
                   {isArabic ? "موظف" : "employees"}
                 </div>
               </div>
@@ -518,7 +522,7 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
             </div>
             <div>
               <div className="text-xl font-bold text-blue-900">
-                {employees.length}
+                {filteredEmployees.length}
               </div>
               <div className="text-sm text-blue-700">
                 {isArabic ? "الموظفون" : "Employees"}
@@ -589,11 +593,10 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
             </div>
             <div>
               <div
-                className={`text-xl font-bold ${
-                  dailyTotals.totalProfit >= 0
-                    ? "text-green-900"
-                    : "text-red-900"
-                }`}
+                className={`text-xl font-bold ${dailyTotals.totalProfit >= 0
+                  ? "text-green-900"
+                  : "text-red-900"
+                  }`}
               >
                 {formatSAR(dailyTotals.totalProfit).replace("SAR", "").trim()}
               </div>
@@ -605,17 +608,16 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
         </div>
       </div>
 
-      {/* View Tabs */}
+      {/* View Tabs - Removed timeclock */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100">
         <div className="border-b border-gray-200">
           <nav className="flex">
             <button
               onClick={() => setActiveView("timesheet")}
-              className={`px-6 py-4 font-medium transition-colors ${
-                activeView === "timesheet"
-                  ? "text-green-600 border-b-2 border-green-600"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
+              className={`px-6 py-4 font-medium transition-colors ${activeView === "timesheet"
+                ? "text-green-600 border-b-2 border-green-600"
+                : "text-gray-500 hover:text-gray-700"
+                }`}
             >
               <div className="flex items-center gap-2">
                 <FileText className="w-4 h-4" />
@@ -623,25 +625,11 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
               </div>
             </button>
             <button
-              onClick={() => setActiveView("timeclock")}
-              className={`px-6 py-4 font-medium transition-colors ${
-                activeView === "timeclock"
-                  ? "text-green-600 border-b-2 border-green-600"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <Timer className="w-4 h-4" />
-                {isArabic ? "ساعة الحضور" : "Time Clock"}
-              </div>
-            </button>
-            <button
               onClick={() => setActiveView("reports")}
-              className={`px-6 py-4 font-medium transition-colors ${
-                activeView === "reports"
-                  ? "text-green-600 border-b-2 border-green-600"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
+              className={`px-6 py-4 font-medium transition-colors ${activeView === "reports"
+                ? "text-green-600 border-b-2 border-green-600"
+                : "text-gray-500 hover:text-gray-700"
+                }`}
             >
               <div className="flex items-center gap-2">
                 <Download className="w-4 h-4" />
@@ -650,11 +638,10 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
             </button>
             <button
               onClick={() => setActiveView("analytics")}
-              className={`px-6 py-4 font-medium transition-colors ${
-                activeView === "analytics"
-                  ? "text-green-600 border-b-2 border-green-600"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
+              className={`px-6 py-4 font-medium transition-colors ${activeView === "analytics"
+                ? "text-green-600 border-b-2 border-green-600"
+                : "text-gray-500 hover:text-gray-700"
+                }`}
             >
               <div className="flex items-center gap-2">
                 <TrendingUp className="w-4 h-4" />
@@ -701,14 +688,16 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                 <div className="flex items-center gap-3">
                   <button
                     onClick={handleSaveAll}
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                    disabled={loading}
+                    className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
                   >
                     <Save className="w-4 h-4" />
                     {isArabic ? "حفظ الكل" : "Save All"}
                   </button>
                   <button
                     onClick={handleExportSalarySheet}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                    disabled={loading}
+                    className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
                   >
                     <Download className="w-4 h-4" />
                     {isArabic ? "تصدير" : "Export"}
@@ -717,7 +706,7 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
               </div>
 
               {/* No Employees Message */}
-              {employees.length === 0 && selectedProjectId !== "all" && (
+              {filteredEmployees.length === 0 && selectedProjectId !== "all" && (
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
                   <div className="text-yellow-800 font-medium mb-2">
                     {isArabic
@@ -732,8 +721,8 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                 </div>
               )}
 
-              {/* Main Attendance Table - Matching Screenshot Format */}
-              {employees.length > 0 && (
+              {/* Main Attendance Table */}
+              {filteredEmployees.length > 0 && (
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
                   <div className="overflow-x-auto">
                     <table className="w-full">
@@ -770,15 +759,13 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
-                        {employees.map((employee, index) => {
+                        {filteredEmployees.map((employee, index) => {
                           const attendanceRecord = getAttendanceRecord(
                             employee.id,
                             selectedDate
                           );
-                          const regularHours =
-                            attendanceRecord?.regularHours || 0;
-                          const overtimeHours =
-                            attendanceRecord?.overtimeHours || 0;
+                          const regularHours = attendanceRecord?.hoursWorked || 0;
+                          const overtimeHours = attendanceRecord?.overtimeHours || 0;
                           const financials = calculateFinancials(
                             regularHours,
                             overtimeHours,
@@ -788,9 +775,8 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                           return (
                             <tr
                               key={employee.id}
-                              className={`hover:bg-gray-50 transition-colors ${
-                                index % 2 === 0 ? "bg-gray-25" : "bg-white"
-                              }`}
+                              className={`hover:bg-gray-50 transition-colors ${index % 2 === 0 ? "bg-gray-25" : "bg-white"
+                                }`}
                             >
                               <td className="px-6 py-4">
                                 <div className="flex items-center gap-3">
@@ -879,21 +865,20 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                               </td>
                               <td className="px-6 py-4 text-center">
                                 <div
-                                  className={`text-lg font-bold ${
-                                    financials.dailyProfit >= 0
-                                      ? "text-green-600"
-                                      : "text-red-600"
-                                  }`}
+                                  className={`text-lg font-bold ${financials.dailyProfit >= 0
+                                    ? "text-green-600"
+                                    : "text-red-600"
+                                    }`}
                                 >
                                   {formatSAR(financials.dailyProfit)}
                                 </div>
                                 <div className="text-xs text-gray-500">
                                   {financials.totalHours > 0
                                     ? `${(
-                                        (financials.dailyProfit /
-                                          financials.revenueGenerated) *
-                                        100
-                                      ).toFixed(1)}% margin`
+                                      (financials.dailyProfit /
+                                        financials.revenueGenerated) *
+                                      100
+                                    ).toFixed(1)}% margin`
                                     : "0% margin"}
                                 </div>
                               </td>
@@ -918,8 +903,11 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                           <td className="px-6 py-4 text-center">
                             <div className="text-lg font-bold text-blue-600">
                               {attendanceRecords
-                                .filter((r) => r.date === selectedDate)
-                                .reduce((sum, r) => sum + r.regularHours, 0)
+                                .filter((r) => {
+                                  const recordDate = new Date(r.date).toISOString().split("T")[0];
+                                  return recordDate === selectedDate;
+                                })
+                                .reduce((sum, r) => sum + (r.hoursWorked || 0), 0)
                                 .toFixed(1)}
                               h
                             </div>
@@ -927,8 +915,11 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                           <td className="px-6 py-4 text-center">
                             <div className="text-lg font-bold text-yellow-600">
                               {attendanceRecords
-                                .filter((r) => r.date === selectedDate)
-                                .reduce((sum, r) => sum + r.overtimeHours, 0)
+                                .filter((r) => {
+                                  const recordDate = new Date(r.date).toISOString().split("T")[0];
+                                  return recordDate === selectedDate;
+                                })
+                                .reduce((sum, r) => sum + (r.overtimeHours || 0), 0)
                                 .toFixed(1)}
                               h
                             </div>
@@ -950,11 +941,10 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                           </td>
                           <td className="px-6 py-4 text-center">
                             <div
-                              className={`text-lg font-bold ${
-                                dailyTotals.totalProfit >= 0
-                                  ? "text-green-600"
-                                  : "text-red-600"
-                              }`}
+                              className={`text-lg font-bold ${dailyTotals.totalProfit >= 0
+                                ? "text-green-600"
+                                : "text-red-600"
+                                }`}
                             >
                               {formatSAR(dailyTotals.totalProfit)}
                             </div>
@@ -980,11 +970,11 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                       <p className="text-sm text-red-700">
                         {isArabic
                           ? `الخسارة اليومية: ${formatSAR(
-                              Math.abs(dailyTotals.totalProfit)
-                            )} - يرجى مراجعة الأسعار أو الساعات`
+                            Math.abs(dailyTotals.totalProfit)
+                          )} - يرجى مراجعة الأسعار أو الساعات`
                           : `Daily loss: ${formatSAR(
-                              Math.abs(dailyTotals.totalProfit)
-                            )} - Please review rates or hours`}
+                            Math.abs(dailyTotals.totalProfit)
+                          )} - Please review rates or hours`}
                       </p>
                     </div>
                   </div>
@@ -992,86 +982,29 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
               )}
 
               {attendanceRecords.filter(
-                (r) => r.date === selectedDate && r.totalHours === 0
+                (r) => {
+                  const recordDate = new Date(r.date).toISOString().split("T")[0];
+                  return recordDate === selectedDate && (r.hoursWorked || 0) + (r.overtimeHours || 0) === 0;
+                }
               ).length > 0 && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                  <div className="flex items-center gap-3">
-                    <AlertTriangle className="w-6 h-6 text-yellow-600" />
-                    <div>
-                      <h3 className="font-semibold text-yellow-800">
-                        {isArabic
-                          ? "تنبيه: سجلات فارغة"
-                          : "Notice: Empty Records"}
-                      </h3>
-                      <p className="text-sm text-yellow-700">
-                        {isArabic
-                          ? "يوجد موظفون بدون ساعات عمل مسجلة"
-                          : "Some employees have no recorded working hours"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {activeView === "timeclock" && (
-            <div className="space-y-6">
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-8">
-                <div className="text-center mb-8">
-                  <div className="text-6xl font-bold text-gray-900 mb-2">
-                    {currentTime.toLocaleTimeString()}
-                  </div>
-                  <div className="text-lg text-gray-600">
-                    {currentTime.toLocaleDateString("en-US", {
-                      weekday: "long",
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  {employees.map((employee) => (
-                    <div
-                      key={employee.id}
-                      className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm"
-                    >
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-xs">
-                          {employee.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </div>
-                        <div>
-                          <div className="font-semibold text-gray-900">
-                            {employee.name}
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {employee.trade}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <button className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-3 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2">
-                          <Play className="w-4 h-4" />
-                          {isArabic ? "حضور" : "Clock In"}
-                        </button>
-                        <button className="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-3 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2">
-                          <Coffee className="w-4 h-4" />
-                          {isArabic ? "استراحة" : "Break"}
-                        </button>
-                        <button className="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-3 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2">
-                          <Square className="w-4 h-4" />
-                          {isArabic ? "انصراف" : "Clock Out"}
-                        </button>
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <div className="flex items-center gap-3">
+                      <AlertTriangle className="w-6 h-6 text-yellow-600" />
+                      <div>
+                        <h3 className="font-semibold text-yellow-800">
+                          {isArabic
+                            ? "تنبيه: سجلات فارغة"
+                            : "Notice: Empty Records"}
+                        </h3>
+                        <p className="text-sm text-yellow-700">
+                          {isArabic
+                            ? "يوجد موظفون بدون ساعات عمل مسجلة"
+                            : "Some employees have no recorded working hours"}
+                        </p>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
+                  </div>
+                )}
             </div>
           )}
 
@@ -1087,7 +1020,7 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                   </h3>
                   <div className="text-sm text-blue-700">
                     <strong>{selectedProject.name}</strong> •{" "}
-                    {selectedProject.client} • {employees.length}{" "}
+                    {selectedProject.client_name} • {filteredEmployees.length}{" "}
                     {isArabic ? "موظف" : "employees"}
                   </div>
                 </div>
@@ -1111,7 +1044,10 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                       </span>
                     )}
                   </p>
-                  <button className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+                  <button
+                    onClick={handleExportSalarySheet}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+                  >
                     {isArabic ? "إنشاء التقرير" : "Generate Report"}
                   </button>
                 </div>
@@ -1135,7 +1071,25 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                       </span>
                     )}
                   </p>
-                  <button className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
+                  <div className="space-y-2 mb-4">
+                    <input
+                      type="date"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      placeholder={isArabic ? "تاريخ البداية" : "Start Date"}
+                    />
+                    <input
+                      type="date"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      placeholder={isArabic ? "تاريخ النهاية" : "End Date"}
+                    />
+                  </div>
+                  <button
+                    onClick={() => {
+                      // Implement period report generation
+                      alert(isArabic ? "سيتم تطوير هذه الميزة قريباً" : "This feature will be implemented soon");
+                    }}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
+                  >
                     {isArabic ? "إنشاء التقرير" : "Generate Report"}
                   </button>
                 </div>
@@ -1157,8 +1111,11 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                       </span>
                     )}
                   </p>
-                  <button className="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors">
-                    {isArabic ? "إنشاء التحليل" : "Generate Analysis"}
+                  <button
+                    onClick={() => setActiveView("analytics")}
+                    className="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors"
+                  >
+                    {isArabic ? "إنشاء التحليل" : "View Analysis"}
                   </button>
                 </div>
               </div>
@@ -1193,26 +1150,38 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                     )}
                   </h3>
                   <div className="space-y-3">
-                    {["Carpenter", "Electrician", "Mason", "Plumber"]
+                    {[...new Set(filteredEmployees.map(emp => emp.trade))]
                       .map((trade) => {
-                        const tradeEmployees = employees.filter(
+                        const tradeEmployees = filteredEmployees.filter(
                           (emp) => emp.trade === trade
                         );
                         const tradeRecords = attendanceRecords.filter(
                           (record) => {
+                            const employeeId = record.employee_id || record.employee?.id || record.employee?._id;
                             const employee = employees.find(
-                              (emp) => emp.id === record.employeeId
+                              (emp) => emp.id === employeeId
                             );
+                            const recordDate = new Date(record.date).toISOString().split("T")[0];
                             return (
                               employee?.trade === trade &&
-                              record.date === selectedDate
+                              recordDate === selectedDate
                             );
                           }
                         );
-                        const tradeProfit = tradeRecords.reduce(
-                          (sum, record) => sum + record.dailyProfit,
-                          0
-                        );
+
+                        let tradeProfit = 0;
+                        tradeRecords.forEach(record => {
+                          const employeeId = record.employee_id || record.employee?.id || record.employee?._id;
+                          const employee = employees.find(emp => emp.id === employeeId);
+                          if (employee) {
+                            const financials = calculateFinancials(
+                              record.hoursWorked || 0,
+                              record.overtimeHours || 0,
+                              employee
+                            );
+                            tradeProfit += financials.dailyProfit;
+                          }
+                        });
 
                         if (tradeEmployees.length === 0) return null;
 
@@ -1226,11 +1195,10 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                             </span>
                             <div className="text-right">
                               <div
-                                className={`font-bold ${
-                                  tradeProfit >= 0
-                                    ? "text-green-600"
-                                    : "text-red-600"
-                                }`}
+                                className={`font-bold ${tradeProfit >= 0
+                                  ? "text-green-600"
+                                  : "text-red-600"
+                                  }`}
                               >
                                 {formatSAR(tradeProfit)}
                               </div>
@@ -1269,23 +1237,22 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                         {isArabic ? "هامش الربح:" : "Profit Margin:"}
                       </span>
                       <span
-                        className={`font-semibold ${
-                          dailyTotals.totalRevenue > 0
-                            ? (dailyTotals.totalProfit /
-                                dailyTotals.totalRevenue) *
-                                100 >=
-                              0
-                              ? "text-green-600"
-                              : "text-red-600"
-                            : "text-gray-600"
-                        }`}
+                        className={`font-semibold ${dailyTotals.totalRevenue > 0
+                          ? (dailyTotals.totalProfit /
+                            dailyTotals.totalRevenue) *
+                            100 >=
+                            0
+                            ? "text-green-600"
+                            : "text-red-600"
+                          : "text-gray-600"
+                          }`}
                       >
                         {dailyTotals.totalRevenue > 0
                           ? `${(
-                              (dailyTotals.totalProfit /
-                                dailyTotals.totalRevenue) *
-                              100
-                            ).toFixed(1)}%`
+                            (dailyTotals.totalProfit /
+                              dailyTotals.totalRevenue) *
+                            100
+                          ).toFixed(1)}%`
                           : "0%"}
                       </span>
                     </div>
@@ -1296,9 +1263,17 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                       <span className="font-semibold text-blue-600">
                         {dailyTotals.totalHours > 0
                           ? formatSAR(
-                              dailyTotals.totalRevenue / dailyTotals.totalHours
-                            ) + "/hr"
+                            dailyTotals.totalRevenue / dailyTotals.totalHours
+                          ) + "/hr"
                           : formatSAR(0) + "/hr"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">
+                        {isArabic ? "عدد المشاريع النشطة:" : "Active Projects:"}
+                      </span>
+                      <span className="font-semibold text-purple-600">
+                        {projects.filter(p => p.status === 'active').length}
                       </span>
                     </div>
                     {selectedProjectId !== "all" && selectedProject && (
@@ -1307,11 +1282,63 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                           {isArabic ? "المشروع:" : "Project:"}
                         </span>
                         <span className="font-semibold text-purple-600">
-                          {selectedProject.client}
+                          {selectedProject.client_name}
                         </span>
                       </div>
                     )}
                   </div>
+                </div>
+              </div>
+
+              {/* Additional Analytics - Trade Statistics */}
+              <div className="bg-white rounded-lg p-6 border border-gray-200">
+                <h3 className="font-semibold text-gray-900 mb-4">
+                  {isArabic ? "إحصائيات المهن التفصيلية" : "Detailed Trade Statistics"}
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {[...new Set(filteredEmployees.map(emp => emp.trade))].map(trade => {
+                    const tradeEmployees = filteredEmployees.filter(emp => emp.trade === trade);
+                    const tradeRecords = attendanceRecords.filter(record => {
+                      const employeeId = record.employee_id || record.employee?.id || record.employee?._id;
+                      const employee = employees.find(emp => emp.id === employeeId);
+                      const recordDate = new Date(record.date).toISOString().split("T")[0];
+                      return employee?.trade === trade && recordDate === selectedDate;
+                    });
+
+                    const tradeHours = tradeRecords.reduce((sum, record) =>
+                      sum + (record.hoursWorked || 0) + (record.overtimeHours || 0), 0
+                    );
+
+                    return (
+                      <div key={trade} className="bg-gray-50 rounded-lg p-4">
+                        <div className="font-semibold text-gray-900 mb-2">{trade}</div>
+                        <div className="space-y-1 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">
+                              {isArabic ? "العدد:" : "Count:"}
+                            </span>
+                            <span className="font-medium">{tradeEmployees.length}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">
+                              {isArabic ? "الساعات:" : "Hours:"}
+                            </span>
+                            <span className="font-medium">{tradeHours.toFixed(1)}h</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">
+                              {isArabic ? "المتوسط:" : "Avg:"}
+                            </span>
+                            <span className="font-medium">
+                              {tradeEmployees.length > 0
+                                ? (tradeHours / tradeEmployees.length).toFixed(1)
+                                : "0"}h
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>

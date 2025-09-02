@@ -85,7 +85,6 @@ export class AuthService {
       // Call logout API 
 
       const token = await getCookie("amoagc_token");
-      console.log("Token from cookie:", token);
 
       const response = await axios.get("/api/user/logout", {
         headers: {
@@ -331,10 +330,6 @@ export class AuthService {
     localStorage.setItem(this.SESSION_CONFIG.userKey, JSON.stringify(user));
     localStorage.setItem(this.SESSION_CONFIG.expiryKey, tokenExpiry.toISOString());
     localStorage.setItem(this.SESSION_CONFIG.refreshExpiryKey, refreshTokenExpiry.toISOString());
-
-    console.log("Session stored successfully");
-    console.log("Token expires:", tokenExpiry.toISOString());
-    console.log("Refresh token expires:", refreshTokenExpiry.toISOString());
   }
 
   /**
@@ -349,8 +344,6 @@ export class AuthService {
     localStorage.removeItem(this.SESSION_CONFIG.userKey);
     localStorage.removeItem(this.SESSION_CONFIG.expiryKey);
     localStorage.removeItem(this.SESSION_CONFIG.refreshExpiryKey);
-
-    console.log("Session cleared");
   }
 
   /**

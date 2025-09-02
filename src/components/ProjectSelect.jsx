@@ -10,7 +10,6 @@ const ProjectSelect = ({
 }) => {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
-  console.log(newVehicle);
 
   useEffect(() => {
     const handleClickOutside = (event) => {

@@ -88,7 +88,6 @@ export default function UpdateProjectModal({
   };
 
   if (!isOpen) return null;
-  console.log(editingProject);
 
   // Validation function
   const validateField = (fieldName, value) => {

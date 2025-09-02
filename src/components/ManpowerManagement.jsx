@@ -117,7 +117,6 @@ export const ManpowerManagement = ({ isArabic }) => {
 
         const projectsData = extractProjectsData(projectResponse);
         const clientsData = extractClientsData(clientResponse);
-        console.log("projectres:", projectsData);
         setProjects(projectsData);
         setClients(clientsData);
       } catch (err) {
