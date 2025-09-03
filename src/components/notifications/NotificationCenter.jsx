@@ -66,22 +66,26 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
   const mountedRef = useRef(true);
   const debounceTimeoutRef = useRef(null);
 
-  // Cleanup on unmount
   useEffect(() => {
+    mountedRef.current = true;   // ✅ mark as mounted
+
     return () => {
-      mountedRef.current = false;
+      mountedRef.current = false;  // ✅ cleanup on unmount
       if (debounceTimeoutRef.current) {
         clearTimeout(debounceTimeoutRef.current);
       }
     };
   }, []);
 
+
+
+
   // Debounced search function
   const debouncedSearch = useCallback((searchValue) => {
     if (debounceTimeoutRef.current) {
       clearTimeout(debounceTimeoutRef.current);
     }
-    
+
     debounceTimeoutRef.current = setTimeout(() => {
       if (mountedRef.current && searchValue !== searchTerm) {
         setSearchTerm(searchValue);
@@ -89,59 +93,82 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
     }, 300);
   }, [searchTerm]);
 
+
+
+
   // Load notifications from API with proper error handling and loading state
-  const loadNotifications = useCallback(async (pageNum = pagination.page, filterValue = filter, searchValue = searchTerm) => {
-    // Prevent multiple simultaneous calls
-    if (loadingRef.current || !mountedRef.current) return;
+  const loadNotifications = useCallback(
+    async (
+      pageNum = pagination.page,
+      filterValue = filter,
+      searchValue = searchTerm
+    ) => {
+      // Prevent multiple simultaneous calls
+      if (loadingRef.current || !mountedRef.current) return;
 
-    loadingRef.current = true;
-    setLoading(true);
-    setError(null);
+      loadingRef.current = true;
+      setLoading(true);
+      setError(null);
 
-    try {
-      const response = await NotificationApiService.getNotifications({
-        page: pageNum,
-        limit: pagination.limit,
-        filter: filterValue,
-        search: searchValue,
-        sortBy: 'createdAt',
-        sortOrder: 'desc'
-      });
+      try {
+        const response = await NotificationApiService.getNotifications({
+          page: pageNum,
+          limit: pagination.limit,
+          filter: filterValue,
+          search: searchValue,
+          sortBy: "createdAt",
+          sortOrder: "desc",
+        });
 
-      if (!mountedRef.current) return;
+        if (!mountedRef.current) return;
 
-      if (response.success && response.data) {
-        const transformedNotifications = NotificationApiService.transformNotifications(
-          response.data.notifications || []
-        );
-        setNotifications(transformedNotifications);
-        setPagination(prev => ({
+        if (response.success) {
+          if (response.data) {
+            // ✅ Use correct API response structure
+            const transformedNotifications =
+              NotificationApiService.transformNotifications(
+                response.data.notifications || []
+              );
+
+            setNotifications(transformedNotifications);
+
+            setPagination((prev) => ({
+              ...prev,
+              page: response.data.pagination?.current || pageNum,
+              total: response.data.pagination?.total || 0,
+              pages: response.data.pagination?.pages || 0,
+            }));
+            console.log("Fetched notifications:", transformedNotifications);
+            console.log("Pagination:", response.data.pagination);
+
+          } else {
+            console.log("No new notifications (304)");
+          }
+        } else {
+          throw new Error(response.message || "Failed to load notifications");
+        }
+      } catch (error) {
+        if (!mountedRef.current) return;
+
+        console.error("Error loading notifications:", error);
+        setError(error.message || "Failed to load notifications");
+        setNotifications([]);
+        setPagination((prev) => ({
           ...prev,
-          page: response.data.pagination?.current || pageNum,
-          total: response.data.pagination?.total || 0,
-          pages: response.data.pagination?.pages || 0
+          total: 0,
+          pages: 0,
         }));
-      } else {
-        throw new Error(response.message || 'Failed to load notifications');
+      } finally {
+        if (mountedRef.current) {
+          setLoading(false);
+        }
+        loadingRef.current = false;
       }
-    } catch (error) {
-      if (!mountedRef.current) return;
-      
-      console.error("Error loading notifications:", error);
-      setError(error.message || "Failed to load notifications");
-      setNotifications([]);
-      setPagination(prev => ({
-        ...prev,
-        total: 0,
-        pages: 0
-      }));
-    } finally {
-      if (mountedRef.current) {
-        setLoading(false);
-      }
-      loadingRef.current = false;
-    }
-  }, [pagination.limit]); // Remove dependencies that cause infinite loops
+    },
+    [pagination.limit] // ✅ only depend on limit
+  );
+
+
 
   // Load unread count with proper error handling
   const loadUnreadCount = useCallback(async () => {
@@ -181,7 +208,7 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
 
     const initialLoad = async () => {
       if (isCancelled || !mountedRef.current) return;
-      
+
       try {
         await Promise.all([
           loadNotifications(1, 'all', ''),
@@ -261,7 +288,7 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
 
     const updateStats = () => {
       if (!mountedRef.current) return;
-      
+
       try {
         setChannelHealth(notificationManager.getChannelHealth());
         setDeliveryStats(notificationManager.getDeliveryStats());
@@ -272,7 +299,7 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
 
     updateStats();
     const interval = setInterval(updateStats, 30000);
-    
+
     return () => {
       clearInterval(interval);
     };
@@ -315,11 +342,11 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
       loadingRef.current = true;
       setLoading(true);
       const response = await NotificationApiService.markAllAsRead();
-      
+
       if (response.success && mountedRef.current) {
         // Refresh notifications and unread count
         await Promise.all([
-          loadNotifications(pagination.page, filter, searchTerm), 
+          loadNotifications(pagination.page, filter, searchTerm),
           loadUnreadCount()
         ]);
       }
@@ -392,7 +419,7 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
       if (response.success && mountedRef.current) {
         setSelectedNotifications(new Set());
         await Promise.all([
-          loadNotifications(pagination.page, filter, searchTerm), 
+          loadNotifications(pagination.page, filter, searchTerm),
           loadUnreadCount()
         ]);
       }
@@ -572,8 +599,8 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
                 <button
                   onClick={() => setFilter("all")}
                   className={`px-3 py-1 text-xs rounded-full transition-colors ${filter === "all"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                     }`}
                 >
                   {isArabic ? "الكل" : "All"} ({stats.total || 0})
@@ -581,8 +608,8 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
                 <button
                   onClick={() => setFilter("unread")}
                   className={`px-3 py-1 text-xs rounded-full transition-colors ${filter === "unread"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                     }`}
                 >
                   {isArabic ? "غير مقروء" : "Unread"} ({stats.unread || 0})
@@ -590,8 +617,8 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
                 <button
                   onClick={() => setFilter("starred")}
                   className={`px-3 py-1 text-xs rounded-full transition-colors ${filter === "starred"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                     }`}
                 >
                   {isArabic ? "مميز" : "Starred"} ({stats.starred || 0})
@@ -741,7 +768,7 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
 
           {/* Notifications List */}
           <div className="max-h-96 overflow-y-auto">
-            {loading && notifications.length === 0 ? (
+            {loading ? (
               <div className="p-8 text-center">
                 <Loader2 className="w-8 h-8 text-blue-500 animate-spin mx-auto mb-3" />
                 <p className="text-gray-500">
@@ -838,10 +865,10 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
                                   }
                                 }}
                                 className={`px-3 py-1 text-xs rounded transition-colors ${action.style === "primary"
-                                    ? "bg-blue-600 text-white hover:bg-blue-700"
-                                    : action.style === "danger"
-                                      ? "bg-red-600 text-white hover:bg-red-700"
-                                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                  ? "bg-blue-600 text-white hover:bg-blue-700"
+                                  : action.style === "danger"
+                                    ? "bg-red-600 text-white hover:bg-red-700"
+                                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                                   }`}
                               >
                                 {isArabic ? action.labelAr || action.label : action.label}

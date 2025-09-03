@@ -31,13 +31,13 @@ export class NotificationApiService {
       return {
         success: true,
         data: {
-          notifications: response.data?.data?.notifications || [],
+          notifications: response?.data?.notifications || [],
           pagination: {
-            current: response.data?.data?.pagination?.current || page,
-            pages: response.data?.data?.pagination?.pages || 0,
-            total: response.data?.data?.pagination?.total || 0,
-            hasNext: response.data?.data?.pagination?.hasNext || false,
-            hasPrev: response.data?.data?.pagination?.hasPrev || false
+            current: response?.data?.pagination?.current || page,
+            pages: response?.data?.pagination?.pages || 0,
+            total: response?.data?.pagination?.total || 0,
+            hasNext: response?.data?.pagination?.hasNext || false,
+            hasPrev: response?.data?.pagination?.hasPrev || false
           }
         },
         message: response.data?.message || 'Notifications retrieved successfully'
