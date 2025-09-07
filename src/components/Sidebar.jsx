@@ -49,8 +49,6 @@ export const Sidebar = ({
       setUser((prev) => ({ ...prev, isSignedIn: false }));
       // Reset to dashboard
       setActiveModule("dashboard");
-      // In a real app, you would clear tokens, redirect to login, etc.
-      console.log("User signed out successfully");
     }
   };
 
@@ -63,7 +61,6 @@ export const Sidebar = ({
       // Simple validation - in real app this would be proper authentication
       if (username === "admin" && password === "admin") {
         setUser((prev) => ({ ...prev, isSignedIn: true }));
-        console.log("User signed in successfully");
       } else {
         alert(isArabic ? "بيانات دخول خاطئة" : "Invalid credentials");
       }

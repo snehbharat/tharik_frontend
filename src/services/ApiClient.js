@@ -2,7 +2,6 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { AUTH_CONFIG, API_CONFIG } from "../config/constants";
 
-console.log("config", AUTH_CONFIG, API_CONFIG);
 class Client {
   constructor() {
     this.isBackendAvailable = true;
@@ -24,7 +23,6 @@ class Client {
     this.client.interceptors.request.use(
       (config) => {
         const token = Cookies.get("amoagc_token");
-        console.log(token);
 
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
@@ -161,20 +159,16 @@ class Client {
   async getCC(url) {
     try {
       const res = await this.client.get(url);
-      console.log(res.data);
 
       return res.data;
     } catch (err) {
       console.log("error");
-
       throw err;
     }
   }
   async get(url, params) {
     try {
       const res = await this.client.get(url, { params });
-      console.log(res);
-
       return res.data;
     } catch (err) {
       throw err;
@@ -184,8 +178,6 @@ class Client {
   async getExport(url, params) {
     try {
       const res = await this.client.get(url, { params });
-      console.log(res);
-
       return res;
     } catch (err) {
       throw err;
@@ -193,12 +185,8 @@ class Client {
   }
 
   async post(url, data) {
-    console.log(data);
-
     try {
       const res = await this.client.post(url, data);
-      console.log(res);
-
       return res.data;
     } catch (err) {
       throw err;

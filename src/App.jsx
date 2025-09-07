@@ -60,7 +60,6 @@ const AppContent = () => {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  console.log(projects);
 
   // Helper function to safely extract projects data from API response
   const extractProjectsData = (response) => {
@@ -124,7 +123,6 @@ const AppContent = () => {
 
         const projectsData = extractProjectsData(projectResponse);
         const clientsData = extractClientsData(clientResponse);
-        console.log("projectres:", projectsData);
         setProjects(projectsData);
         setClients(clientsData);
       } catch (err) {

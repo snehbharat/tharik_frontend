@@ -389,7 +389,6 @@ export const FleetManagement = ({ isArabic }) => {
     }
 
     const selectedProject = projects.find((p) => p._id === newVehicle.project);
-    // console.log("selectedProject", selectedProject);
 
     const vehiclePayload = {
       plate_number: newVehicle.plateNumber,

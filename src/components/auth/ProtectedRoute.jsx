@@ -40,7 +40,6 @@ export const ProtectedRoute = ({
 
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
-    console.log("User not authenticated, redirecting to login");
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
@@ -133,11 +132,6 @@ export const ProtectedRoute = ({
       )
     );
   }
-
-  // Log successful access
-  console.log(
-    `Access granted to ${user?.username} for route: ${location.pathname}`
-  );
 
   // Render protected content
   return <>{children}</>;

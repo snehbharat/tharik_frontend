@@ -576,11 +576,15 @@ export const OperationsDepartment = ({ isArabic }) => {
       status: "Scheduled",
     };
 
+
     console.log("newS", newSchedule);
 
     const payload = {
       project: newSchedule.project,
     };
+    // Update last sync time
+    setLastSync(new Date());
+
 
     try {
       const res = await ScheduleTaskService.createScheduleTask(schedulePayload);

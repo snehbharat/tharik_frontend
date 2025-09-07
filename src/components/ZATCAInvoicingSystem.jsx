@@ -98,7 +98,6 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
       alert(isArabic ? "فشل حفظ الإعدادات" : "Failed to save settings");
     }
   };
-  console.log("sellerinfo", sellerInfo);
 
   // New invoice form state
   const [newInvoice, setNewInvoice] = useState({
@@ -213,7 +212,6 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
     try {
       setLoading(true);
       const data = await InvoiceService.getAllInvoices(1, 10);
-      console.log("invoice res:", data);
 
       setInvoices(data.data.data);
       setPagination({
@@ -232,8 +230,6 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
   useEffect(() => {
     fetchInvoices();
   }, []);
-
-  console.log("invoices", invoices);
 
   // Helper functions for ZATCA compliance
   function generateQRCodeData(invoiceNumber, vatNumber, total, vatAmount) {
@@ -823,7 +819,6 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
       statusFilter === "all" || invoice.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
-  console.log(filteredInvoices);
 
   return (
     <div className="p-6 space-y-6">
