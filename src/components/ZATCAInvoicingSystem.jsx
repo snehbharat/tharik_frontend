@@ -1368,6 +1368,40 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                   />
                 </div>
               </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "مدينة" : "City"}
+                  </label>
+                  <input
+                    value={sellerInfo?.city}
+                    onChange={(e) =>
+                      setSellerInfo({
+                        ...sellerInfo,
+                        city: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    rows={3}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "الرمز البريدي" : "Postal Code"}
+                  </label>
+                  <input
+                    value={sellerInfo?.postalCode}
+                    onChange={(e) =>
+                      setSellerInfo({
+                        ...sellerInfo,
+                        postalCode: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    rows={3}
+                  />
+                </div>
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>

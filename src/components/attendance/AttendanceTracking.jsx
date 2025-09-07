@@ -20,6 +20,9 @@ import {
   Edit,
   Eye,
   DollarSign,
+  User,
+  Trash2,
+  Printer,
 } from "lucide-react";
 import { ATTENDANCE_CONFIG } from "../../types/attendance";
 import { ScheduleService } from "../../services/ScheduleService";
@@ -30,50 +33,98 @@ import { NotificationService } from "../../services/NotificationService";
 import { ReportingService } from "../../services/ReportingService";
 import { AttendanceService } from "../../services/AttendanceService";
 import { AttendanceReports } from "./AttendanceReports";
+import { employeeService } from "../../services/EmployeeService";
+import UserService from "../../services/UserService";
+import LeavesService from "../../services/LeavesService";
 
 export const AttendanceTracking = ({ isArabic }) => {
-  const [activeTab, setActiveTab] = useState("manual");
+  const [activeTab, setActiveTab] = useState("users");
   const [showLeaveRequest, setShowLeaveRequest] = useState(false);
   const [showScheduleForm, setShowScheduleForm] = useState(false);
   const [showManualEntry, setShowManualEntry] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState("");
+  const [selectedEmployee, setSelectedEmployee] = useState("All");
+  const [employees, setEmployees] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [leaves, setLeaves] = useState([]);
+  const [selectedLeave, setSelectedLeave] = useState(null);
+  const [editingLeave, setEditingLeave] = useState(null);
 
-  const employees = [
-    {
-      id: "emp_001",
-      name: "Ahmed Al-Rashid",
-      nameAr: "أحمد الراشد",
-      department: "Operations",
-      hourlyRate: 35.0,
-    },
-    {
-      id: "emp_002",
-      name: "Mohammad Hassan",
-      nameAr: "محمد حسن",
-      department: "Operations",
-      hourlyRate: 28.0,
-    },
-    {
-      id: "emp_003",
-      name: "Ali Al-Mahmoud",
-      nameAr: "علي المحمود",
-      department: "Maintenance",
-      hourlyRate: 32.0,
-    },
-    {
-      id: "emp_004",
-      name: "Fatima Al-Zahra",
-      nameAr: "فاطمة الزهراء",
-      department: "Safety",
-      hourlyRate: 40.0,
-    },
-  ];
+  const fetchEmployees = async () => {
+    try {
+      const res = await employeeService.getAllEmployees();
+      setEmployees(res?.data.employees || []);
+    } catch (err) {
+      console.error("Error fetching employees:", err.message);
+      // setError("Failed to load employees");
+    }
+  };
+  const fetchUsers = async () => {
+    try {
+      const res = await UserService.getAllUsers();
+      setUsers(res?.data || []);
+    } catch (err) {
+      console.error("Error fetching employees:", err.message);
+      // setError("Failed to load employees");
+    }
+  };
+  const fetchLeaves = async () => {
+    try {
+      const res = await LeavesService.getAllLeaves();
+      setLeaves(res?.data || []);
+    } catch (err) {
+      console.error("Error fetching employees:", err.message);
+      // setError("Failed to load employees");
+    }
+  };
+
+  useEffect(() => {
+    fetchEmployees();
+    fetchUsers();
+    fetchLeaves();
+  }, []);
+  console.log("users", users);
+  console.log("employees", employees);
+  console.log("leaves", leaves);
+
+  // const employees = [
+  //   {
+  //     id: "emp_001",
+  //     name: "Ahmed Al-Rashid",
+  //     nameAr: "أحمد الراشد",
+  //     department: "Operations",
+  //     hourlyRate: 35.0,
+  //   },
+  //   {
+  //     id: "emp_002",
+  //     name: "Mohammad Hassan",
+  //     nameAr: "محمد حسن",
+  //     department: "Operations",
+  //     hourlyRate: 28.0,
+  //   },
+  //   {
+  //     id: "emp_003",
+  //     name: "Ali Al-Mahmoud",
+  //     nameAr: "علي المحمود",
+  //     department: "Maintenance",
+  //     hourlyRate: 32.0,
+  //   },
+  //   {
+  //     id: "emp_004",
+  //     name: "Fatima Al-Zahra",
+  //     nameAr: "فاطمة الزهراء",
+  //     department: "Safety",
+  //     hourlyRate: 40.0,
+  //   },
+  // ];
 
   const [newLeaveRequest, setNewLeaveRequest] = useState({
-    leaveTypeId: "annual",
+    leaveType: "Annual Leave",
+    beneficiaryType: "",
+    beneficiaryId: "",
     startDate: "",
     endDate: "",
     reason: "",
+    status: "pending",
   });
 
   const [manualAttendance, setManualAttendance] = useState({
@@ -138,20 +189,52 @@ export const AttendanceTracking = ({ isArabic }) => {
 
   const handleSubmitLeaveRequest = async () => {
     try {
-      if (!newLeaveRequest.startDate || !newLeaveRequest.endDate) {
-        throw new Error("Please select start and end dates");
+      const {
+        leaveType,
+        beneficiaryType,
+        beneficiaryId,
+        startDate,
+        endDate,
+        reason,
+        status,
+      } = newLeaveRequest;
+
+      // Validation
+      if (!beneficiaryType || !beneficiaryId) {
+        throw new Error(
+          isArabic
+            ? "الرجاء اختيار المستخدم أو الموظف"
+            : "Please select a user or employee"
+        );
+      }
+      if (!startDate || !endDate) {
+        throw new Error(
+          isArabic
+            ? "الرجاء اختيار تاريخ البدء والانتهاء"
+            : "Please select start and end dates"
+        );
       }
 
-      await LeaveService.submitLeaveRequest({
-        employeeId: selectedEmployee,
-        ...newLeaveRequest,
+      // API call
+      await LeavesService.createLeave({
+        leaveType,
+        beneficiaryType,
+        beneficiaryId,
+        startDate,
+        endDate,
+        reason,
+        status,
       });
 
+      // Reset form
       setNewLeaveRequest({
-        leaveTypeId: "annual",
+        leaveType: "Annual Leave",
+        beneficiaryType: "",
+        beneficiaryId: "",
         startDate: "",
         endDate: "",
         reason: "",
+        status: "pending",
       });
       setShowLeaveRequest(false);
 
@@ -162,6 +245,88 @@ export const AttendanceTracking = ({ isArabic }) => {
       );
     } catch (error) {
       alert(error.message);
+    }
+  };
+
+  const handleEditClient = (id) => {
+    // Find client to edit
+    const leave = leaves.find((l) => l._id === id);
+    if (!leave) return;
+
+    // Store in state for editing (could be modal or inline form)
+    setEditingLeave(leave);
+  };
+
+  console.log(editingLeave);
+
+  const handleUpdateLeave = async () => {
+    try {
+      const {
+        leaveType,
+        beneficiaryType,
+        beneficiaryId,
+        startDate,
+        endDate,
+        reason,
+        status,
+      } = editingLeave;
+
+      // Validation
+      if (!beneficiaryType || !beneficiaryId) {
+        throw new Error(
+          isArabic
+            ? "الرجاء اختيار المستخدم أو الموظف"
+            : "Please select a user or employee"
+        );
+      }
+      if (!startDate || !endDate) {
+        throw new Error(
+          isArabic
+            ? "الرجاء اختيار تاريخ البدء والانتهاء"
+            : "Please select start and end dates"
+        );
+      }
+
+      // API call
+      await LeavesService.updateLeave(editingLeave._id, {
+        leaveType,
+        beneficiaryType,
+        beneficiaryId,
+        startDate,
+        endDate,
+        reason,
+        status,
+      });
+
+      // Close modal
+      setEditingLeave(null);
+      fetchLeaves();
+
+      alert(
+        isArabic
+          ? "تم تحديث طلب الإجازة بنجاح!"
+          : "Leave request updated successfully!"
+      );
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  const handleDeleteLead = async (id) => {
+    if (
+      window.confirm(
+        isArabic
+          ? "هل أنت متأكد من حذف هذا العميل المحتمل؟"
+          : "Are you sure you want to delete this Leave?"
+      )
+    ) {
+      const res = await LeavesService.deleteLeave(id);
+      if (res?.status === 200) {
+        fetchLeaves();
+      }
+      alert(
+        isArabic ? "تم حذف العميل المحتمل بنجاح!" : "Lead deleted successfully!"
+      );
     }
   };
 
@@ -351,6 +516,56 @@ export const AttendanceTracking = ({ isArabic }) => {
     }
   };
 
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "Paid":
+      case "approved":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "Issued":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      case "Sent":
+        return "bg-purple-100 text-purple-800 border-purple-200";
+      case "Overdue":
+      case "rejected":
+        return "bg-red-100 text-red-800 border-red-200";
+      case "Draft":
+      case "pending":
+        return "bg-gray-100 text-gray-800 border-gray-200";
+      case "Cancelled":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+
+  const filteredLeaves = leaves?.filter((leave) => {
+    // match by selected employee/user
+    const matchesEmployee =
+      selectedEmployee === "All" ||
+      leave.beneficiaryId?._id === selectedEmployee;
+
+    // match by status filter (if you have one)
+    // const matchesStatus = !statusFilter || leave.status === statusFilter;
+
+    // match by search filter (if you have one)
+    // const matchesSearch =
+    //   !searchTerm ||
+    //   leave.beneficiaryId?.first_name
+    //     ?.toLowerCase()
+    //     .includes(searchTerm.toLowerCase()) ||
+    //   leave.beneficiaryId?.last_name
+    //     ?.toLowerCase()
+    //     .includes(searchTerm.toLowerCase()) ||
+    //   leave.beneficiaryId?.username
+    //     ?.toLowerCase()
+    //     .includes(searchTerm.toLowerCase());
+
+    // return matchesEmployee && matchesStatus && matchesSearch;
+    return matchesEmployee;
+  });
+
+  console.log(filteredLeaves);
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -358,23 +573,23 @@ export const AttendanceTracking = ({ isArabic }) => {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">
-              {isArabic ? "تتبع الحضور والانصراف" : "Attendance Tracking"}
+              {isArabic ? "تتبع الإجازات" : "Leave Tracking"}
             </h2>
             <p className="text-gray-600 mt-1">
               {isArabic
-                ? "إدارة شاملة لحضور الموظفين والجداول والإجازات"
-                : "Comprehensive employee attendance, scheduling, and leave management"}
+                ? "إدارة شاملة لإجازات الموظفين"
+                : "Comprehensive employee leave management"}
             </p>
           </div>
           <div className="flex items-center gap-3">
             <button
-              onClick={generateAttendanceReport}
+              onClick={() => setShowLeaveRequest(true)}
               className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
             >
-              <Download className="w-4 h-4" />
-              {isArabic ? "تقرير الحضور" : "Attendance Report"}
+              <Plus className="w-4 h-4" />
+              {isArabic ? "طلب إجازة" : "Request Leave"}
             </button>
-            <button
+            {/* <button
               onClick={generateFinancialReport}
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
             >
@@ -391,9 +606,19 @@ export const AttendanceTracking = ({ isArabic }) => {
             <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
               <Settings className="w-4 h-4" />
               {isArabic ? "الإعدادات" : "Settings"}
-            </button>
+            </button> */}
           </div>
         </div>
+      </div>
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <h4 className="font-semibold text-blue-800 mb-2">
+          {isArabic ? "نظام إدارة الإجازات" : "Leave Management System"}
+        </h4>
+        <p className="text-sm text-blue-700">
+          {isArabic
+            ? "تقديم وإدارة طلبات الإجازات مع تتبع الرصيد والموافقات"
+            : "Submit and manage leave requests with balance tracking and approvals"}
+        </p>
       </div>
 
       {/* Tabs */}
@@ -401,6 +626,33 @@ export const AttendanceTracking = ({ isArabic }) => {
         <div className="border-b border-gray-200">
           <nav className="flex">
             <button
+              onClick={() => setActiveTab("users")}
+              className={`px-6 py-4 font-medium transition-colors ${
+                activeTab === "users"
+                  ? "text-green-600 border-b-2 border-green-600"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <User className="w-4 h-4" />
+                {isArabic ? "المستخدمون" : "Users"}
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab("employees")}
+              className={`px-6 py-4 font-medium transition-colors ${
+                activeTab === "employees"
+                  ? "text-green-600 border-b-2 border-green-600"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <User className="w-4 h-4" />
+                {isArabic ? "الموظفون" : "Employees"}
+              </div>
+            </button>
+            {/* ------------------------- */}
+            {/* <button
               onClick={() => setActiveTab("manual")}
               className={`px-6 py-4 font-medium transition-colors ${
                 activeTab === "manual"
@@ -425,8 +677,8 @@ export const AttendanceTracking = ({ isArabic }) => {
                 <Calendar className="w-4 h-4" />
                 {isArabic ? "الجدولة" : "Scheduling"}
               </div>
-            </button>
-            <button
+            </button> */}
+            {/* <button
               onClick={() => setActiveTab("leave")}
               className={`px-6 py-4 font-medium transition-colors ${
                 activeTab === "leave"
@@ -438,8 +690,8 @@ export const AttendanceTracking = ({ isArabic }) => {
                 <Calendar className="w-4 h-4" />
                 {isArabic ? "إدارة الإجازات" : "Leave Management"}
               </div>
-            </button>
-            <button
+            </button> */}
+            {/* <button
               onClick={() => setActiveTab("reports")}
               className={`px-6 py-4 font-medium transition-colors ${
                 activeTab === "reports"
@@ -451,12 +703,391 @@ export const AttendanceTracking = ({ isArabic }) => {
                 <BarChart3 className="w-4 h-4" />
                 {isArabic ? "التقارير" : "Reports"}
               </div>
-            </button>
+            </button> */}
           </nav>
         </div>
 
+        {/* active tabs */}
         <div className="p-6">
-          {activeTab === "manual" && (
+          {activeTab === "users" && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {isArabic ? "إدارة الإجازات" : "Leave Management"}
+                </h3>
+                <div className="flex items-center gap-3">
+                  <select
+                    value={selectedEmployee}
+                    onChange={(e) => setSelectedEmployee(e.target.value)}
+                    className="border border-gray-300 rounded-lg px-3 py-2"
+                  >
+                    <option value="All">
+                      {isArabic ? "اختر المستخدمين" : "Select Users"}
+                    </option>
+
+                    {leaves
+                      ?.filter((leave) => leave.beneficiaryType === "user")
+                      .map((leave) => (
+                        <option
+                          key={leave.beneficiaryId?._id}
+                          value={leave.beneficiaryId?._id}
+                        >
+                          {leave.beneficiaryId
+                            ? `${leave.beneficiaryId.nameEn || "-"}`
+                            : isArabic
+                            ? "غير معروف"
+                            : "Unknown"}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+                {/* <div className="flex items-center gap-3">
+                  <select
+                    value={selectedEmployee}
+                    onChange={(e) => setSelectedEmployee(e.target.value)}
+                    className="border border-gray-300 rounded-lg px-3 py-2"
+                  >
+                    <option value="">
+                      {isArabic ? "اختر المستخدمين" : "Select Users"}
+                    </option>
+                    {employees?.map((emp) => (
+                      <option key={emp.id} value={emp.id}>
+                        {isArabic ? emp.nameAr : emp.name}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={() => setShowLeaveRequest(true)}
+                    disabled={!selectedEmployee}
+                    className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    {isArabic ? "طلب إجازة" : "Request Leave"}
+                  </button>
+                </div> */}
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "اسم المستفيد" : "Beneficiary Name"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "اتصال" : "Contact"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "مدة" : "Duration"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "نوع" : "Type"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "الحالة" : "Status"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "تاريخ" : "Date"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "الإجراءات" : "Actions"}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {filteredLeaves
+                      ?.filter((leave) => leave.beneficiaryType === "user")
+                      .map((leave) => (
+                        <tr key={leave._id} className="hover:bg-gray-50">
+                          <td className="px-4 py-4">
+                            <div className="font-medium text-gray-900">
+                              {leave.beneficiaryId.nameEn}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {leave.beneficiaryId.role}
+                            </div>
+                          </td>
+                          <td className="px-4 py-4">
+                            <div className="font-medium text-gray-900">
+                              {leave.beneficiaryId.mobile_number}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {leave.beneficiaryId.email}
+                            </div>
+                          </td>
+                          <td className="px-4 py-4 text-sm text-gray-900">
+                            <div>
+                              {new Date(leave.startDate).toLocaleDateString()} •{" "}
+                              {new Date(leave.endDate).toLocaleDateString()}
+                            </div>
+                          </td>
+
+                          <td className="px-4 py-4 text-sm font-semibold text-gray-900">
+                            {leave.leaveType}
+                          </td>
+                          <td className="px-4 py-4">
+                            <span
+                              className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getStatusColor(
+                                leave.status
+                              )}`}
+                            >
+                              {leave.status}
+                            </span>
+                          </td>
+                          <td className="px-4 py-4 text-sm text-gray-900">
+                            <div>
+                              {leave.updatedAt
+                                ? `${new Date(
+                                    leave.updatedAt
+                                  ).toLocaleDateString("en-GB", {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric",
+                                  })}`
+                                : "NA"}
+                            </div>
+                          </td>
+
+                          <td className="px-4 py-4">
+                            <div className="flex items-center gap-2">
+                              <button
+                                className="text-blue-600 hover:text-blue-800 p-1 rounded"
+                                title={isArabic ? "معاينة" : "Preview"}
+                                onClick={() => setSelectedLeave(leave)}
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
+                              <button
+                                className="text-green-600 hover:text-green-800 p-1 rounded transition-colors"
+                                onClick={() => handleEditClient(leave._id)}
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              <button
+                                className="text-red-600 hover:text-red-800 p-1 rounded transition-colors"
+                                onClick={() => handleDeleteLead(leave._id)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-semibold text-blue-800 mb-2">
+                  {isArabic ? "نظام إدارة الإجازات" : "Leave Management System"}
+                </h4>
+                <p className="text-sm text-blue-700">
+                  {isArabic
+                    ? "تقديم وإدارة طلبات الإجازات مع تتبع الرصيد والموافقات"
+                    : "Submit and manage leave requests with balance tracking and approvals"}
+                </p>
+              </div> */}
+
+              {/* <div className="text-sm text-gray-600">
+                {isArabic
+                  ? "سيتم عرض طلبات الإجازات هنا..."
+                  : "Leave requests will be displayed here..."}
+              </div> */}
+            </div>
+          )}
+
+          {activeTab === "employees" && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {isArabic ? "إدارة الإجازات" : "Leave Management"}
+                </h3>
+                <div className="flex items-center gap-3">
+                  <select
+                    value={selectedEmployee}
+                    onChange={(e) => setSelectedEmployee(e.target.value)}
+                    className="border border-gray-300 rounded-lg px-3 py-2"
+                  >
+                    <option value="All">
+                      {isArabic ? "اختر الموظف" : "Select Employee"}
+                    </option>
+
+                    {leaves
+                      ?.filter((leave) => leave.beneficiaryType === "employee") // only users
+                      .map((leave) => (
+                        <option
+                          key={leave.beneficiaryId?._id}
+                          value={leave.beneficiaryId?._id}
+                        >
+                          {leave.beneficiaryId
+                            ? `${leave.beneficiaryId.first_name || ""} ${
+                                leave.beneficiaryId.last_name || ""
+                              }`
+                            : isArabic
+                            ? "غير معروف"
+                            : "Unknown"}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+                {/* <div className="flex items-center gap-3">
+                  <select
+                    value={selectedEmployee}
+                    onChange={(e) => setSelectedEmployee(e.target.value)}
+                    className="border border-gray-300 rounded-lg px-3 py-2"
+                  >
+                    <option value="">
+                      {isArabic ? "اختر المستخدمين" : "Select Users"}
+                    </option>
+                    {employees?.map((emp) => (
+                      <option key={emp.id} value={emp.id}>
+                        {isArabic ? emp.nameAr : emp.name}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={() => setShowLeaveRequest(true)}
+                    disabled={!selectedEmployee}
+                    className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    {isArabic ? "طلب إجازة" : "Request Leave"}
+                  </button>
+                </div> */}
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "اسم المستفيد" : "Beneficiary Name"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "اتصال" : "Contact"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "مدة" : "Duration"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "نوع" : "Type"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "الحالة" : "Status"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "تاريخ" : "Date"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "الإجراءات" : "Actions"}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {filteredLeaves
+                      ?.filter((leave) => leave.beneficiaryType === "employee")
+                      .map((leave) => (
+                        <tr key={leave._id} className="hover:bg-gray-50">
+                          <td className="px-4 py-4">
+                            <div className="font-medium text-gray-900">
+                              {leave.beneficiaryId.first_name +
+                                leave.beneficiaryId.last_name}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {leave.beneficiaryId.employee_id}
+                            </div>
+                          </td>
+                          <td className="px-4 py-4">
+                            <div className="font-medium text-gray-900">
+                              {leave.beneficiaryId.phone}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {leave.beneficiaryId.email}
+                            </div>
+                          </td>
+                          <td className="px-4 py-4 text-sm text-gray-900">
+                            <div>
+                              {new Date(leave.startDate).toLocaleDateString()} •{" "}
+                              {new Date(leave.endDate).toLocaleDateString()}
+                            </div>
+                          </td>
+
+                          <td className="px-4 py-4 text-sm font-semibold text-gray-900">
+                            {leave.leaveType}
+                          </td>
+                          <td className="px-4 py-4">
+                            <span
+                              className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getStatusColor(
+                                leave.status
+                              )}`}
+                            >
+                              {leave.status}
+                            </span>
+                          </td>
+                          <td className="px-4 py-4 text-sm text-gray-900">
+                            <div>
+                              {leave.updatedAt
+                                ? `${new Date(
+                                    leave.updatedAt
+                                  ).toLocaleDateString("en-GB", {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric",
+                                  })}`
+                                : "NA"}
+                            </div>
+                          </td>
+
+                          <td className="px-4 py-4">
+                            <div className="flex items-center gap-2">
+                              <button
+                                className="text-blue-600 hover:text-blue-800 p-1 rounded"
+                                title={isArabic ? "معاينة" : "Preview"}
+                                onClick={() => setSelectedLeave(leave)}
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
+                              <button
+                                className="text-green-600 hover:text-green-800 p-1 rounded transition-colors"
+                                onClick={() => handleEditClient(leave._id)}
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              <button
+                                className="text-red-600 hover:text-red-800 p-1 rounded transition-colors"
+                                onClick={() => handleDeleteLead(leave._id)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-semibold text-blue-800 mb-2">
+                  {isArabic ? "نظام إدارة الإجازات" : "Leave Management System"}
+                </h4>
+                <p className="text-sm text-blue-700">
+                  {isArabic
+                    ? "تقديم وإدارة طلبات الإجازات مع تتبع الرصيد والموافقات"
+                    : "Submit and manage leave requests with balance tracking and approvals"}
+                </p>
+              </div> */}
+
+              {/* <div className="text-sm text-gray-600">
+                {isArabic
+                  ? "سيتم عرض طلبات الإجازات هنا..."
+                  : "Leave requests will be displayed here..."}
+              </div> */}
+            </div>
+          )}
+
+          {/* --------------------- */}
+          {/* {activeTab === "manual" && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900">
@@ -490,9 +1121,9 @@ export const AttendanceTracking = ({ isArabic }) => {
                   : "Manually entered attendance records will be displayed here..."}
               </div>
             </div>
-          )}
+          )} */}
 
-          {activeTab === "schedule" && (
+          {/* {activeTab === "schedule" && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900">
@@ -526,9 +1157,9 @@ export const AttendanceTracking = ({ isArabic }) => {
                   : "Created work schedules will be displayed here..."}
               </div>
             </div>
-          )}
+          )} */}
 
-          {activeTab === "leave" && (
+          {/* {activeTab === "leave" && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900">
@@ -577,18 +1208,18 @@ export const AttendanceTracking = ({ isArabic }) => {
                   : "Leave requests will be displayed here..."}
               </div>
             </div>
-          )}
+          )} */}
 
-          {activeTab === "reports" && (
+          {/* {activeTab === "reports" && (
             <div className="space-y-6">
               <AttendanceReports isArabic={isArabic} />
             </div>
-          )}
+          )} */}
         </div>
       </div>
 
       {/* Manual Attendance Entry Modal */}
-      {showManualEntry && (
+      {/* {showManualEntry && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 w-full max-w-2xl">
             <div className="flex items-center justify-between mb-6">
@@ -765,12 +1396,13 @@ export const AttendanceTracking = ({ isArabic }) => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Leave Request Modal */}
       {showLeaveRequest && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 w-full max-w-2xl">
+            {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-gray-900">
                 {isArabic ? "طلب إجازة جديد" : "New Leave Request"}
@@ -784,35 +1416,114 @@ export const AttendanceTracking = ({ isArabic }) => {
             </div>
 
             <div className="space-y-4">
+              {/* Leave Type */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   {isArabic ? "نوع الإجازة" : "Leave Type"}
                 </label>
                 <select
-                  value={newLeaveRequest.leaveTypeId}
+                  value={newLeaveRequest.leaveType}
                   onChange={(e) =>
                     setNewLeaveRequest({
                       ...newLeaveRequest,
-                      leaveTypeId: e.target.value,
+                      leaveType: e.target.value,
                     })
                   }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2"
                 >
-                  <option value="annual">
+                  <option value="Annual Leave">
                     {isArabic ? "إجازة سنوية" : "Annual Leave"}
                   </option>
-                  <option value="sick">
+                  <option value="Sick Leave">
                     {isArabic ? "إجازة مرضية" : "Sick Leave"}
                   </option>
-                  <option value="personal">
+                  <option value="Personal Leave">
                     {isArabic ? "إجازة شخصية" : "Personal Leave"}
                   </option>
-                  <option value="emergency">
+                  <option value="Emergency Leave">
                     {isArabic ? "إجازة طارئة" : "Emergency Leave"}
                   </option>
+                  <option value="Unpaid Leave">
+                    {isArabic ? "إجازة غير مدفوعة" : "Unpaid Leave"}
+                  </option>
+                  <option value="Other">{isArabic ? "آخر" : "Other"}</option>
                 </select>
               </div>
 
+              {/* Beneficiary Selection */}
+              <div className="grid grid-cols-2 gap-4">
+                {/* First dropdown: User/Employee */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "مستخدم / موظف" : "User/Employee"}
+                  </label>
+                  <select
+                    value={newLeaveRequest.beneficiaryType || ""}
+                    onChange={(e) =>
+                      setNewLeaveRequest({
+                        ...newLeaveRequest,
+                        beneficiaryType: e.target.value,
+                        beneficiaryId: "", // reset when type changes
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  >
+                    <option value="">{isArabic ? "اختر" : "Select"}</option>
+                    <option value="user">
+                      {isArabic ? "المستخدم" : "User"}
+                    </option>
+                    <option value="employee">
+                      {isArabic ? "موظف" : "Employee"}
+                    </option>
+                  </select>
+                </div>
+
+                {/* Second dropdown: Names list */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {newLeaveRequest.beneficiaryType === "user"
+                      ? isArabic
+                        ? "اسم المستخدم"
+                        : "User Name"
+                      : newLeaveRequest.beneficiaryType === "employee"
+                      ? isArabic
+                        ? "اسم الموظف"
+                        : "Employee Name"
+                      : isArabic
+                      ? "الاسم"
+                      : "Name"}
+                  </label>
+                  <select
+                    value={newLeaveRequest.beneficiaryId || ""}
+                    onChange={(e) =>
+                      setNewLeaveRequest({
+                        ...newLeaveRequest,
+                        beneficiaryId: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    disabled={!newLeaveRequest.beneficiaryType}
+                  >
+                    <option value="">{isArabic ? "اختر" : "Select"}</option>
+
+                    {newLeaveRequest.beneficiaryType === "user" &&
+                      users.map((u) => (
+                        <option key={u._id} value={u._id}>
+                          {u.nameEn || u.username}
+                        </option>
+                      ))}
+
+                    {newLeaveRequest.beneficiaryType === "employee" &&
+                      employees.map((e) => (
+                        <option key={e._id} value={e._id}>
+                          {e.personalInfo.fullName}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Dates */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -848,6 +1559,7 @@ export const AttendanceTracking = ({ isArabic }) => {
                 </div>
               </div>
 
+              {/* Reason */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   {isArabic ? "السبب" : "Reason"}
@@ -870,6 +1582,7 @@ export const AttendanceTracking = ({ isArabic }) => {
                 />
               </div>
 
+              {/* Buttons */}
               <div className="flex items-center gap-3 pt-4">
                 <button
                   onClick={handleSubmitLeaveRequest}
@@ -891,7 +1604,7 @@ export const AttendanceTracking = ({ isArabic }) => {
       )}
 
       {/* Schedule Form Modal */}
-      {showScheduleForm && (
+      {/* {showScheduleForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 w-full max-w-2xl">
             <div className="flex items-center justify-between mb-6">
@@ -990,6 +1703,364 @@ export const AttendanceTracking = ({ isArabic }) => {
                 </button>
                 <button
                   onClick={() => setShowScheduleForm(false)}
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-lg"
+                >
+                  {isArabic ? "إلغاء" : "Cancel"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )} */}
+
+      {/* View Leave Details */}
+      {selectedLeave && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-lg w-full max-w-3xl max-h-screen overflow-y-auto p-6">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-gray-900">
+                {isArabic ? "تفاصيل الإجازة" : "Leave Details"}
+              </h3>
+              <button
+                onClick={() => setSelectedLeave(null)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Leave Details Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[
+                {
+                  label: isArabic
+                    ? "اسم الموظف (إنجليزي)"
+                    : "Employee Name (English)",
+                  value: selectedLeave.beneficiaryId.nameEn
+                    ? selectedLeave.beneficiaryId.nameEn
+                    : selectedLeave.beneficiaryId.first_name +
+                      selectedLeave.beneficiaryId.last_name,
+                },
+                {
+                  label: isArabic
+                    ? "اسم الموظف (عربي)"
+                    : "Employee Name (Arabic)",
+                  value: selectedLeave?.beneficiaryId?.nameAr,
+                },
+                {
+                  label: isArabic ? "الدور" : "Role",
+                  value: selectedLeave?.beneficiaryId?.role,
+                },
+                {
+                  label: isArabic ? "رقم الهاتف" : "Phone Number",
+                  value: selectedLeave.beneficiaryId.mobile_number
+                    ? selectedLeave.beneficiaryId.mobile_number
+                    : selectedLeave.beneficiaryId.phone,
+                },
+                {
+                  label: isArabic ? "البريد الإلكتروني" : "Email",
+                  value: selectedLeave?.beneficiaryId?.email,
+                },
+                {
+                  label: isArabic ? "نوع الإجازة" : "Leave Type",
+                  value: selectedLeave?.leaveType,
+                },
+                {
+                  label: isArabic ? "الحالة" : "Status",
+                  value: selectedLeave?.status,
+                },
+                {
+                  label: isArabic ? "تاريخ البداية" : "Start Date",
+                  value: selectedLeave?.startDate
+                    ? new Date(selectedLeave.startDate).toLocaleDateString(
+                        "en-GB",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        }
+                      )
+                    : "-",
+                },
+                {
+                  label: isArabic ? "تاريخ الانتهاء" : "End Date",
+                  value: selectedLeave?.endDate
+                    ? new Date(selectedLeave.endDate).toLocaleDateString(
+                        "en-GB",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        }
+                      )
+                    : "-",
+                },
+                {
+                  label: isArabic ? "آخر تحديث" : "Last Updated",
+                  value: selectedLeave?.updatedAt
+                    ? new Date(selectedLeave.updatedAt).toLocaleDateString(
+                        "en-GB",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        }
+                      )
+                    : "-",
+                },
+                {
+                  label: isArabic ? "سبب" : "Reason",
+                  value: selectedLeave?.reason,
+                },
+              ].map((field, idx) => (
+                <div
+                  key={idx}
+                  className="bg-gray-50 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow flex flex-col"
+                >
+                  <span className="text-sm text-gray-500 mb-1">
+                    {field.label}
+                  </span>
+                  <span className="text-gray-900 font-medium">
+                    {field.value || "-"}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={() => setSelectedLeave(null)}
+                className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-lg font-medium transition-colors"
+              >
+                {isArabic ? "إغلاق" : "Close"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Leave Request Modal */}
+      {editingLeave && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-2xl">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-gray-900">
+                {isArabic ? "طلب إجازة جديد" : "New Leave Request"}
+              </h3>
+              <button
+                onClick={() => setEditingLeave(null)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Leave Type */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {isArabic ? "نوع الإجازة" : "Leave Type"}
+                </label>
+                <select
+                  value={editingLeave.leaveType}
+                  onChange={(e) =>
+                    setEditingLeave({
+                      ...editingLeave,
+                      leaveType: e.target.value,
+                    })
+                  }
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                >
+                  <option value="Annual Leave">
+                    {isArabic ? "إجازة سنوية" : "Annual Leave"}
+                  </option>
+                  <option value="Sick Leave">
+                    {isArabic ? "إجازة مرضية" : "Sick Leave"}
+                  </option>
+                  <option value="Personal Leave">
+                    {isArabic ? "إجازة شخصية" : "Personal Leave"}
+                  </option>
+                  <option value="Emergency Leave">
+                    {isArabic ? "إجازة طارئة" : "Emergency Leave"}
+                  </option>
+                  <option value="Unpaid Leave">
+                    {isArabic ? "إجازة غير مدفوعة" : "Unpaid Leave"}
+                  </option>
+                  <option value="Other">{isArabic ? "آخر" : "Other"}</option>
+                </select>
+              </div>
+
+              {/* Beneficiary Selection */}
+              <div className="grid grid-cols-2 gap-4">
+                {/* Type: User/Employee */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "مستخدم / موظف" : "User/Employee"}
+                  </label>
+                  <select
+                    value={editingLeave.beneficiaryType || ""}
+                    onChange={(e) =>
+                      setEditingLeave({
+                        ...editingLeave,
+                        beneficiaryType: e.target.value,
+                        beneficiaryId: "", // reset ID if type changes
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  >
+                    <option value="">{isArabic ? "اختر" : "Select"}</option>
+                    <option value="user">
+                      {isArabic ? "المستخدم" : "User"}
+                    </option>
+                    <option value="employee">
+                      {isArabic ? "موظف" : "Employee"}
+                    </option>
+                  </select>
+                </div>
+
+                {/* Name Dropdown */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {editingLeave.beneficiaryType === "user"
+                      ? isArabic
+                        ? "اسم المستخدم"
+                        : "User Name"
+                      : editingLeave.beneficiaryType === "employee"
+                      ? isArabic
+                        ? "اسم الموظف"
+                        : "Employee Name"
+                      : isArabic
+                      ? "الاسم"
+                      : "Name"}
+                  </label>
+                  <select
+                    value={editingLeave.beneficiaryId || ""}
+                    onChange={(e) =>
+                      setEditingLeave({
+                        ...editingLeave,
+                        beneficiaryId: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    disabled={!editingLeave.beneficiaryType}
+                  >
+                    <option value="">{isArabic ? "اختر" : "Select"}</option>
+
+                    {editingLeave.beneficiaryType === "user" &&
+                      users.map((u) => (
+                        <option key={u._id} value={u._id}>
+                          {u.nameEn || u.username}
+                        </option>
+                      ))}
+
+                    {editingLeave.beneficiaryType === "employee" &&
+                      employees.map((e) => (
+                        <option key={e._id} value={e._id}>
+                          {e.personalInfo.fullName}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Dates & Status */}
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "تاريخ البداية" : "Start Date"}
+                  </label>
+                  <input
+                    type="date"
+                    value={editingLeave.startDate?.slice(0, 10) || ""}
+                    onChange={(e) =>
+                      setEditingLeave({
+                        ...editingLeave,
+                        startDate: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "تاريخ النهاية" : "End Date"}
+                  </label>
+                  <input
+                    type="date"
+                    value={editingLeave.endDate?.slice(0, 10) || ""}
+                    onChange={(e) =>
+                      setEditingLeave({
+                        ...editingLeave,
+                        endDate: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "الحالة" : "Status"}
+                  </label>
+                  <select
+                    value={editingLeave.status || "pending"}
+                    onChange={(e) =>
+                      setEditingLeave({
+                        ...editingLeave,
+                        status: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  >
+                    <option value="pending">
+                      {isArabic ? "قيد الانتظار" : "Pending"}
+                    </option>
+                    <option value="approved">
+                      {isArabic ? "معتمد" : "Approved"}
+                    </option>
+                    <option value="rejected">
+                      {isArabic ? "مرفوض" : "Rejected"}
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Reason */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {isArabic ? "السبب" : "Reason"}
+                </label>
+                <textarea
+                  value={editingLeave.reason || ""}
+                  onChange={(e) =>
+                    setEditingLeave({
+                      ...editingLeave,
+                      reason: e.target.value,
+                    })
+                  }
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  rows={3}
+                  placeholder={
+                    isArabic
+                      ? "اختياري - سبب طلب الإجازة"
+                      : "Optional - reason for leave request"
+                  }
+                />
+              </div>
+
+              {/* Buttons */}
+              <div className="flex items-center gap-3 pt-4">
+                <button
+                  onClick={handleUpdateLeave}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg flex items-center gap-2"
+                >
+                  <Save className="w-4 h-4" />
+                  {isArabic ? "تحديث الطلب" : "Update Request"}
+                </button>
+                <button
+                  onClick={() => setEditingLeave(null)}
                   className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-lg"
                 >
                   {isArabic ? "إلغاء" : "Cancel"}
