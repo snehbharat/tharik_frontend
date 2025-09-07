@@ -1117,7 +1117,7 @@ export const FinanceDepartment = ({ isArabic }) => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
-                      {budgetAnalysis.map((budget, index) => (
+                      {budgetAnalysis?.map((budget, index) => (
                         <tr key={index} className="hover:bg-gray-50">
                           <td className="px-4 py-4">
                             <div className="font-medium text-gray-900">
@@ -1154,11 +1154,7 @@ export const FinanceDepartment = ({ isArabic }) => {
                             </span>
                           </td>
                           <td className="px-4 py-4 text-sm">
-                            <span
-                              className={`font-medium ${getTrendColor(
-                                budget.trend
-                              )}`}
-                            >
+                            <span className={`font-medium`}>
                               {budget.trend === "improving"
                                 ? "↗"
                                 : budget.trend === "declining"

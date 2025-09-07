@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   Building2,
@@ -35,11 +35,12 @@ import {
   Home,
   Mail,
   Phone,
-  KeyIcon
+  KeyIcon,
 } from "lucide-react";
 import { useBilingual, BilingualText } from "./BilingualLayout";
 import { useAuth } from "../hooks/useAuth";
 import axios from "axios";
+import { getCompany } from "../services/CompanyService";
 
 export const EnhancedBilingualSidebar = ({
   activeModule,
@@ -63,6 +64,21 @@ export const EnhancedBilingualSidebar = ({
   );
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [focusedItem, setFocusedItem] = useState("");
+  const [companyInfo, setCompanyInfo] = useState(null);
+
+  const fetchData = async () => {
+    try {
+      const data = await getCompany();
+      setCompanyInfo(data);
+    } catch (error) {
+      console.error("Failed to load company info", error);
+    }
+  };
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  console.log("companyInfo:", companyInfo);
 
   const menuSections = [
     {
@@ -183,22 +199,22 @@ export const EnhancedBilingualSidebar = ({
           requiresAuth: true,
           permission: "payroll.read",
         },
-        {
-          id: "compliance",
-          icon: Shield,
-          nameEn: "Compliance & Reports",
-          nameAr: "الامتثال والتقارير",
-          requiresAuth: true,
-          permission: "compliance.read",
-        },
-        {
-          id: "hourly-rates",
-          icon: Clock,
-          nameEn: "Hourly Rate Management",
-          nameAr: "إدارة الأجور بالساعة",
-          requiresAuth: true,
-          permission: "payroll.read",
-        },
+        // {
+        //   id: "compliance",
+        //   icon: Shield,
+        //   nameEn: "Compliance & Reports",
+        //   nameAr: "الامتثال والتقارير",
+        //   requiresAuth: true,
+        //   permission: "compliance.read",
+        // },
+        // {
+        //   id: "hourly-rates",
+        //   icon: Clock,
+        //   nameEn: "Hourly Rate Management",
+        //   nameAr: "إدارة الأجور بالساعة",
+        //   requiresAuth: true,
+        //   permission: "payroll.read",
+        // },
       ],
     },
     {
@@ -239,54 +255,54 @@ export const EnhancedBilingualSidebar = ({
       titleAr: "الإدارة",
       isCollapsible: true,
       items: [
-        {
-          id: "integrations",
-          icon: Globe,
-          nameEn: "Saudi Integrations",
-          nameAr: "التكاملات السعودية",
-          requiresAuth: true,
-          permission: "integrations.read",
-          badge: 4,
-          isNew: true,
-        },
-        {
-          id: "user-access-roles",
-          icon: Key,
-          nameEn: "User Access & Roles",
-          nameAr: "الوصول والأدوار",
-          requiresAuth: true,
-          permission: "admin.roles",
-        },
-        {
-          id: "system",
-          icon: Settings,
-          nameEn: "System Setup",
-          nameAr: "إعدادات النظام",
-          requiresAuth: true,
-          permission: "admin.system",
-        },
-        {
-          id: "notifications",
-          icon: Bell,
-          nameEn: "Notification System",
-          nameAr: "نظام التنبيهات",
-          requiresAuth: true,
-          permission: "notifications.read",
-          badge: 3,
-        },
-        {
-          id: "notification-tester",
-          icon: TestTube,
-          nameEn: "Notification Tester",
-          nameAr: "اختبار التنبيهات",
-          requiresAuth: true,
-          permission: "notifications.manage",
-          isNew: true,
-        },
+        // {
+        //   id: "integrations",
+        //   icon: Globe,
+        //   nameEn: "Saudi Integrations",
+        //   nameAr: "التكاملات السعودية",
+        //   requiresAuth: true,
+        //   permission: "integrations.read",
+        //   badge: 4,
+        //   isNew: true,
+        // },
+        // {
+        //   id: "user-access-roles",
+        //   icon: Key,
+        //   nameEn: "User Access & Roles",
+        //   nameAr: "الوصول والأدوار",
+        //   requiresAuth: true,
+        //   permission: "admin.roles",
+        // },
+        // {
+        //   id: "system",
+        //   icon: Settings,
+        //   nameEn: "System Setup",
+        //   nameAr: "إعدادات النظام",
+        //   requiresAuth: true,
+        //   permission: "admin.system",
+        // },
+        // {
+        //   id: "notifications",
+        //   icon: Bell,
+        //   nameEn: "Notification System",
+        //   nameAr: "نظام التنبيهات",
+        //   requiresAuth: true,
+        //   permission: "notifications.read",
+        //   badge: 3,
+        // },
+        // {
+        //   id: "notification-tester",
+        //   icon: TestTube,
+        //   nameEn: "Notification Tester",
+        //   nameAr: "اختبار التنبيهات",
+        //   requiresAuth: true,
+        //   permission: "notifications.manage",
+        //   isNew: true,
+        // },
         {
           id: "attendance-tracking",
           icon: Clock,
-          nameEn: "Attendance Tracking",
+          nameEn: "Leave Tracking",
           nameAr: "تتبع الحضور",
           requiresAuth: true,
           permission: "attendance.read",
@@ -311,7 +327,6 @@ export const EnhancedBilingualSidebar = ({
 
   // const token = getCookie("amoagc_token");
 
-
   const handleLogout = async () => {
     try {
       await logout(); // Call the logout function from useAuth
@@ -320,7 +335,6 @@ export const EnhancedBilingualSidebar = ({
       console.error("Logout error:", error);
     }
   };
-
 
   const toggleSection = (sectionId) => {
     if (isCollapsed) return;
@@ -335,7 +349,6 @@ export const EnhancedBilingualSidebar = ({
   };
 
   const handleMenuClick = (item) => {
-
     if (item.requiresAuth && !user) {
       alert(
         language === "ar"
@@ -386,13 +399,17 @@ export const EnhancedBilingualSidebar = ({
           disabled={!isVisible}
           onFocus={() => setFocusedItem(item.id)}
           onBlur={() => setFocusedItem("")}
-          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm group relative ${isActive
-            ? "bg-white/95 text-green-800 shadow-xl transform scale-105 border border-green-200/50"
-            : "text-green-100/90 hover:bg-green-700/60 hover:text-white hover:shadow-md hover:translate-x-1"
-            } ${isRTL ? "flex-row-reverse" : ""} ${isCollapsed ? "justify-center px-2" : ""
-            } ${!isVisible ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-            } ${focusedItem === item.id ? "ring-2 ring-white ring-opacity-50" : ""
-            }`}
+          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm group relative ${
+            isActive
+              ? "bg-white/95 text-green-800 shadow-xl transform scale-105 border border-green-200/50"
+              : "text-green-100/90 hover:bg-green-700/60 hover:text-white hover:shadow-md hover:translate-x-1"
+          } ${isRTL ? "flex-row-reverse" : ""} ${
+            isCollapsed ? "justify-center px-2" : ""
+          } ${
+            !isVisible ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+          } ${
+            focusedItem === item.id ? "ring-2 ring-white ring-opacity-50" : ""
+          }`}
           title={
             isCollapsed
               ? language === "ar"
@@ -434,8 +451,9 @@ export const EnhancedBilingualSidebar = ({
           {/* Tooltip for collapsed state */}
           {isCollapsed && (
             <div
-              className={`absolute ${isRTL ? "right-full mr-2" : "left-full ml-2"
-                } top-1/2 transform -translate-y-1/2 bg-gray-900 text-white px-2 py-1 rounded text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50`}
+              className={`absolute ${
+                isRTL ? "right-full mr-2" : "left-full ml-2"
+              } top-1/2 transform -translate-y-1/2 bg-gray-900 text-white px-2 py-1 rounded text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50`}
             >
               {language === "ar" ? item.nameAr : item.nameEn}
             </div>
@@ -450,7 +468,6 @@ export const EnhancedBilingualSidebar = ({
     const isExpanded = expandedSections.has(section.id);
     const visibleItems = section.items.filter(isMenuItemVisible);
 
-
     if (visibleItems.length === 0) return null;
 
     return (
@@ -458,8 +475,9 @@ export const EnhancedBilingualSidebar = ({
         {!isCollapsed && (
           <button
             onClick={() => toggleSection(section.id)}
-            className={`w-full flex items-center justify-between text-xs font-semibold text-green-300 uppercase tracking-wider mb-3 px-2 hover:text-green-200 transition-colors ${isRTL ? "text-right" : "text-left"
-              }`}
+            className={`w-full flex items-center justify-between text-xs font-semibold text-green-300 uppercase tracking-wider mb-3 px-2 hover:text-green-200 transition-colors ${
+              isRTL ? "text-right" : "text-left"
+            }`}
             aria-expanded={isExpanded}
             aria-controls={`section-${section.id}`}
           >
@@ -478,10 +496,11 @@ export const EnhancedBilingualSidebar = ({
 
         <div
           id={`section-${section.id}`}
-          className={`transition-all duration-300 overflow-hidden ${isCollapsed || isExpanded
-            ? "max-h-screen opacity-100"
-            : "max-h-0 opacity-0"
-            }`}
+          className={`transition-all duration-300 overflow-hidden ${
+            isCollapsed || isExpanded
+              ? "max-h-screen opacity-100"
+              : "max-h-0 opacity-0"
+          }`}
         >
           <ul className="space-y-1">{section.items.map(renderMenuItem)}</ul>
         </div>
@@ -489,7 +508,7 @@ export const EnhancedBilingualSidebar = ({
     );
   };
 
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);  //state for logout confirmation
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false); //state for logout confirmation
   return (
     <>
       {/* Mobile Menu Button */}
@@ -521,32 +540,36 @@ export const EnhancedBilingualSidebar = ({
         ${isCollapsed ? "w-16" : "w-64"}
         ${isRTL ? "border-l border-green-700" : "border-r border-green-700"}
         fixed lg:relative h-screen z-50
-        ${isMobileMenuOpen
+        ${
+          isMobileMenuOpen
             ? "translate-x-0"
             : "-translate-x-full lg:translate-x-0"
-          }
+        }
       `}
         role="navigation"
         aria-label="Main navigation"
       >
         {/* Header */}
         <header
-          className={`p-4 border-b border-green-700/50 ${isCollapsed ? "px-2" : "px-6"
-            }`}
+          className={`p-4 border-b border-green-700/50 ${
+            isCollapsed ? "px-2" : "px-6"
+          }`}
         >
           <div
-            className={`flex items-center gap-3 ${isRTL ? "flex-row-reverse" : ""
-              } ${isCollapsed ? "justify-center" : ""}`}
+            className={`flex items-center gap-3 ${
+              isRTL ? "flex-row-reverse" : ""
+            } ${isCollapsed ? "justify-center" : ""}`}
           >
             <div className="w-10 h-10 bg-white/95 rounded-xl flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform duration-200">
-              <Building2 className="w-6 h-6 text-green-800" />
+              {/* <Building2 className="w-6 h-6 text-green-800" /> */}
+              <img src="./logo.jpg" alt="" className="w-12 h-12 rounded-xl" />
             </div>
 
             {!isCollapsed && (
               <div className={isRTL ? "text-right" : "text-left"}>
                 <BilingualText
-                  en="AMOAGC"
-                  ar="أموجك"
+                  en={companyInfo?.companyNameEn}
+                  ar={companyInfo?.companyNameAr}
                   className="font-bold text-lg tracking-tight"
                   tag="h1"
                 />
@@ -564,8 +587,9 @@ export const EnhancedBilingualSidebar = ({
           {!isCollapsed && user && (
             <div className="mt-4 p-3 bg-green-700/80 rounded-xl border border-green-600/30 backdrop-blur-sm">
               <div
-                className={`flex items-center gap-2 ${isRTL ? "flex-row-reverse" : ""
-                  }`}
+                className={`flex items-center gap-2 ${
+                  isRTL ? "flex-row-reverse" : ""
+                }`}
               >
                 <User className="w-4 h-4 text-green-200/90" />
                 <div className={isRTL ? "text-right" : "text-left"}>
@@ -584,8 +608,9 @@ export const EnhancedBilingualSidebar = ({
           {onToggleCollapse && (
             <button
               onClick={onToggleCollapse}
-              className={`absolute top-4 bg-green-600 hover:bg-green-700 text-white p-1 rounded-full shadow-lg transition-colors ${isRTL ? "left-2" : "right-2"
-                }`}
+              className={`absolute top-4 bg-green-600 hover:bg-green-700 text-white p-1 rounded-full shadow-lg transition-colors ${
+                isRTL ? "left-2" : "right-2"
+              }`}
               aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
               {isCollapsed ? (
@@ -610,14 +635,16 @@ export const EnhancedBilingualSidebar = ({
 
         {/* Footer */}
         <footer
-          className={`p-4 border-t border-green-700/50 ${isCollapsed ? "px-2" : ""
-            }`}
+          className={`p-4 border-t border-green-700/50 ${
+            isCollapsed ? "px-2" : ""
+          }`}
         >
           {user ? (
             <button
               onClick={() => setShowLogoutConfirm(true)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-green-100/90 hover:bg-green-700/60 transition-all duration-200 hover:shadow-md group ${isRTL ? "flex-row-reverse" : ""
-                } ${isCollapsed ? "justify-center px-2" : ""}`}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-green-100/90 hover:bg-green-700/60 transition-all duration-200 hover:shadow-md group ${
+                isRTL ? "flex-row-reverse" : ""
+              } ${isCollapsed ? "justify-center px-2" : ""}`}
               title={isCollapsed ? t("nav.signOut", "Sign Out") : undefined}
               aria-label="Sign out"
             >
@@ -628,7 +655,6 @@ export const EnhancedBilingualSidebar = ({
                 </span>
               )}
             </button>
-
           ) : (
             <div className="text-center text-green-200/80 text-sm">
               <BilingualText en="Not signed in" ar="غير مسجل الدخول" />
@@ -658,7 +684,6 @@ export const EnhancedBilingualSidebar = ({
               </div>
             </div>
           )}
-
         </footer>
       </aside>
     </>

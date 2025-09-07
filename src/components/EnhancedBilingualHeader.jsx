@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Bell, Search, Settings, User, LogOut, Menu } from "lucide-react";
 import {
   useBilingual,
@@ -9,6 +9,7 @@ import { NotificationCenter } from "./notifications/NotificationCenter";
 import { useAuth } from "../hooks/useAuth";
 import { SessionStatusIndicator } from "./auth/SessionManager";
 import { UserProfile } from "./auth/UserProfile";
+import { getCompany } from "../services/CompanyService";
 
 export const EnhancedBilingualHeader = ({ onMenuToggle }) => {
   const { language, isRTL, t, formatDate } = useBilingual();
@@ -16,7 +17,19 @@ export const EnhancedBilingualHeader = ({ onMenuToggle }) => {
   const [showUserMenu, setShowUserMenu] = React.useState(false);
   const [showSearch, setShowSearch] = React.useState(false);
   const [showUserProfile, setShowUserProfile] = React.useState(false);
+  const [companyInfo, setCompanyInfo] = useState(null);
 
+  const fetchData = async () => {
+    try {
+      const data = await getCompany();
+      setCompanyInfo(data);
+    } catch (error) {
+      console.error("Failed to load company info", error);
+    }
+  };
+  useEffect(() => {
+    fetchData();
+  }, []);
   const currentDate = formatDate(new Date());
   const isArabic = language === "ar";
 
@@ -74,7 +87,7 @@ export const EnhancedBilingualHeader = ({ onMenuToggle }) => {
               </div>
               <div className={isRTL ? "text-right" : "text-left"}>
                 <BilingualText
-                  en="AMOAGC Al-Majmaah"
+                  en={companyInfo?.companyNameEn + " " + companyInfo?.city}
                   ar="أموجك المجمعة"
                   className="font-bold text-gray-900 text-lg"
                   tag="h1"

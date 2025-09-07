@@ -471,7 +471,8 @@ export const CompanyManagement = ({ isArabic }) => {
                       <h3 className="font-bold text-gray-900">
                         {isArabic
                           ? companyInfo?.companyNameAr
-                          : companyInfo?.companyNameEn}
+                          : companyInfo?.companyNameEn}{" "}
+                        {companyInfo?.city}
                       </h3>
                       <p className="text-sm text-gray-600">
                         {isArabic
@@ -740,7 +741,7 @@ export const CompanyManagement = ({ isArabic }) => {
                             className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
                             role="cell"
                           >
-                            {client.contract_value?.$numberDecimal}
+                            {client.contract_value} SAR
                           </td>
                           <td
                             className="px-6 py-4 whitespace-nowrap"
