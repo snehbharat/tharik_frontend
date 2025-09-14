@@ -1,5 +1,5 @@
 import React from "react";
-import { BarChart3, Briefcase, Calendar, PieChart, TrendingUp } from "lucide-react";
+import { BarChart3, Briefcase, Calendar, PieChart, TrendingUp, Users } from "lucide-react";
 import { formatCurrency } from "../utils/financialCalculations";
 
 export const NavigationTabs = ({ activeView, setActiveView, isArabic, payrollSummary }) => {
@@ -11,6 +11,7 @@ export const NavigationTabs = ({ activeView, setActiveView, isArabic, payrollSum
         <nav className="flex">
           {[
             { view: "dashboard", icon: BarChart3, label: isArabic ? "مركز القيادة" : "Command Center" },
+            { view: "employees", icon: Users, label: isArabic ? "إدارة الموظفين" : "Employee Management" },
             { view: "projects", icon: Briefcase, label: isArabic ? "إدارة المشاريع" : "Project Management" },
             { view: "attendance", icon: Calendar, label: isArabic ? "تتبع الحضور" : "Attendance Tracking" },
             { view: "analytics", icon: PieChart, label: isArabic ? "التحليلات المتقدمة" : "Advanced Analytics" },
