@@ -46,6 +46,7 @@ import { useApiIntegration } from "./hooks/useApiIntegration";
 import PermissionsPage from "./components/PermissionPage";
 import ProjectServiceClient from "./services/ProjectServiceClient.js";
 import ClientService from "./services/ClientService.js";
+import { PaybleInvoicingSystem } from "./components/PaybleInvoicingSystem.jsx";
 
 const AppContent = () => {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -173,6 +174,8 @@ const AppContent = () => {
         return <FleetManagement isArabic={isArabic} />;
       case "invoices":
         return <ZATCAInvoicingSystem isArabic={isArabic} />;
+      case "payable-invoices":
+        return <PaybleInvoicingSystem isArabic={isArabic} />;
       case "payroll":
         return <PayrollManagement isArabic={isArabic} />;
       case "compliance":
