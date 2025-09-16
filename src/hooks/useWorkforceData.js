@@ -227,7 +227,7 @@ export const useWorkforceData = () => {
         const profitMargin =
           averageActualRate > 0
             ? ((averageActualRate - averageHourlyRate) / averageActualRate) *
-              100
+            100
             : 0;
 
         return {
@@ -467,9 +467,8 @@ export const useWorkforceData = () => {
               "Unassigned",
             Status: emp.status,
           }));
-          filename = `employees_export_${
-            new Date().toISOString().split("T")[0]
-          }`;
+          filename = `employees_export_${new Date().toISOString().split("T")[0]
+            }`;
           break;
 
         case "attendance":
@@ -480,11 +479,11 @@ export const useWorkforceData = () => {
             const project = projects.find((p) => p.id === employee?.projectId);
             const financials = employee
               ? calculateFinancials(
-                  record.hoursWorked,
-                  record.overtime,
-                  employee.hourlyRate,
-                  employee.actualRate
-                )
+                record.hoursWorked,
+                record.overtime,
+                employee.hourlyRate,
+                employee.actualRate
+              )
               : null;
 
             return {
@@ -498,9 +497,8 @@ export const useWorkforceData = () => {
               Profit: financials?.profit || 0,
             };
           });
-          filename = `attendance_export_${
-            new Date().toISOString().split("T")[0]
-          }`;
+          filename = `attendance_export_${new Date().toISOString().split("T")[0]
+            }`;
           break;
 
         case "projects":
@@ -518,9 +516,8 @@ export const useWorkforceData = () => {
               "End Date": project.endDate,
             };
           });
-          filename = `projects_export_${
-            new Date().toISOString().split("T")[0]
-          }`;
+          filename = `projects_export_${new Date().toISOString().split("T")[0]
+            }`;
           break;
 
         case "financial":
@@ -537,9 +534,8 @@ export const useWorkforceData = () => {
               "Utilization Rate": `${metrics.utilizationRate.toFixed(2)}%`,
             },
           ];
-          filename = `financial_summary_${
-            new Date().toISOString().split("T")[0]
-          }`;
+          filename = `financial_summary_${new Date().toISOString().split("T")[0]
+            }`;
           break;
       }
 
