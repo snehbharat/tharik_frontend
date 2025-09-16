@@ -1,3 +1,5 @@
+import { apiClient } from "../services/ApiClient";
+
 // Generate comprehensive sample data for demonstration
 export const generateSampleData = () => {
   const employees = [
@@ -679,6 +681,205 @@ export const generateSampleData = () => {
   };
 };
 
+export const generateSampleDataApi = async () => {
+  try {
+    // Enhanced insights with more comprehensive payroll-related insights
+    const insights = [
+      {
+        id: "insight_001",
+        type: "optimization",
+        title: "Optimize Resource Allocation for NEOM Project",
+        description:
+          "Project NEOM has 35% progress but highest profit margin potential (28.2%). Consider allocating more skilled workers to accelerate completion and maximize revenue.",
+        impact: "high",
+        category: "operational",
+        actionRequired: true,
+        estimatedBenefit: 150000,
+        implementationCost: 25000,
+        priority: 1,
+        status: "new",
+        createdAt: "2024-12-15T10:30:00Z",
+        relatedModule: "payroll",
+      },
+      {
+        id: "insight_002",
+        type: "alert",
+        title: "Critical Document Expiry Alert",
+        description:
+          "Ali Al-Mahmoud's Iqama expires in 15 days (December 30, 2024). Immediate renewal required to avoid work disruption and legal compliance issues.",
+        impact: "high",
+        category: "operational",
+        actionRequired: true,
+        deadline: "2024-12-30",
+        priority: 2,
+        status: "new",
+        createdAt: "2024-12-15T09:15:00Z",
+        relatedModule: "workforce",
+      },
+      {
+        id: "insight_003",
+        type: "achievement",
+        title: "Excellent Safety Performance Record",
+        description:
+          "Zero safety incidents reported across all projects this month. Safety protocols and training programs are working effectively. Fatima Al-Zahra's safety leadership is exemplary.",
+        impact: "medium",
+        category: "safety",
+        actionRequired: false,
+        priority: 3,
+        status: "new",
+        createdAt: "2024-12-14T16:45:00Z",
+        relatedModule: "safety",
+      },
+      {
+        id: "insight_004",
+        type: "recommendation",
+        title: "Profit Margin Enhancement Opportunity",
+        description:
+          "Heavy Equipment Operators show 17 SAR profit per hour. Consider increasing actual rates for this trade by 10-15% to improve overall profitability.",
+        impact: "high",
+        category: "financial",
+        actionRequired: false,
+        estimatedBenefit: 75000,
+        implementationCost: 5000,
+        priority: 4,
+        status: "new",
+        createdAt: "2024-12-14T11:20:00Z",
+        relatedModule: "payroll",
+      },
+      {
+        id: "insight_005",
+        type: "optimization",
+        title: "Unassigned Workforce Optimization",
+        description:
+          "Omar Al-Kindi and Abdul Rahman are currently unassigned. Their skills could be valuable for the SABIC project to accelerate completion.",
+        impact: "medium",
+        category: "operational",
+        actionRequired: true,
+        estimatedBenefit: 30000,
+        implementationCost: 2000,
+        priority: 5,
+        status: "new",
+        createdAt: "2024-12-14T08:00:00Z",
+        relatedModule: "workforce",
+      },
+      {
+        id: "insight_006",
+        type: "alert",
+        title: "Overtime Cost Alert",
+        description:
+          "Overtime costs have increased by 23% this month compared to last month. Current overtime represents 18.5% of total hours worked.",
+        impact: "medium",
+        category: "financial",
+        actionRequired: true,
+        priority: 6,
+        status: "new",
+        createdAt: "2024-12-13T14:30:00Z",
+        relatedModule: "payroll",
+      },
+      {
+        id: "insight_007",
+        type: "recommendation",
+        title: "GOSI Contribution Optimization",
+        description:
+          "Consider restructuring salary components to optimize GOSI contributions while maintaining net pay. Potential monthly savings of 12,000 SAR.",
+        impact: "medium",
+        category: "financial",
+        actionRequired: false,
+        estimatedBenefit: 144000,
+        implementationCost: 15000,
+        priority: 7,
+        status: "new",
+        createdAt: "2024-12-13T12:15:00Z",
+        relatedModule: "payroll",
+      },
+      {
+        id: "insight_008",
+        type: "achievement",
+        title: "Project Profitability Milestone",
+        description:
+          "ARAMCO project has achieved 32.5% profit margin, exceeding the 25% target. This represents the highest profitability in the past 6 months.",
+        impact: "high",
+        category: "financial",
+        actionRequired: false,
+        priority: 8,
+        status: "new",
+        createdAt: "2024-12-12T17:00:00Z",
+        relatedModule: "payroll",
+      },
+      {
+        id: "insight_009",
+        type: "alert",
+        title: "Bank Transfer Processing Due",
+        description:
+          "Monthly salary transfers for 47 employees totaling 234,500 SAR are due for processing by December 18th. Ensure sufficient account balance.",
+        impact: "high",
+        category: "operational",
+        actionRequired: true,
+        deadline: "2024-12-18",
+        priority: 9,
+        status: "new",
+        createdAt: "2024-12-12T10:45:00Z",
+        relatedModule: "payroll",
+      },
+      {
+        id: "insight_010",
+        type: "optimization",
+        title: "Trade Skills Utilization Analysis",
+        description:
+          "Welders are generating the highest profit per hour (22 SAR) while General Laborers show lower efficiency. Consider skills upgrade programs.",
+        impact: "medium",
+        category: "operational",
+        actionRequired: false,
+        estimatedBenefit: 45000,
+        implementationCost: 8000,
+        priority: 10,
+        status: "new",
+        createdAt: "2024-12-11T15:30:00Z",
+        relatedModule: "workforce",
+      }
+    ];
+
+    // 🔹 Make API calls in parallel for performance
+    const [employeesRes, projectsRes, attendanceRes] = await Promise.all([
+      apiClient.getCC(`/payroll/employees`),
+      apiClient.getCC(`/payroll/projects`),
+      apiClient.getCC(`/payroll/attendance`),
+    ]);
+
+    // 🔹 Extract data from responses
+    return {
+      employees: employeesRes.data || [],
+      projects: projectsRes.data || [],
+      attendance: attendanceRes.data || [],
+      insights: insights || []
+    };
+  } catch (error) {
+    console.error(`[generateSampleDataApi] Error fetching data: ${error.message}`, error);
+
+    // Return fallback data with sample insights if API fails
+    return {
+      employees: [],
+      projects: [],
+      attendance: [],
+      insights: [
+        {
+          id: "fallback_001",
+          type: "alert",
+          title: "API Connection Issue",
+          description: "Unable to fetch live payroll data. Using cached information. Please check network connection.",
+          impact: "medium",
+          category: "technical",
+          actionRequired: true,
+          priority: 1,
+          status: "new",
+          createdAt: new Date().toISOString(),
+          relatedModule: "system",
+        }
+      ]
+    };
+  }
+};
+
 // Utility function to generate realistic attendance data
 export const generateAttendanceData = (employees, projects, days = 30) => {
   const attendance = [];
@@ -712,10 +913,9 @@ export const generateAttendanceData = (employees, projects, days = 30) => {
             breakTime: 1,
             lateArrival: Math.random() > 0.9 ? Math.random() * 0.5 : 0, // 10% chance of being late
             earlyDeparture: 0,
-            location: `${
-              (projects.find((p) => p.id === employee.projectId) || {})
-                .location || "Unknown"
-            } - Work Area`,
+            location: `${(projects.find((p) => p.id === employee.projectId) || {})
+              .location || "Unknown"
+              } - Work Area`,
             weatherConditions: ["Clear", "Partly Cloudy", "Cloudy", "Windy"][
               Math.floor(Math.random() * 4)
             ],
