@@ -125,7 +125,7 @@ export const ProjectInfo = ({
       </div>
 
       {/* Financial Metrics */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+      {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
         <div className="bg-green-50/80 rounded-xl p-3 border border-green-100/50 backdrop-blur-sm">
           <div className="flex items-center gap-2 mb-1">
             <DollarSign className="w-4 h-4 text-green-600" />
@@ -173,10 +173,10 @@ export const ProjectInfo = ({
             {formatPercentage(metrics.attendanceRate)}
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Key Performance Indicators */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+      {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
         <div className="flex justify-between items-center">
           <span className="text-gray-600">
             {isArabic ? "هامش الربح:" : "Profit Margin:"}
@@ -217,10 +217,10 @@ export const ProjectInfo = ({
             {formatPercentage(metrics.overtimePercentage)}
           </span>
         </div>
-      </div>
+      </div> */}
 
       {/* Status Indicators */}
-      <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100/60">
+      {/* <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100/60">
         <div className="flex items-center gap-4">
           {metrics.attendanceRate >= 90 ? (
             <div className="flex items-center gap-1 text-green-600">
@@ -242,7 +242,7 @@ export const ProjectInfo = ({
           {isArabic ? "آخر تحديث:" : "Updated:"}{" "}
           {new Date(project.updatedAt).toLocaleDateString()}
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

@@ -224,10 +224,10 @@ export const Dashboard = ({ isArabic, projects }) => {
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
         <MetricCard
           title={isArabic ? "إجمالي القوى العاملة" : "Total Workforce"}
-         value={employees.length}
+          value={employees.length}
           subtitle={`${employees.filter((emp) => emp.status === "active").length
             } ${isArabic ? "نشط" : "active"}`}
           icon={Users}
@@ -313,7 +313,7 @@ export const Dashboard = ({ isArabic, projects }) => {
       </div>
 
       {/* Actionable Insights */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+      {/* <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <ActionableInsights
           insights={insights}
           isArabic={isArabic}
@@ -332,7 +332,7 @@ export const Dashboard = ({ isArabic, projects }) => {
             }
           }}
         />
-      </div>
+      </div> */}
     </div>
   );
 };
