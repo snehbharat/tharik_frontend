@@ -67,12 +67,6 @@ export const Dashboard = ({ isArabic, projects }) => {
 
   const { employees, attendance, insights } = data;
 
-  console.log("employees", employees);
-
-  console.log("projects", projects);
-
-  console.log("attendance", attendance);
-
   const [selectedProject, setSelectedProject] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(new Date());

@@ -39,6 +39,37 @@ export const PayrollManagement = ({ isArabic }) => {
     return `${year}-${month}`;
   };
 
+  const getMonthOptions = () => {
+    const options = [];
+    const now = new Date();
+
+    // Generate current month and previous 2 months
+    for (let i = 0; i < 3; i++) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const monthValue = `${year}-${month}`;
+
+      // Month names in English and Arabic
+      const monthNames = {
+        en: ['January', 'February', 'March', 'April', 'May', 'June',
+          'July', 'August', 'September', 'October', 'November', 'December'],
+        ar: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+          'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر']
+      };
+
+      const monthName = monthNames[isArabic ? 'ar' : 'en'][date.getMonth()];
+      const displayName = `${monthName} ${year}`;
+
+      options.push({
+        value: monthValue,
+        label: displayName
+      });
+    }
+
+    return options;
+  };
+
   // Then change the state initialization to:
   const [selectedMonth, setSelectedMonth] = useState(getCurrentMonth());
 
@@ -79,12 +110,6 @@ export const PayrollManagement = ({ isArabic }) => {
 
   const { employees, projects, attendance, insights } = data;
 
-  console.log("employees", employees);
-
-  console.log("projects", projects);
-
-  console.log("attendance", attendance);
-
   // Calculate payroll data for the selected month
   const payrollData = useMemo(() => {
     if (loading || !employees.length || !attendance.length) {
@@ -107,13 +132,9 @@ export const PayrollManagement = ({ isArabic }) => {
 
     employees.forEach((employee) => {
 
-      console.log("monthAttendance", monthAttendance);
-
       const employeeAttendance = monthAttendance.filter(
         (record) => record.employeeId === employee.employeeId
       );
-
-      console.log("employeeAttendance", employeeAttendance);
 
       if (employeeAttendance.length === 0) return;
 
@@ -615,15 +636,11 @@ export const PayrollManagement = ({ isArabic }) => {
             className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
             aria-label={isArabic ? "اختر الشهر" : "Select Month"}
           >
-            <option value="2024-12">
-              {isArabic ? "ديسمبر 2024" : "December 2024"}
-            </option>
-            <option value="2024-11">
-              {isArabic ? "نوفمبر 2024" : "November 2024"}
-            </option>
-            <option value="2024-10">
-              {isArabic ? "أكتوبر 2024" : "October 2024"}
-            </option>
+            {getMonthOptions().map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
           </select>
           <button
             onClick={handleGeneratePayslips}
@@ -653,7 +670,7 @@ export const PayrollManagement = ({ isArabic }) => {
       </div>
 
       {/* Payroll Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200 shadow-lg">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center shadow-md">
@@ -722,7 +739,7 @@ export const PayrollManagement = ({ isArabic }) => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 border border-yellow-200 shadow-lg">
+        {/* <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 border border-yellow-200 shadow-lg">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-12 h-12 bg-yellow-600 rounded-lg flex items-center justify-center shadow-md">
               <Shield className="w-6 h-6 text-white" />
@@ -742,7 +759,7 @@ export const PayrollManagement = ({ isArabic }) => {
           <div className="text-xs text-yellow-600">
             11% {isArabic ? "من الراتب الإجمالي" : "of gross salary"}
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Integration Status Banner */}
@@ -777,8 +794,8 @@ export const PayrollManagement = ({ isArabic }) => {
             <button
               onClick={() => setActiveView("summary")}
               className={`px-6 py-4 font-medium transition-colors ${activeView === "summary"
-                  ? "text-green-600 border-b-2 border-green-600"
-                  : "text-gray-500 hover:text-gray-700"
+                ? "text-green-600 border-b-2 border-green-600"
+                : "text-gray-500 hover:text-gray-700"
                 }`}
               aria-label={isArabic ? "عرض ملخص الرواتب" : "View Payroll Summary"}
             >
@@ -790,8 +807,8 @@ export const PayrollManagement = ({ isArabic }) => {
             <button
               onClick={() => setActiveView("projects")}
               className={`px-6 py-4 font-medium transition-colors ${activeView === "projects"
-                  ? "text-green-600 border-b-2 border-green-600"
-                  : "text-gray-500 hover:text-gray-700"
+                ? "text-green-600 border-b-2 border-green-600"
+                : "text-gray-500 hover:text-gray-700"
                 }`}
               aria-label={isArabic ? "عرض رواتب المشاريع" : "View Project Payrolls"}
             >
@@ -803,8 +820,8 @@ export const PayrollManagement = ({ isArabic }) => {
             <button
               onClick={() => setActiveView("employees")}
               className={`px-6 py-4 font-medium transition-colors ${activeView === "employees"
-                  ? "text-green-600 border-b-2 border-green-600"
-                  : "text-gray-500 hover:text-gray-700"
+                ? "text-green-600 border-b-2 border-green-600"
+                : "text-gray-500 hover:text-gray-700"
                 }`}
               aria-label={isArabic ? "عرض رواتب الموظفين" : "View Employee Payroll"}
             >
@@ -816,8 +833,8 @@ export const PayrollManagement = ({ isArabic }) => {
             <button
               onClick={() => setActiveView("billing")}
               className={`px-6 py-4 font-medium transition-colors ${activeView === "billing"
-                  ? "text-green-600 border-b-2 border-green-600"
-                  : "text-gray-500 hover:text-gray-700"
+                ? "text-green-600 border-b-2 border-green-600"
+                : "text-gray-500 hover:text-gray-700"
                 }`}
               aria-label={isArabic ? "عرض فوترة العملاء" : "View Client Billing"}
             >
@@ -847,7 +864,7 @@ export const PayrollManagement = ({ isArabic }) => {
                         {formatCurrency(payrollSummary.totalGrossPay)}
                       </span>
                     </div>
-                    <div className="flex justify-between">
+                    {/* <div className="flex justify-between">
                       <span className="text-green-700">
                         {isArabic
                           ? "مساهمات التأمينات:"
@@ -856,15 +873,15 @@ export const PayrollManagement = ({ isArabic }) => {
                       <span className="font-bold text-green-900">
                         {formatCurrency(payrollSummary.totalGosiContributions)}
                       </span>
-                    </div>
+                    </div> */}
                     <div className="flex justify-between border-t border-green-200 pt-2">
                       <span className="text-green-700 font-medium">
                         {isArabic ? "إجمالي التكاليف:" : "Total Cost:"}
                       </span>
+                      {/* +payrollSummary.totalGosiContributions */}
                       <span className="font-bold text-green-900">
                         {formatCurrency(
-                          payrollSummary.totalGrossPay +
-                          payrollSummary.totalGosiContributions
+                          payrollSummary.totalGrossPay
                         )}
                       </span>
                     </div>
