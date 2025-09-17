@@ -79,12 +79,6 @@ export const PayrollManagement = ({ isArabic }) => {
 
   const { employees, projects, attendance, insights } = data;
 
-  console.log("employees", employees);
-
-  console.log("projects", projects);
-
-  console.log("attendance", attendance);
-
   // Calculate payroll data for the selected month
   const payrollData = useMemo(() => {
     if (loading || !employees.length || !attendance.length) {
