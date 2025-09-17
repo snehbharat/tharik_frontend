@@ -576,7 +576,6 @@ export const OperationsDepartment = ({ isArabic }) => {
       status: "Scheduled",
     };
 
-
     console.log("newS", newSchedule);
 
     const payload = {
@@ -584,7 +583,6 @@ export const OperationsDepartment = ({ isArabic }) => {
     };
     // Update last sync time
     setLastSync(new Date());
-
 
     try {
       const res = await ScheduleTaskService.createScheduleTask(schedulePayload);
@@ -1066,7 +1064,7 @@ export const OperationsDepartment = ({ isArabic }) => {
         </h1>
         <div className="flex items-center gap-3">
           {/* Connection Status Indicator */}
-          <div className="flex items-center gap-2">
+          {/* <div className="flex items-center gap-2">
             <button
               onClick={toggleConnectionStatus}
               className={`p-2 rounded-lg transition-colors ${
@@ -1102,7 +1100,7 @@ export const OperationsDepartment = ({ isArabic }) => {
           >
             <FileText className="w-4 h-4" />
             {isArabic ? "التقرير الشامل" : "Comprehensive Report"}
-          </button>
+          </button> */}
           <button
             onClick={() => setShowNewSchedule(true)}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
@@ -1354,7 +1352,7 @@ export const OperationsDepartment = ({ isArabic }) => {
                 {isArabic ? "فرق" : "Teams"}
               </div>
             </button>
-            <button
+            {/* <button
               onClick={() => setActiveTab("assignments")}
               className={`px-6 py-4 font-medium transition-colors ${
                 activeTab === "assignments"
@@ -1379,7 +1377,7 @@ export const OperationsDepartment = ({ isArabic }) => {
                 <BarChart3 className="w-4 h-4" />
                 {isArabic ? "الأداء" : "Performance"}
               </div>
-            </button>
+            </button> */}
             {/* <button
               onClick={() => setActiveTab("analytics")}
               className={`px-6 py-4 font-medium transition-colors ${

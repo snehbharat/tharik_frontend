@@ -461,14 +461,14 @@ export const LeadManagement = ({ isArabic }) => {
           {isArabic ? "إدارة العملاء المحتملين" : "Lead Management"}
         </h1>
         <div className="flex items-center gap-3">
-          <button className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+          {/* <button className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
             <Download className="w-4 h-4" />
             {isArabic ? "تصدير العملاء" : "Export Leads"}
           </button>
           <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
             <Upload className="w-4 h-4" />
             {isArabic ? "استيراد العملاء" : "Import Leads"}
-          </button>
+          </button> */}
           <button
             onClick={() => setShowAddLead(true)}
             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"

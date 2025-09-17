@@ -832,7 +832,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
           {isArabic ? "نظام الفوترة الإلكترونية" : "E-Invoicing System"}
         </h1>
         <div className="flex items-center gap-3">
-          <button
+          {/* <button
             onClick={handleExportInvoices}
             className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
           >
@@ -845,7 +845,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
           >
             <Upload className="w-4 h-4" />
             {isArabic ? "استيراد" : "Import"}
-          </button>
+          </button> */}
           <button
             onClick={() => setShowCreateModal(true)}
             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
