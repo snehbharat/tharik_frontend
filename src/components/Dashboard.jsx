@@ -27,16 +27,45 @@ import {
   formatCurrency,
   formatPercentage,
 } from "../utils/financialCalculations";
+import { generateSampleDataApi } from "../data/sampleData";
 
 export const Dashboard = ({ isArabic, projects }) => {
   const {
-    employees,
-    attendance,
-    insights,
     getDashboardMetrics,
     getProjectMetrics,
     generateInsights,
   } = useWorkforceData();
+
+
+  // Replace the direct hook with state management for API data
+  const [data, setData] = useState({
+    employees: [],
+    attendance: [],
+    insights: [],
+  });
+  const [error, setError] = useState(null);
+
+  // Load data on component mount and when month changes
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const apiData = await generateSampleDataApi();
+        setData(apiData);
+      } catch (err) {
+        console.error("Failed to load payroll data:", err);
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+
+  const { employees, attendance, insights } = data;
 
   const [selectedProject, setSelectedProject] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -57,7 +86,7 @@ export const Dashboard = ({ isArabic, projects }) => {
 
   const handleRefresh = () => {
     setRefreshing(true);
-
+    loadData();
     // Simulate data refresh
     setTimeout(() => {
       setRefreshing(false);
@@ -91,9 +120,8 @@ export const Dashboard = ({ isArabic, projects }) => {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `dashboard_export_${
-        new Date().toISOString().split("T")[0]
-      }.csv`;
+      link.download = `dashboard_export_${new Date().toISOString().split("T")[0]
+        }.csv`;
       link.click();
       URL.revokeObjectURL(url);
     } catch (error) {
@@ -114,6 +142,33 @@ export const Dashboard = ({ isArabic, projects }) => {
       </div>
     );
   }
+
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="p-6">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="w-6 h-6 text-red-600" />
+            <div>
+              <h3 className="font-semibold text-red-800">
+                {isArabic ? "خطأ في تحميل البيانات" : "Data Loading Error"}
+              </h3>
+              <p className="text-red-700 mt-1">{error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-3 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+              >
+                {isArabic ? "إعادة المحاولة" : "Retry"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -156,20 +211,19 @@ export const Dashboard = ({ isArabic, projects }) => {
                 ? "جاري التحديث..."
                 : "Refreshing..."
               : isArabic
-              ? "تحديث"
-              : "Refresh"}
+                ? "تحديث"
+                : "Refresh"}
           </button>
         </div>
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
         <MetricCard
           title={isArabic ? "إجمالي القوى العاملة" : "Total Workforce"}
-          value={metrics.totalWorkforce}
-          subtitle={`${
-            employees.filter((emp) => emp.status === "active").length
-          } ${isArabic ? "نشط" : "active"}`}
+          value={employees.length}
+          subtitle={`${employees.filter((emp) => emp.status === "active").length
+            } ${isArabic ? "نشط" : "active"}`}
           icon={Users}
           gradient="from-blue-50 to-blue-100"
           borderColor="border-blue-200"
@@ -177,19 +231,18 @@ export const Dashboard = ({ isArabic, projects }) => {
 
         <MetricCard
           title={isArabic ? "المشاريع النشطة" : "Active Projects"}
-          value={metrics.activeProjects}
+          value={projects.length}
           subtitle={`${projects?.length} ${isArabic ? "إجمالي" : "total"}`}
           icon={Building2}
           gradient="from-green-50 to-green-100"
           borderColor="border-green-200"
         />
 
-        <MetricCard
+        {/* <MetricCard
           title={isArabic ? "الأرباح الفورية" : "Real-Time Profits"}
           value={formatCurrency(metrics.realTimeProfits)}
-          subtitle={`${formatPercentage(metrics.averageProfitMargin)} ${
-            isArabic ? "هامش" : "margin"
-          }`}
+          subtitle={`${formatPercentage(metrics.averageProfitMargin)} ${isArabic ? "هامش" : "margin"
+            }`}
           icon={DollarSign}
           gradient="from-purple-50 to-purple-100"
           borderColor="border-purple-200"
@@ -202,13 +255,12 @@ export const Dashboard = ({ isArabic, projects }) => {
         <MetricCard
           title={isArabic ? "معدل الاستغلال" : "Utilization Rate"}
           value={formatPercentage(metrics.utilizationRate)}
-          subtitle={`${metrics.productivityIndex.toFixed(1)} ${
-            isArabic ? "إنتاجية" : "productivity"
-          }`}
+          subtitle={`${metrics.productivityIndex.toFixed(1)} ${isArabic ? "إنتاجية" : "productivity"
+            }`}
           icon={TrendingUp}
           gradient="from-yellow-50 to-yellow-100"
           borderColor="border-yellow-200"
-        />
+        /> */}
       </div>
 
       {/* Projects Overview */}
@@ -255,7 +307,7 @@ export const Dashboard = ({ isArabic, projects }) => {
       </div>
 
       {/* Actionable Insights */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+      {/* <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <ActionableInsights
           insights={insights}
           isArabic={isArabic}
@@ -274,7 +326,7 @@ export const Dashboard = ({ isArabic, projects }) => {
             }
           }}
         />
-      </div>
+      </div> */}
     </div>
   );
 };

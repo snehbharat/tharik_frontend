@@ -119,6 +119,7 @@ const AppContent = () => {
         const [projectResponse, clientResponse] = await Promise.all([
           ProjectServiceClient.getAllProjects(1, 100),
           ClientService.getAllClients(1, 100),
+          
         ]);
 
         const projectsData = extractProjectsData(projectResponse);

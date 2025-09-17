@@ -34,7 +34,7 @@ export const Reports = ({ dashboardMetrics, isArabic }) => (
       </div>
 
       {/* Performance Metrics */}
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
+      {/* <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
         <div className="flex items-center gap-3 mb-4">
           <Activity className="w-8 h-8 text-blue-600" />
           <h3 className="font-semibold text-blue-800">
@@ -55,10 +55,10 @@ export const Reports = ({ dashboardMetrics, isArabic }) => (
             <span className="font-bold text-blue-900">{dashboardMetrics.aggregateHours.toLocaleString()}</span>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Performance Achievements */}
-      <div className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-lg p-6 border border-purple-200">
+      {/* <div className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-lg p-6 border border-purple-200">
         <div className="flex items-center gap-3 mb-4">
           <Building2 className="w-8 h-8 text-purple-600" />
           <h3 className="font-semibold text-purple-800">
@@ -79,7 +79,7 @@ export const Reports = ({ dashboardMetrics, isArabic }) => (
             <span className="text-sm">{isArabic ? "امتثال كامل للوثائق" : "Full document compliance"}</span>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   </div>
 );
