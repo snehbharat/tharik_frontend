@@ -402,7 +402,7 @@ export const CompanyManagement = ({ isArabic }) => {
           {isArabic ? "إدارة الشركة والعملاء" : "Company & Client Management"}
         </h1>
         <div className="flex items-center gap-3">
-          <button
+          {/* <button
             onClick={handleExportClients}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
           >
@@ -415,7 +415,7 @@ export const CompanyManagement = ({ isArabic }) => {
           >
             <Upload className="w-4 h-4" />
             {isArabic ? "استيراد العملاء" : "Import Clients"}
-          </button>
+          </button> */}
           <button
             onClick={() => setShowAddClient(true)}
             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"

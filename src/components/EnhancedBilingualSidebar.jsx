@@ -192,6 +192,14 @@ export const EnhancedBilingualSidebar = ({
           permission: "invoices.read",
         },
         {
+          id: "payable-invoices",
+          icon: FileText,
+          nameEn: "Payble Invoicing",
+          nameAr: "الفواتير المستحقة",
+          requiresAuth: true,
+          permission: "invoices.read",
+        },
+        {
           id: "payroll",
           icon: Calculator,
           nameEn: "Payroll Management",
