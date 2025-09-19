@@ -2,8 +2,9 @@ import axios from "axios";
 import { useState } from "react";
 import { apiClient } from "./ApiClient";
 
-const API_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:3001/api";
+// const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001/api";
+
+const API_URL = import.meta.env.VITE_API_BASE_URL || "http://31.97.203.245:3001/api";
 
 // Employee APIs
 export const getEmployees = (page = 1, limit = 10) =>
@@ -213,10 +214,17 @@ const departments = [
 ];
 
 class EmployeeService {
-  constructor(baseURL = "http://localhost:3001/api") {
+  // constructor(baseURL = "http://localhost:3001/api") {
+  //   this.baseURL = baseURL;
+  //   this.token = localStorage.getItem("authToken"); // Assuming JWT token storage
+  // }
+
+
+  constructor(baseURL = "http://31.97.203.245:3001/api") {
     this.baseURL = baseURL;
     this.token = localStorage.getItem("authToken"); // Assuming JWT token storage
   }
+
 
   // Helper method for API calls
   async apiCall(endpoint, options = {}) {
