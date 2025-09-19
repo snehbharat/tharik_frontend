@@ -107,7 +107,8 @@ module.exports = {
   
   // Test environment options
   testEnvironmentOptions: {
-    url: 'http://localhost:5173',
+    // url: 'http://localhost:5173',
+    url: 'http://31.97.203.245:5173',
   },
   
   // Watch plugins
