@@ -1,6 +1,7 @@
 // Authentication Service with JWT and Session Management
 import axios from 'axios';
 import Cookies from "js-cookie";
+import { apiClient } from './ApiClient';
 
 export class AuthService {
   static SESSION_CONFIG = {
@@ -28,17 +29,17 @@ export class AuthService {
     role = credentials.role;
 
     try {
-      const response = await fetch("/api/auth/user/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password: pwd, role }),
-      });
+      const response = await apiClient.post("/auth/user/login",
+        { email, password: pwd, role },
+      );
 
-      const data = await response.json();
+      const data = response;
 
-      if (!response.ok || !data.response) {
+      // console.log("response", response);
+
+      // console.log(data, "data");
+
+      if (!response.response || !data.response) {
         throw new Error(data.message || "Login failed");
       }
 
