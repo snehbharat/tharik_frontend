@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Download, Search, Filter, Users, Shield, X, CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { apiClient } from "../services/ApiClient";
 
 export default function PermissionsPage({ isArabic }) {
   const [allPermissions, setAllPermissions] = useState([]);
@@ -15,13 +16,13 @@ export default function PermissionsPage({ isArabic }) {
 
   const fetchPermissions = async () => {
     try {
-      const permsResponse = await fetch("/api/permission/all");
-      const permsData = await permsResponse.json();
+      const permsResponse = await apiClient.getCC("/permission/all");
+      const permsData = await permsResponse;
       const perms = Array.isArray(permsData.data) ? permsData.data : [];
       setAllPermissions(perms);
 
-      const userResponse = await fetch("/api/user/permission/getUserWithPermission");
-      const userData = await userResponse.json();
+      const userResponse = await apiClient.getCC("/user/permission/getUserWithPermission");
+      const userData = userResponse;
       const apiData = userData.data || [];
 
       const formattedUsers = apiData.map((item) => ({

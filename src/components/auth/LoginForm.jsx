@@ -1,5 +1,3 @@
-// Modern Login Form Component with Security Features
-
 import React, { useState, useEffect } from "react";
 import {
   User,
@@ -28,7 +26,6 @@ export const LoginForm = ({
   const [validationErrors, setValidationErrors] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loginSuccess, setLoginSuccess] = useState(false);
-
 
   const [credentials, setCredentials] = useState({
     username: "",
@@ -88,17 +85,34 @@ export const LoginForm = ({
   };
 
   const fillDemoCredentials = (userRole) => {
+    console.log(userRole);
 
     const demoCredentials = {
-      admin: { username: "admin@amoagc.sa", password: "adminAmoagc231", role: userRole },
-      hr: { username: "hr.manager", password: "hr123", role: userRole },
-      operation: { username: "ops.supervisor", password: "ops123", role: userRole },
-      finance: { username: "finance.clerk", password: "finance123", role: userRole },
+      admin: {
+        username: "admin@amoagc.sa",
+        password: "adminAmoagc231",
+        role: userRole.role,
+      },
+      HR_Manager: {
+        username: "hr@amoagc.sa",
+        password: "FatimaAlZahra123",
+        role: userRole.role,
+      },
+      Operations_Supervisor: {
+        username: "operations@amoagc.sa",
+        password: "MohammadHassan123",
+        role: userRole.role,
+      },
+      Finance_Clerk: {
+        username: "finance@amoagc.sa",
+        password: "AliAlMahmoud123",
+        role: userRole.role,
+      },
     };
 
     setCredentials((prev) => ({
       ...prev,
-      ...demoCredentials[userRole],
+      ...demoCredentials[userRole.key],
     }));
   };
 
@@ -144,8 +158,9 @@ export const LoginForm = ({
 
   return (
     <div
-      className={`min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 flex items-center justify-center p-4 ${isArabic ? "rtl" : "ltr"
-        }`}
+      className={`min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 flex items-center justify-center p-4 ${
+        isArabic ? "rtl" : "ltr"
+      }`}
       onKeyDown={handleKeyDown}
     >
       <div className="w-full max-w-md">
@@ -213,8 +228,9 @@ export const LoginForm = ({
               </label>
               <div className="relative">
                 <User
-                  className={`w-5 h-5 absolute top-1/2 transform -translate-y-1/2 text-gray-400 ${isArabic ? "right-3" : "left-3"
-                    }`}
+                  className={`w-5 h-5 absolute top-1/2 transform -translate-y-1/2 text-gray-400 ${
+                    isArabic ? "right-3" : "left-3"
+                  }`}
                 />
                 <input
                   type="text"
@@ -222,8 +238,9 @@ export const LoginForm = ({
                   onChange={(e) =>
                     handleInputChange("username", e.target.value)
                   }
-                  className={`w-full border border-gray-300 rounded-lg py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${isArabic ? "pr-10 pl-4 text-right" : "pl-10 pr-4 text-left"
-                    }`}
+                  className={`w-full border border-gray-300 rounded-lg py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+                    isArabic ? "pr-10 pl-4 text-right" : "pl-10 pr-4 text-left"
+                  }`}
                   placeholder={
                     isArabic ? "أدخل اسم المستخدم" : "Enter your username"
                   }
@@ -241,8 +258,9 @@ export const LoginForm = ({
               </label>
               <div className="relative">
                 <Lock
-                  className={`w-5 h-5 absolute top-1/2 transform -translate-y-1/2 text-gray-400 ${isArabic ? "right-3" : "left-3"
-                    }`}
+                  className={`w-5 h-5 absolute top-1/2 transform -translate-y-1/2 text-gray-400 ${
+                    isArabic ? "right-3" : "left-3"
+                  }`}
                 />
                 <input
                   type={showPassword ? "text" : "password"}
@@ -250,10 +268,11 @@ export const LoginForm = ({
                   onChange={(e) =>
                     handleInputChange("password", e.target.value)
                   }
-                  className={`w-full border border-gray-300 rounded-lg py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${isArabic
-                    ? "pr-10 pl-10 text-right"
-                    : "pl-10 pr-10 text-left"
-                    }`}
+                  className={`w-full border border-gray-300 rounded-lg py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+                    isArabic
+                      ? "pr-10 pl-10 text-right"
+                      : "pl-10 pr-10 text-left"
+                  }`}
                   placeholder={
                     isArabic ? "أدخل كلمة المرور" : "Enter your password"
                   }
@@ -264,8 +283,9 @@ export const LoginForm = ({
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className={`absolute top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 ${isArabic ? "left-3" : "right-3"
-                    }`}
+                  className={`absolute top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 ${
+                    isArabic ? "left-3" : "right-3"
+                  }`}
                   disabled={isSubmitting || loginSuccess || isLoading}
                   tabIndex={-1}
                 >
@@ -291,8 +311,9 @@ export const LoginForm = ({
                   disabled={isSubmitting || loginSuccess || isLoading}
                 />
                 <span
-                  className={`text-sm text-gray-600 ${isArabic ? "mr-2" : "ml-2"
-                    }`}
+                  className={`text-sm text-gray-600 ${
+                    isArabic ? "mr-2" : "ml-2"
+                  }`}
                 >
                   {isArabic ? "تذكرني" : "Remember me"}
                 </span>
@@ -346,28 +367,42 @@ export const LoginForm = ({
             </p>
             <div className="grid grid-cols-2 gap-2">
               <button
-                onClick={() => fillDemoCredentials("admin")}
+                onClick={() =>
+                  fillDemoCredentials({ role: "admin", key: "admin" })
+                }
                 className="text-xs bg-red-100 text-red-800 px-3 py-2 rounded-lg hover:bg-red-200 transition-colors"
                 disabled={isSubmitting || loginSuccess || isLoading}
               >
                 {isArabic ? "مدير النظام" : "Admin"}
               </button>
               <button
-                onClick={() => fillDemoCredentials("hr")}
+                onClick={() =>
+                  fillDemoCredentials({ role: "HR Manager", key: "HR_Manager" })
+                }
                 className="text-xs bg-blue-100 text-blue-800 px-3 py-2 rounded-lg hover:bg-blue-200 transition-colors"
                 disabled={isSubmitting || loginSuccess || isLoading}
               >
                 {isArabic ? "الموارد البشرية" : "HR Manager"}
               </button>
               <button
-                onClick={() => fillDemoCredentials("operation")}
+                onClick={() =>
+                  fillDemoCredentials({
+                    role: "Operations Supervisor",
+                    key: "Operations_Supervisor",
+                  })
+                }
                 className="text-xs bg-green-100 text-green-800 px-3 py-2 rounded-lg hover:bg-green-200 transition-colors"
                 disabled={isSubmitting || loginSuccess || isLoading}
               >
                 {isArabic ? "مشرف العمليات" : "Operations"}
               </button>
               <button
-                onClick={() => fillDemoCredentials("finance")}
+                onClick={() =>
+                  fillDemoCredentials({
+                    role: "Finance Clerk",
+                    key: "Finance_Clerk",
+                  })
+                }
                 className="text-xs bg-purple-100 text-purple-800 px-3 py-2 rounded-lg hover:bg-purple-200 transition-colors"
                 disabled={isSubmitting || loginSuccess || isLoading}
               >
