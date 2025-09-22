@@ -90,7 +90,7 @@ export const LoginForm = ({
   const fillDemoCredentials = (userRole) => {
 
     const demoCredentials = {
-      admin: { username: "kousik@gmail.com", password: "Kousik1234@", role: userRole },
+      admin: { username: "admin@amoagc.sa", password: "adminAmoagc231", role: userRole },
       hr: { username: "hr.manager", password: "hr123", role: userRole },
       operation: { username: "ops.supervisor", password: "ops123", role: userRole },
       finance: { username: "finance.clerk", password: "finance123", role: userRole },
