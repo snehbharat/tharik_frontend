@@ -1,6 +1,6 @@
 // User Profile Component with Role and Permission Display
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   User,
   Shield,
@@ -15,13 +15,35 @@ import {
   Key,
 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
+import UserService from "../../services/UserService";
 
 export const UserProfile = ({ isArabic = false, onClose }) => {
   const { user, logout } = useAuth();
+  const [users, setUsers] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editedUser, setEditedUser] = useState(user);
 
   if (!user) return null;
+
+  // 🔹 Fetch Users on mount
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const { data } = await UserService.getAllUsers();
+
+      setUsers(data || []);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
+  // console.log("users", users);
+  // console.log("user", user);
+
+  const matchedUser = users.find((u) => u.email === user.email);
+  // console.log("muser", matchedUser?);
 
   const handleSave = () => {
     // In production, this would make an API call to update user data
@@ -67,12 +89,12 @@ export const UserProfile = ({ isArabic = false, onClose }) => {
               </div>
               <div>
                 <h2 className="text-2xl font-bold">
-                  {isArabic ? user.fullNameAr : user.username}
+                  {isArabic ? matchedUser?.nameAr : matchedUser?.nameEn}
                 </h2>
                 <p className="text-green-100">
-                  {isArabic ? user.role.nameAr : user.role}
+                  {isArabic ? matchedUser?.role : matchedUser?.role}
                 </p>
-                <p className="text-green-200 text-sm">@{user.email}</p>
+                <p className="text-green-200 text-sm">{matchedUser?.email}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -124,7 +146,7 @@ export const UserProfile = ({ isArabic = false, onClose }) => {
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
                   />
                 ) : (
-                  <p className="text-gray-900">{user.username}</p>
+                  <p className="text-gray-900">{matchedUser?.nameEn}</p>
                 )}
               </div>
 
@@ -145,8 +167,8 @@ export const UserProfile = ({ isArabic = false, onClose }) => {
                     dir="rtl"
                   />
                 ) : (
-                  <p className="text-gray-900" dir="rtl">
-                    {user.fullNameAr ? user.fullNameAr : "NA"}
+                  <p className="text-gray-900" dir="">
+                    {matchedUser?.nameAr}
                   </p>
                 )}
               </div>
@@ -157,7 +179,7 @@ export const UserProfile = ({ isArabic = false, onClose }) => {
                 </label>
                 <div className="flex items-center gap-2">
                   <Mail className="w-4 h-4 text-gray-500" />
-                  <p className="text-gray-900">{user.email}</p>
+                  <p className="text-gray-900">{matchedUser?.email}</p>
                 </div>
               </div>
 
@@ -167,7 +189,7 @@ export const UserProfile = ({ isArabic = false, onClose }) => {
                 </label>
                 <div className="flex items-center gap-2">
                   <Building2 className="w-4 h-4 text-gray-500" />
-                  <p className="text-gray-900">{user.department}</p>
+                  <p className="text-gray-900">{matchedUser?.department}</p>
                 </div>
               </div>
 
@@ -178,8 +200,8 @@ export const UserProfile = ({ isArabic = false, onClose }) => {
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-gray-500" />
                   <p className="text-gray-900">
-                    {user.lastLogin
-                      ? new Date(user.lastLogin).toLocaleString()
+                    {user.last_login
+                      ? new Date(matchedUser?.last_login).toLocaleString()
                       : "Never"}
                   </p>
                 </div>
