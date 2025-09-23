@@ -67,16 +67,16 @@ export const UserProfile = ({ isArabic = false, onClose }) => {
               </div>
               <div>
                 <h2 className="text-2xl font-bold">
-                  {isArabic ? user.fullNameAr : user.fullName}
+                  {isArabic ? user.fullNameAr : user.username}
                 </h2>
                 <p className="text-green-100">
-                  {isArabic ? user.role.nameAr : user.role.name}
+                  {isArabic ? user.role.nameAr : user.role}
                 </p>
-                <p className="text-green-200 text-sm">@{user.username}</p>
+                <p className="text-green-200 text-sm">@{user.email}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button
+              {/* <button
                 onClick={() => setIsEditing(!isEditing)}
                 className="p-2 bg-white bg-opacity-20 rounded-lg hover:bg-opacity-30 transition-colors"
               >
@@ -85,7 +85,7 @@ export const UserProfile = ({ isArabic = false, onClose }) => {
                 ) : (
                   <Edit className="w-5 h-5" />
                 )}
-              </button>
+              </button> */}
               {onClose && (
                 <button
                   onClick={onClose}
@@ -115,16 +115,16 @@ export const UserProfile = ({ isArabic = false, onClose }) => {
                 {isEditing ? (
                   <input
                     type="text"
-                    value={editedUser?.fullName || ""}
+                    value={editedUser?.username || ""}
                     onChange={(e) =>
                       setEditedUser((prev) =>
-                        prev ? { ...prev, fullName: e.target.value } : null
+                        prev ? { ...prev, usermame: e.target.value } : null
                       )
                     }
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
                   />
                 ) : (
-                  <p className="text-gray-900">{user.fullName}</p>
+                  <p className="text-gray-900">{user.username}</p>
                 )}
               </div>
 
@@ -135,10 +135,10 @@ export const UserProfile = ({ isArabic = false, onClose }) => {
                 {isEditing ? (
                   <input
                     type="text"
-                    value={editedUser?.fullNameAr || ""}
+                    value={editedUser?.username || ""}
                     onChange={(e) =>
                       setEditedUser((prev) =>
-                        prev ? { ...prev, fullNameAr: e.target.value } : null
+                        prev ? { ...prev, username: e.target.value } : null
                       )
                     }
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
@@ -146,7 +146,7 @@ export const UserProfile = ({ isArabic = false, onClose }) => {
                   />
                 ) : (
                   <p className="text-gray-900" dir="rtl">
-                    {user.fullNameAr}
+                    {user.fullNameAr ? user.fullNameAr : "NA"}
                   </p>
                 )}
               </div>
@@ -191,12 +191,12 @@ export const UserProfile = ({ isArabic = false, onClose }) => {
                 </label>
                 <span
                   className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                    user.isActive
+                    user.is_active
                       ? "bg-green-100 text-green-800"
                       : "bg-red-100 text-red-800"
                   }`}
                 >
-                  {user.isActive
+                  {user.is_active
                     ? isArabic
                       ? "نشط"
                       : "Active"
@@ -244,11 +244,11 @@ export const UserProfile = ({ isArabic = false, onClose }) => {
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">
-                      {isArabic ? user.role.nameAr : user.role.name}
+                      {isArabic ? user.role.nameAr : user.role}
                     </p>
-                    <p className="text-sm text-gray-600">
+                    {/* <p className="text-sm text-gray-600">
                       {isArabic ? "المستوى:" : "Level:"} {user.role.level}
-                    </p>
+                    </p> */}
                   </div>
                 </div>
               </div>
@@ -265,16 +265,16 @@ export const UserProfile = ({ isArabic = false, onClose }) => {
                     >
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-gray-900">
-                          {permission.name}
+                          {permission}
                         </span>
-                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                        {/* <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
                           {permission.action}
-                        </span>
+                        </span> */}
                       </div>
-                      <p className="text-xs text-gray-600 mt-1">
+                      {/* <p className="text-xs text-gray-600 mt-1">
                         {isArabic ? "المورد:" : "Resource:"}{" "}
                         {permission.resource}
-                      </p>
+                      </p> */}
                     </div>
                   ))}
                 </div>
@@ -283,7 +283,7 @@ export const UserProfile = ({ isArabic = false, onClose }) => {
           </div>
 
           {/* Security Settings */}
-          <div className="bg-gray-50 rounded-lg p-4">
+          {/* <div className="bg-gray-50 rounded-lg p-4">
             <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <Settings className="w-5 h-5 text-gray-600" />
               {isArabic ? "إعدادات الأمان" : "Security Settings"}
@@ -322,7 +322,7 @@ export const UserProfile = ({ isArabic = false, onClose }) => {
                 </p>
               </button>
             </div>
-          </div>
+          </div> */}
 
           {/* Logout Button */}
           <div className="pt-4 border-t border-gray-200">

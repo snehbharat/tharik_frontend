@@ -22,6 +22,7 @@ import {
   Clock,
   Bell,
   TestTube,
+  KeyIcon,
 } from "lucide-react";
 
 export const Sidebar = ({
@@ -69,7 +70,10 @@ export const Sidebar = ({
 
   const menuSections = [
     {
-      title: isArabic ? "الرئيسية" : "Main",
+      id: "main",
+      titleEn: "MAIN",
+      titleAr: "الرئيسية",
+      isCollapsible: true,
       items: [
         {
           id: "dashboard",
@@ -77,6 +81,7 @@ export const Sidebar = ({
           nameEn: "Dashboard",
           nameAr: "لوحة التحكم",
           requiresAuth: false,
+          permission: "dashboard.read",
         },
         {
           id: "company",
@@ -84,11 +89,15 @@ export const Sidebar = ({
           nameEn: "Company & Clients",
           nameAr: "الشركة والعملاء",
           requiresAuth: true,
+          permission: "company.read",
         },
       ],
     },
     {
-      title: isArabic ? "إدارة العملاء" : "Customer Management",
+      id: "customer",
+      titleEn: "CUSTOMER MANAGEMENT",
+      titleAr: "إدارة العملاء",
+      isCollapsible: true,
       items: [
         {
           id: "lead-management",
@@ -96,47 +105,23 @@ export const Sidebar = ({
           nameEn: "Lead Management",
           nameAr: "إدارة العملاء المحتملين",
           requiresAuth: true,
+          permission: "leads.read",
         },
       ],
     },
     {
-      title: isArabic ? "الموارد" : "Resources",
+      id: "resources",
+      titleEn: "RESOURCES",
+      titleAr: "الموارد",
+      isCollapsible: true,
       items: [
         {
           id: "manpower",
           icon: Users,
-          nameEn: "Manpower",
-          nameAr: "القوى العاملة",
+          nameEn: "Workforce Management",
+          nameAr: "إدارة القوى العاملة",
           requiresAuth: true,
-        },
-        {
-          id: "hourly-rates",
-          icon: Clock,
-          nameEn: "Hourly Rate Management",
-          nameAr: "إدارة الأجور بالساعة",
-          requiresAuth: true,
-        },
-        {
-          id: "notifications",
-          icon: Bell,
-          nameEn: "Notification System",
-          nameAr: "نظام التنبيهات",
-          requiresAuth: true,
-        },
-        {
-          id: "notification-tester",
-          icon: TestTube,
-          nameEn: "Notification Tester",
-          nameAr: "اختبار التنبيهات",
-          requiresAuth: true,
-        },
-        {
-          id: "attendance-tracking",
-          icon: Clock,
-          nameEn: "Attendance Tracking",
-          nameAr: "تتبع الحضور",
-          requiresAuth: true,
-          permission: "attendance.read",
+          permission: "manpower.read",
         },
         {
           id: "fleet",
@@ -144,11 +129,23 @@ export const Sidebar = ({
           nameEn: "Fleet Management",
           nameAr: "إدارة الأسطول",
           requiresAuth: true,
+          permission: "fleet.read",
+        },
+        {
+          id: "permissions",
+          icon: KeyIcon,
+          nameEn: "Permissions",
+          nameAr: " إذن",
+          requiresAuth: true,
+          permission: "permissions.read",
         },
       ],
     },
     {
-      title: isArabic ? "العمليات" : "Operations",
+      id: "operations",
+      titleEn: "OPERATIONS",
+      titleAr: "العمليات",
+      isCollapsible: true,
       items: [
         {
           id: "task-management",
@@ -156,6 +153,7 @@ export const Sidebar = ({
           nameEn: "Task Management",
           nameAr: "إدارة المهام",
           requiresAuth: true,
+          permission: "tasks.read",
         },
         {
           id: "work-progress",
@@ -163,11 +161,15 @@ export const Sidebar = ({
           nameEn: "Work Progress",
           nameAr: "تقدم العمل",
           requiresAuth: true,
+          permission: "progress.read",
         },
       ],
     },
     {
-      title: isArabic ? "المالية" : "Financial",
+      id: "financial",
+      titleEn: "FINANCIAL",
+      titleAr: "المالية",
+      isCollapsible: true,
       items: [
         {
           id: "invoices",
@@ -175,6 +177,15 @@ export const Sidebar = ({
           nameEn: "Smart Invoicing",
           nameAr: "الفوترة الذكية",
           requiresAuth: true,
+          permission: "invoices.read",
+        },
+        {
+          id: "payable-invoices",
+          icon: FileText,
+          nameEn: "Payble Invoicing",
+          nameAr: "الفواتير المستحقة",
+          requiresAuth: true,
+          permission: "invoices.read",
         },
         {
           id: "payroll",
@@ -182,32 +193,47 @@ export const Sidebar = ({
           nameEn: "Payroll Management",
           nameAr: "إدارة الرواتب",
           requiresAuth: true,
+          permission: "payroll.read",
         },
-        {
-          id: "compliance",
-          icon: Shield,
-          nameEn: "Compliance & Reports",
-          nameAr: "الامتثال والتقارير",
-          requiresAuth: true,
-        },
+        // {
+        //   id: "compliance",
+        //   icon: Shield,
+        //   nameEn: "Compliance & Reports",
+        //   nameAr: "الامتثال والتقارير",
+        //   requiresAuth: true,
+        //   permission: "compliance.read",
+        // },
+        // {
+        //   id: "hourly-rates",
+        //   icon: Clock,
+        //   nameEn: "Hourly Rate Management",
+        //   nameAr: "إدارة الأجور بالساعة",
+        //   requiresAuth: true,
+        //   permission: "payroll.read",
+        // },
       ],
     },
     {
-      title: isArabic ? "الأقسام" : "Departments",
+      id: "departments",
+      titleEn: "DEPARTMENTS",
+      titleAr: "الأقسام",
+      isCollapsible: true,
       items: [
         {
           id: "operations",
           icon: Briefcase,
-          nameEn: "Operations",
+          nameEn: "Operations Department",
           nameAr: "قسم العمليات",
           requiresAuth: true,
+          permission: "departments.operations",
         },
         {
           id: "finance",
           icon: DollarSign,
-          nameEn: "Finance",
+          nameEn: "Finance Department",
           nameAr: "قسم المالية",
           requiresAuth: true,
+          permission: "departments.finance",
         },
         {
           id: "hr",
@@ -215,32 +241,67 @@ export const Sidebar = ({
           nameEn: "Human Resources",
           nameAr: "الموارد البشرية",
           requiresAuth: true,
+          permission: "departments.hr",
         },
       ],
     },
     {
-      title: isArabic ? "الإدارة" : "Administration",
+      id: "administration",
+      titleEn: "ADMINISTRATION",
+      titleAr: "الإدارة",
+      isCollapsible: true,
       items: [
+        // {
+        //   id: "integrations",
+        //   icon: Globe,
+        //   nameEn: "Saudi Integrations",
+        //   nameAr: "التكاملات السعودية",
+        //   requiresAuth: true,
+        //   permission: "integrations.read",
+        //   badge: 4,
+        //   isNew: true,
+        // },
+        // {
+        //   id: "user-access-roles",
+        //   icon: Key,
+        //   nameEn: "User Access & Roles",
+        //   nameAr: "الوصول والأدوار",
+        //   requiresAuth: true,
+        //   permission: "admin.roles",
+        // },
+        // {
+        //   id: "system",
+        //   icon: Settings,
+        //   nameEn: "System Setup",
+        //   nameAr: "إعدادات النظام",
+        //   requiresAuth: true,
+        //   permission: "admin.system",
+        // },
+        // {
+        //   id: "notifications",
+        //   icon: Bell,
+        //   nameEn: "Notification System",
+        //   nameAr: "نظام التنبيهات",
+        //   requiresAuth: true,
+        //   permission: "notifications.read",
+        //   badge: 3,
+        // },
+        // {
+        //   id: "notification-tester",
+        //   icon: TestTube,
+        //   nameEn: "Notification Tester",
+        //   nameAr: "اختبار التنبيهات",
+        //   requiresAuth: true,
+        //   permission: "notifications.manage",
+        //   isNew: true,
+        // },
         {
-          id: "integrations",
-          icon: Globe,
-          nameEn: "Saudi Integrations",
-          nameAr: "التكاملات السعودية",
+          id: "attendance-tracking",
+          icon: Clock,
+          nameEn: "Leave Tracking",
+          nameAr: "تتبع الحضور",
           requiresAuth: true,
-        },
-        {
-          id: "user-access-roles",
-          icon: Key,
-          nameEn: "User Access & Roles",
-          nameAr: "الوصول والأدوار",
-          requiresAuth: true,
-        },
-        {
-          id: "system",
-          icon: Settings,
-          nameEn: "System Setup",
-          nameAr: "إعدادات النظام",
-          requiresAuth: true,
+          permission: "attendance.read",
         },
         {
           id: "users",
@@ -248,6 +309,7 @@ export const Sidebar = ({
           nameEn: "User Management",
           nameAr: "إدارة المستخدمين",
           requiresAuth: true,
+          permission: "admin.users",
         },
       ],
     },
@@ -309,7 +371,7 @@ export const Sidebar = ({
           {menuSections.map((section, sectionIndex) => (
             <div key={sectionIndex}>
               <h3 className="text-xs font-semibold text-green-300 uppercase tracking-wider mb-3 px-2">
-                {section.title}
+                {section.titleEn}
               </h3>
               <ul className="space-y-1">
                 {section.items.map((item) => {

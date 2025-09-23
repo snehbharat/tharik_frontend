@@ -99,13 +99,13 @@ export const LoginForm = ({
         role: userRole.role,
       },
       Operations_Supervisor: {
-        username: "operations@amoagc.sa",
-        password: "MohammadHassan123",
+        username: "op@amoagc.sa",
+        password: "AliAlMahmoud123",
         role: userRole.role,
       },
       Finance_Clerk: {
-        username: "finance@amoagc.sa",
-        password: "AliAlMahmoud123",
+        username: "fc@amoagc.sa",
+        password: "HassanAlMutairi123",
         role: userRole.role,
       },
     };

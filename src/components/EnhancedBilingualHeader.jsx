@@ -87,7 +87,7 @@ export const EnhancedBilingualHeader = ({ onMenuToggle }) => {
               </div>
               <div className={isRTL ? "text-right" : "text-left"}>
                 <BilingualText
-                  en={companyInfo?.companyNameEn + " " + companyInfo?.city}
+                  en={companyInfo?.companyNameEn}
                   ar="أموجك المجمعة"
                   className="font-bold text-gray-900 text-lg"
                   tag="h1"
@@ -186,10 +186,10 @@ export const EnhancedBilingualHeader = ({ onMenuToggle }) => {
                   }`}
                 >
                   <div className="text-sm font-medium text-gray-900">
-                    {language === "ar" ? user.fullNameAr : user.fullName}
+                    {language === "ar" ? user.fullNameAr : user.username}
                   </div>
                   <div className="text-xs text-gray-500">
-                    {language === "ar" ? user.role.nameAr : user.role.name}
+                    {language === "ar" ? user.role.nameAr : user.role}
                   </div>
                 </div>
               </button>
@@ -225,12 +225,10 @@ export const EnhancedBilingualHeader = ({ onMenuToggle }) => {
                       )}
                       <div className={isRTL ? "text-right" : "text-left"}>
                         <div className="font-medium text-gray-900">
-                          {language === "ar" ? user.fullNameAr : user.fullName}
+                          {language === "ar" ? user.fullNameAr : user.username}
                         </div>
                         <div className="text-sm text-gray-500">
-                          {language === "ar"
-                            ? user.role.nameAr
-                            : user.role.name}
+                          {language === "ar" ? user.role.nameAr : user.role}
                         </div>
                         <div className="text-xs text-gray-400 mt-1">
                           {currentDate}
@@ -252,12 +250,12 @@ export const EnhancedBilingualHeader = ({ onMenuToggle }) => {
                     >
                       <User className="w-4 h-4" aria-hidden="true" />
                       <BilingualText
-                        en="Profile Settings"
+                        en="Profile View"
                         ar="إعدادات الملف الشخصي"
                       />
                     </button>
 
-                    <button
+                    {/* <button
                       className={`w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors ${
                         isRTL ? "flex-row-reverse text-right" : "text-left"
                       }`}
@@ -268,7 +266,7 @@ export const EnhancedBilingualHeader = ({ onMenuToggle }) => {
                         en="Account Settings"
                         ar="إعدادات الحساب"
                       />
-                    </button>
+                    </button> */}
 
                     <div className="border-t border-gray-200 my-2"></div>
 
