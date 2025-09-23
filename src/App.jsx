@@ -55,6 +55,7 @@ const AppContent = () => {
   const [isArabic, setIsArabic] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  console.log(user);
 
   const [projects, setProjects] = useState([]);
   const [attendance, setAttendance] = useState([]);
@@ -120,7 +121,6 @@ const AppContent = () => {
         const [projectResponse, clientResponse] = await Promise.all([
           ProjectServiceClient.getAllProjects(1, 100),
           ClientService.getAllClients(1, 100),
-          
         ]);
 
         const projectsData = extractProjectsData(projectResponse);
@@ -154,9 +154,12 @@ const AppContent = () => {
   const renderActiveModule = () => {
     switch (activeModule) {
       case "dashboard":
-        const isAdmin = user?.role.level >= 8 || user?.role.id === "admin";
+        const isAdmin = user?.role === "admin" || user?.role === "HR Manager";
+        console.log(isAdmin);
+
         if (isAdmin) {
-          return <ComprehensiveAdminDashboard isArabic={isArabic} />;
+          // return <ComprehensiveAdminDashboard isArabic={isArabic} />;
+          return <Dashboard isArabic={isArabic} projects={projects} />;
         }
         const isEmployee = user?.role.id === "employee" || user?.role.level < 5;
         if (isEmployee) {

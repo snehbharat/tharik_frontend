@@ -227,7 +227,7 @@ export const UserManagement = ({ isArabic }) => {
 
   const roles = [
     {
-      name: "Super Admin",
+      name: "admin",
       nameAr: "مدير عام",
       description: "Full system access with all permissions",
       descriptionAr: "وصول كامل للنظام مع جميع الصلاحيات",

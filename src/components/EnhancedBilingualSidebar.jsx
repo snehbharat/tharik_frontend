@@ -62,6 +62,8 @@ export const EnhancedBilingualSidebar = ({
       "administration",
     ])
   );
+  console.log(user);
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [focusedItem, setFocusedItem] = useState("");
   const [companyInfo, setCompanyInfo] = useState(null);
@@ -366,14 +368,14 @@ export const EnhancedBilingualSidebar = ({
       return;
     }
 
-    if (item.permission && !hasPermission(item.permission)) {
-      alert(
-        language === "ar"
-          ? "ليس لديك صلاحية للوصول لهذه الصفحة"
-          : "You do not have permission to access this page"
-      );
-      return;
-    }
+    // if (item.permission && !hasPermission(item.permission)) {
+    //   alert(
+    //     language === "ar"
+    //       ? "ليس لديك صلاحية للوصول لهذه الصفحة"
+    //       : "You do not have permission to access this page"
+    //   );
+    //   return;
+    // }
 
     if (!item.id || typeof item.id !== "string") {
       console.error("Invalid menu item ID:", item.id);
@@ -387,7 +389,7 @@ export const EnhancedBilingualSidebar = ({
 
   const isMenuItemVisible = (item) => {
     if (item.requiresAuth && !user) return false;
-    if (item.permission && !hasPermission(item.permission)) return false;
+    // if (item.permission && !hasPermission(item.permission)) return false;
     return true;
   };
 
@@ -602,10 +604,10 @@ export const EnhancedBilingualSidebar = ({
                 <User className="w-4 h-4 text-green-200/90" />
                 <div className={isRTL ? "text-right" : "text-left"}>
                   <div className="text-sm font-semibold tracking-tight">
-                    {language === "ar" ? user.fullNameAr : user.fullName}
+                    {user.username}
                   </div>
                   <div className="text-xs text-green-200/80 font-medium">
-                    {language === "ar" ? user.role.nameAr : user.role.name}
+                    {user.role}
                   </div>
                 </div>
               </div>
