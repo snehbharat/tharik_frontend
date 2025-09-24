@@ -836,7 +836,7 @@ export const generateSampleDataApi = async () => {
         status: "new",
         createdAt: "2024-12-11T15:30:00Z",
         relatedModule: "workforce",
-      }
+      },
     ];
 
     // 🔹 Make API calls in parallel for performance
@@ -851,10 +851,13 @@ export const generateSampleDataApi = async () => {
       employees: employeesRes.data || [],
       projects: projectsRes.data || [],
       attendance: attendanceRes.data || [],
-      insights: insights || []
+      insights: insights || [],
     };
   } catch (error) {
-    console.error(`[generateSampleDataApi] Error fetching data: ${error.message}`, error);
+    console.error(
+      `[generateSampleDataApi] Error fetching data: ${error.message}`,
+      error
+    );
 
     // Return fallback data with sample insights if API fails
     return {
@@ -866,7 +869,8 @@ export const generateSampleDataApi = async () => {
           id: "fallback_001",
           type: "alert",
           title: "API Connection Issue",
-          description: "Unable to fetch live payroll data. Using cached information. Please check network connection.",
+          description:
+            "Unable to fetch live payroll data. Using cached information. Please check network connection.",
           impact: "medium",
           category: "technical",
           actionRequired: true,
@@ -874,8 +878,8 @@ export const generateSampleDataApi = async () => {
           status: "new",
           createdAt: new Date().toISOString(),
           relatedModule: "system",
-        }
-      ]
+        },
+      ],
     };
   }
 };
@@ -913,9 +917,10 @@ export const generateAttendanceData = (employees, projects, days = 30) => {
             breakTime: 1,
             lateArrival: Math.random() > 0.9 ? Math.random() * 0.5 : 0, // 10% chance of being late
             earlyDeparture: 0,
-            location: `${(projects.find((p) => p.id === employee.projectId) || {})
-              .location || "Unknown"
-              } - Work Area`,
+            location: `${
+              (projects.find((p) => p.id === employee.projectId) || {})
+                .location || "Unknown"
+            } - Work Area`,
             weatherConditions: ["Clear", "Partly Cloudy", "Cloudy", "Windy"][
               Math.floor(Math.random() * 4)
             ],
@@ -930,3 +935,46 @@ export const generateAttendanceData = (employees, projects, days = 30) => {
 
   return attendance;
 };
+
+const userData = [
+  {
+    username: "Fatima Al-Zahra",
+    nameEn: "Fatima Al-Zahra",
+    nameAr: "فاطمة الزهراء",
+    email: "hr@amoagc.sa",
+    mobile_number: "5034565892",
+    department: "Human Resources",
+    status: "active",
+    role: "HR Manager",
+  },
+  {
+    username: "Ahmed Al-Rashid",
+    nameEn: "Ahmed Al-Rashid",
+    nameAr: "أحمد الراشد",
+    email: "admin@amoagc.sa",
+    mobile_number: "5034562892",
+    department: "IT",
+    status: "active",
+    role: "admin",
+  },
+  {
+    username: "Ali Al-Mahmoud",
+    nameEn: "Ali Al-Mahmoud",
+    nameAr: "علي المحمود",
+    email: "op@amoagc.sa",
+    mobile_number: "5034562802",
+    department: "Operations",
+    status: "active",
+    role: "Operations Supervisor",
+  },
+  {
+    username: "Hassan Al-Mutairi",
+    nameEn: "Hassan Al-Mutairi",
+    nameAr: "حسن المطيري",
+    email: "fc@amoagc.sa",
+    mobile_number: "5030562802",
+    department: "Finance",
+    status: "active",
+    role: "Finance Clerk",
+  },
+];

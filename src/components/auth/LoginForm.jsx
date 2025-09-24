@@ -90,7 +90,7 @@ export const LoginForm = ({
     const demoCredentials = {
       admin: {
         username: "admin@amoagc.sa",
-        password: "adminAmoagc231",
+        password: "AhmedAlRashid123",
         role: userRole.role,
       },
       HR_Manager: {
