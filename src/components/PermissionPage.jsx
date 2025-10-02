@@ -30,7 +30,7 @@ export default function PermissionsPage({ isArabic }) {
         name: item.user.username,
         role: item.user.role,
         permissions: item.permissions.map((p) => ({
-          id: p.userPermissionId, 
+          id: p.userPermissionId,
           name: p.permission_name,
         })),
       }));
@@ -44,16 +44,16 @@ export default function PermissionsPage({ isArabic }) {
   const exportToExcel = async () => {
     setIsExporting(true);
     try {
-      const response = await fetch('/api/permission/export/user/permission', {
+      const response = await apiClient.getExport('/permission/export/user/permission', {
         method: 'GET',
         headers: {
           'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         },
       });
 
-      if (!response.ok) {
-        throw new Error('Export failed');
-      }
+      // if (!response.ok) {
+      //   throw new Error('Export failed');
+      // }
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
@@ -134,32 +134,25 @@ export default function PermissionsPage({ isArabic }) {
 
     try {
       if (hasPerm) {
-        await fetch(`/api/user/permission/revoke/${permid}`, {
-          method: 'DELETE',
-        });
+        await apiClient.delete(`/user/permission/revoke/${permid}`);
       } else {
-        await fetch("/api/user/permission/grant", {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            userId,
-            permissionId: permObj._id,
-            requestUserId,
-          }),
+        await apiClient.post("/user/permission/grant", {
+          userId,
+          permissionId: permObj._id,
+          requestUserId,
         });
+
       }
 
       setUsers((prevUsers) =>
         prevUsers.map((u) =>
           u.id === userId
             ? {
-                ...u,
-                permissions: hasPerm
-                  ? u.permissions.filter((p) => p.name !== permName)
-                  : [...u.permissions, { name: permName, id: permid || null }],
-              }
+              ...u,
+              permissions: hasPerm
+                ? u.permissions.filter((p) => p.name !== permName)
+                : [...u.permissions, { name: permName, id: permid || null }],
+            }
             : u
         )
       );
@@ -196,7 +189,7 @@ export default function PermissionsPage({ isArabic }) {
                 </p>
               </div>
             </div>
-            
+
             <div className="flex gap-3">
               <button
                 onClick={() => setShowFilters(!showFilters)}
@@ -210,7 +203,7 @@ export default function PermissionsPage({ isArabic }) {
                   </span>
                 )}
               </button>
-              
+
               <button
                 onClick={exportToExcel}
                 disabled={isExporting}
@@ -240,7 +233,7 @@ export default function PermissionsPage({ isArabic }) {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-xl p-6 shadow-md border border-slate-200">
             <div className="flex items-center justify-between">
               <div>
@@ -252,7 +245,7 @@ export default function PermissionsPage({ isArabic }) {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-xl p-6 shadow-md border border-slate-200">
             <div className="flex items-center justify-between">
               <div>
@@ -337,9 +330,8 @@ export default function PermissionsPage({ isArabic }) {
                 {currentUsers.map((user, index) => (
                   <tr
                     key={user.id}
-                    className={`hover:bg-blue-50 transition-colors duration-200 ${
-                      index % 2 === 0 ? 'bg-white' : 'bg-slate-50'
-                    }`}
+                    className={`hover:bg-blue-50 transition-colors duration-200 ${index % 2 === 0 ? 'bg-white' : 'bg-slate-50'
+                      }`}
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center">
@@ -407,7 +399,7 @@ export default function PermissionsPage({ isArabic }) {
           <div className="fixed inset-0 z-50 overflow-y-auto">
             <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
               <div className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" onClick={() => setSelectedUser(null)}></div>
-              
+
               <div className="inline-block w-full max-w-6xl p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
@@ -448,11 +440,10 @@ export default function PermissionsPage({ isArabic }) {
                     </thead>
                     <tbody>
                       {Object.entries(groupedPermissions).map(([resource, actions], index) => (
-                        <tr 
-                          key={resource} 
-                          className={`hover:bg-slate-50 transition-colors duration-200 ${
-                            index % 2 === 0 ? 'bg-white' : 'bg-slate-50'
-                          }`}
+                        <tr
+                          key={resource}
+                          className={`hover:bg-slate-50 transition-colors duration-200 ${index % 2 === 0 ? 'bg-white' : 'bg-slate-50'
+                            }`}
                         >
                           <td className="p-4 font-medium text-slate-800 capitalize border-r border-slate-300">
                             {resource}
