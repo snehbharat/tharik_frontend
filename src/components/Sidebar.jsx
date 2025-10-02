@@ -155,14 +155,14 @@ export const Sidebar = ({
           requiresAuth: true,
           permission: "tasks.read",
         },
-        {
-          id: "work-progress",
-          icon: Camera,
-          nameEn: "Work Progress",
-          nameAr: "تقدم العمل",
-          requiresAuth: true,
-          permission: "progress.read",
-        },
+        // {
+        //   id: "work-progress",
+        //   icon: Camera,
+        //   nameEn: "Work Progress",
+        //   nameAr: "تقدم العمل",
+        //   requiresAuth: true,
+        //   permission: "progress.read",
+        // },
       ],
     },
     {
