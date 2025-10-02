@@ -85,11 +85,11 @@ const ModuleNavigation = ({ activeModule, setActiveModule, isArabic }) => {
       icon: Building2,
       label: isArabic ? "الهيكل التنظيمي" : "Organization",
     },
-    {
-      id: "performance",
-      icon: Target,
-      label: isArabic ? "الأداء والتطوير" : "Performance & Development",
-    },
+    // {
+    //   id: "performance",
+    //   icon: Target,
+    //   label: isArabic ? "الأداء والتطوير" : "Performance & Development",
+    // },
     {
       id: "documents",
       icon: FileText,
@@ -162,7 +162,7 @@ const LifecycleManagement = ({ isArabic, employees }) => {
             ? "إدارة دورة حياة الموظف"
             : "Employee Lifecycle Management"}
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white rounded-lg p-4 border border-blue-200">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
@@ -187,7 +187,7 @@ const LifecycleManagement = ({ isArabic, employees }) => {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg p-4 border border-blue-200">
+          {/* <div className="bg-white rounded-lg p-4 border border-blue-200">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
                 <Target className="w-5 h-5 text-white" />
@@ -209,7 +209,7 @@ const LifecycleManagement = ({ isArabic, employees }) => {
               </span>{" "}
               {isArabic ? "طلب ترقية معلق" : "pending promotion requests"}
             </div>
-          </div>
+          </div> */}
 
           <div className="bg-white rounded-lg p-4 border border-blue-200">
             <div className="flex items-center gap-3 mb-3">
@@ -238,7 +238,7 @@ const LifecycleManagement = ({ isArabic, employees }) => {
       </div>
 
       {/* Lifecycle Action Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <h4 className="font-semibold text-gray-900 mb-3">
             {isArabic ? "المهام المعلقة" : "Pending Tasks"}
@@ -338,7 +338,7 @@ const LifecycleManagement = ({ isArabic, employees }) => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };
@@ -580,12 +580,12 @@ const EmployeeManagementHubContent = ({ isArabic = false }) => {
             />
           )}
 
-          {activeModule === "performance" && (
+          {/* {activeModule === "performance" && (
             <PerformanceManagement
               employees={employees?.employees || []}
               isArabic={isArabic}
             />
-          )}
+          )} */}
 
           {activeModule === "documents" && (
             <DocumentManagement
