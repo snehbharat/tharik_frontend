@@ -24,6 +24,7 @@ import {
   TestTube,
   KeyIcon,
 } from "lucide-react";
+import { useBilingual } from "./BilingualLayout";
 
 export const Sidebar = ({
   activeModule,
@@ -31,6 +32,7 @@ export const Sidebar = ({
   isArabic,
   setIsArabic,
 }) => {
+  const { language, isRTL, t } = useBilingual();
   const [user, setUser] = useState({
     name: "Ahmed Al-Rashid",
     nameAr: "أحمد الراشد",
@@ -38,11 +40,12 @@ export const Sidebar = ({
     roleAr: "مدير النظام",
     isSignedIn: true,
   });
+  console.log(language, isRTL, t());
 
   const handleSignOut = () => {
     if (
       window.confirm(
-        isArabic
+        isRTL
           ? "هل أنت متأكد من تسجيل الخروج؟"
           : "Are you sure you want to sign out?"
       )
@@ -55,15 +58,15 @@ export const Sidebar = ({
 
   const handleSignIn = () => {
     // Simulate sign in - in real app this would open a login modal or redirect
-    const username = prompt(isArabic ? "اسم المستخدم:" : "Username:");
-    const password = prompt(isArabic ? "كلمة المرور:" : "Password:");
+    const username = prompt(isRTL ? "اسم المستخدم:" : "Username:");
+    const password = prompt(isRTL ? "كلمة المرور:" : "Password:");
 
     if (username && password) {
       // Simple validation - in real app this would be proper authentication
       if (username === "admin" && password === "admin") {
         setUser((prev) => ({ ...prev, isSignedIn: true }));
       } else {
-        alert(isArabic ? "بيانات دخول خاطئة" : "Invalid credentials");
+        alert(isRTL ? "بيانات دخول خاطئة" : "Invalid credentials");
       }
     }
   };
@@ -318,7 +321,7 @@ export const Sidebar = ({
   const handleMenuClick = (itemId, requiresAuth) => {
     if (requiresAuth && !user.isSignedIn) {
       alert(
-        isArabic
+        isRTL
           ? "يجب تسجيل الدخول للوصول لهذه الصفحة"
           : "Please sign in to access this page"
       );
@@ -337,10 +340,10 @@ export const Sidebar = ({
           </div>
           <div>
             <h1 className="font-bold text-lg tracking-tight">
-              {isArabic ? "أموجك المجمعة" : "AMOAGC"}
+              {isRTL ? "أموجك المجمعة" : "AMOAGC"}
             </h1>
             <p className="text-green-200/90 text-sm font-medium">
-              {isArabic
+              {isRTL
                 ? "العمليات والمقاولات العامة"
                 : "Operations & General Contracting"}
             </p>
@@ -354,10 +357,10 @@ export const Sidebar = ({
               <User className="w-4 h-4 text-green-200/90" />
               <div>
                 <div className="text-sm font-semibold tracking-tight">
-                  {isArabic ? user.nameAr : user.name}
+                  {isRTL ? user.nameAr : user.name}
                 </div>
                 <div className="text-xs text-green-200/80 font-medium">
-                  {isArabic ? user.roleAr : user.role}
+                  {isRTL ? user.roleAr : user.role}
                 </div>
               </div>
             </div>
@@ -396,7 +399,7 @@ export const Sidebar = ({
                       >
                         <Icon className="w-4 h-4" />
                         <span className="font-medium tracking-tight">
-                          {isArabic ? item.nameAr : item.nameEn}
+                          {isRTL ? item.nameAr : item.nameEn}
                         </span>
                         {isDisabled && (
                           <span className="ml-auto text-xs opacity-60">🔒</span>
@@ -414,12 +417,12 @@ export const Sidebar = ({
       {/* Footer */}
       <div className="p-4 border-t border-green-700/50 backdrop-blur-sm">
         <button
-          onClick={() => setIsArabic(!isArabic)}
+          onClick={() => setIsArabic(!isRTL)}
           className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-green-100/90 hover:bg-green-700/60 transition-all duration-200 mb-2 hover:shadow-md hover:translate-x-1"
         >
           <Globe className="w-5 h-5" />
           <span className="font-medium tracking-tight">
-            {isArabic ? "English" : "العربية"}
+            {isRTL ? "English" : "العربية"}
           </span>
         </button>
 
@@ -430,7 +433,7 @@ export const Sidebar = ({
           >
             <LogOut className="w-5 h-5" />
             <span className="font-medium tracking-tight">
-              {isArabic ? "تسجيل الخروج" : "Sign Out"}
+              {isRTL ? "تسجيل الخروج" : "Sign Out"}
             </span>
           </button>
         ) : (
@@ -440,7 +443,7 @@ export const Sidebar = ({
           >
             <User className="w-5 h-5" />
             <span className="font-medium tracking-tight">
-              {isArabic ? "تسجيل الدخول" : "Sign In"}
+              {isRTL ? "تسجيل الدخول" : "Sign In"}
             </span>
           </button>
         )}
