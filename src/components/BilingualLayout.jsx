@@ -200,7 +200,7 @@ const BilingualProvider = ({ children, defaultLanguage = "en" }) => {
 
 // Language Switcher Component
 const LanguageSwitcher = ({ className = "" }) => {
-  const { language, setLanguage } = useBilingual();
+  const { language, setLanguage, isRTL } = useBilingual();
   const [isOpen, setIsOpen] = useState(false);
 
   const languages = [
@@ -214,10 +214,14 @@ const LanguageSwitcher = ({ className = "" }) => {
     <div className={`relative ${className}`}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+        className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg transition-colors"
       >
         <Globe className="w-4 h-4 text-gray-600" />
-        <span className="text-sm font-medium text-gray-700">
+        <span
+          className={`text-sm font-medium text-gray-700 ${
+            isRTL && "text-white"
+          }`}
+        >
           {currentLanguage?.flag} {currentLanguage?.nameNative}
         </span>
         <ChevronDown
@@ -236,7 +240,9 @@ const LanguageSwitcher = ({ className = "" }) => {
                 setLanguage(lang.code);
                 setIsOpen(false);
               }}
-              className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors ${
+              className={`w-full flex items-center gap-3 px-4 py-3 text-left ${
+                isRTL && "bg-white"
+              } transition-colors ${
                 language === lang.code
                   ? "bg-blue-50 text-blue-700"
                   : "text-gray-700"

@@ -10,7 +10,7 @@ import { AuthProvider, useAuth } from "./hooks/useAuth";
 import { LoginForm } from "./components/auth/LoginForm";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { SessionManager } from "./components/auth/SessionManager";
-import { BilingualProvider } from "./components/BilingualLayout";
+import { BilingualProvider, useBilingual } from "./components/BilingualLayout";
 import { EnhancedBilingualHeader } from "./components/EnhancedBilingualHeader";
 import { EnhancedBilingualSidebar } from "./components/EnhancedBilingualSidebar";
 import { EnhancedBilingualDashboard } from "./components/EnhancedBilingualDashboard";
@@ -50,6 +50,7 @@ import { PaybleInvoicingSystem } from "./components/PaybleInvoicingSystem.jsx";
 
 const AppContent = () => {
   const { isAuthenticated, isLoading, user } = useAuth();
+  const { language, isRTL, t } = useBilingual();
   const { isMockMode } = useApiIntegration();
   const [activeModule, setActiveModule] = useState("dashboard");
   const [isArabic, setIsArabic] = useState(false);
@@ -62,6 +63,10 @@ const AppContent = () => {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    document.documentElement.dir = isRTL ? "rtl" : "ltr";
+  }, [isRTL]);
 
   // Helper function to safely extract projects data from API response
   const extractProjectsData = (response) => {
@@ -233,11 +238,13 @@ const AppContent = () => {
         </div>
       )}
 
-      <div className="flex h-screen">
+      <div className={`flex h-screen ${isRTL ? "flex-row-reverse" : ""}`}>
         <div
           className={`${
             sidebarCollapsed ? "w-16" : "w-64"
-          } transition-all duration-300 hidden lg:block`}
+          } transition-all duration-300 hidden lg:block ${
+            isRTL ? "order-last" : ""
+          }`}
         >
           <EnhancedBilingualSidebar
             activeModule={activeModule}
@@ -274,14 +281,14 @@ const AppContent = () => {
         </div>
       </div>
 
-      <div className="hidden">
+      {/* <div className="hidden">
         <Sidebar
           activeModule={activeModule}
           setActiveModule={setActiveModule}
           isArabic={isArabic}
           setIsArabic={setIsArabic}
         />
-      </div>
+      </div> */}
     </div>
   );
 };

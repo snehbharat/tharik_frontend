@@ -41,6 +41,7 @@ import { useBilingual, BilingualText } from "./BilingualLayout";
 import { useAuth } from "../hooks/useAuth";
 import axios from "axios";
 import { getCompany } from "../services/CompanyService";
+import UserService from "../services/UserService";
 
 export const EnhancedBilingualSidebar = ({
   activeModule,
@@ -51,6 +52,7 @@ export const EnhancedBilingualSidebar = ({
 }) => {
   const { language, isRTL, t } = useBilingual();
   const { user, logout, hasPermission } = useAuth();
+  const [users, setUsers] = useState([]);
   const [expandedSections, setExpandedSections] = useState(
     new Set([
       "main",
@@ -68,6 +70,16 @@ export const EnhancedBilingualSidebar = ({
   const [focusedItem, setFocusedItem] = useState("");
   const [companyInfo, setCompanyInfo] = useState(null);
 
+  const fetchUsers = async () => {
+    try {
+      const { data } = await UserService.getAllUsers();
+
+      setUsers(data || []);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
+
   const fetchData = async () => {
     try {
       const data = await getCompany();
@@ -78,9 +90,11 @@ export const EnhancedBilingualSidebar = ({
   };
   useEffect(() => {
     fetchData();
+    fetchUsers();
   }, []);
 
-  console.log("companyInfo:", companyInfo);
+  const matchedUser = users.find((u) => u.email === user.email);
+  console.log("companyInfo:", matchedUser);
 
   const menuSections = [
     {
@@ -400,7 +414,7 @@ export const EnhancedBilingualSidebar = ({
 
     if (!isVisible) return null;
 
-    //
+    // console.log(language, isRTL);
 
     return (
       <li key={item.id}>
@@ -409,17 +423,16 @@ export const EnhancedBilingualSidebar = ({
           disabled={!isVisible}
           onFocus={() => setFocusedItem(item.id)}
           onBlur={() => setFocusedItem("")}
-          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm group relative ${
-            isActive
-              ? "bg-white/95 text-green-800 shadow-xl transform scale-105 border border-green-200/50"
-              : "text-green-100/90 hover:bg-green-700/60 hover:text-white hover:shadow-md hover:translate-x-1"
-          } ${isRTL ? "flex-row-reverse" : ""} ${
-            isCollapsed ? "justify-center px-2" : ""
-          } ${
-            !isVisible ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-          } ${
-            focusedItem === item.id ? "ring-2 ring-white ring-opacity-50" : ""
-          }`}
+          className={`w-full flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 text-sm group relative
+    ${
+      isActive
+        ? "bg-white/95 text-green-800 shadow-xl scale-105 border border-green-200/50"
+        : "text-green-100/90 hover:bg-green-700/60 hover:text-white hover:shadow-md hover:translate-x-1"
+    }
+    ${isRTL ? "flex-row-reverse" : "flex-row"}  
+    ${isCollapsed ? "justify-center px-2" : "gap-3"}
+    ${!isVisible ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+    ${focusedItem === item.id ? "ring-2 ring-white ring-opacity-50" : ""}`}
           title={
             isCollapsed
               ? language === "ar"
@@ -430,7 +443,11 @@ export const EnhancedBilingualSidebar = ({
           aria-label={language === "ar" ? item.nameAr : item.nameEn}
           aria-current={isActive ? "page" : undefined}
         >
-          <div className="relative flex-shrink-0">
+          <div
+            className={`relative flex-shrink-0 ${
+              isRTL ? "order-2" : "order-1"
+            }`}
+          >
             <Icon className="w-4 h-4" aria-hidden="true" />
 
             {/* Badge indicator */}
@@ -453,7 +470,11 @@ export const EnhancedBilingualSidebar = ({
           </div>
 
           {!isCollapsed && (
-            <span className="font-medium tracking-tight flex-1 text-left">
+            <span
+              className={`font-medium tracking-tight flex-1 ${
+                isRTL ? "order-1 text-right" : "order-2 text-left"
+              }`}
+            >
               {language === "ar" ? item.nameAr : item.nameEn}
             </span>
           )}
@@ -485,15 +506,17 @@ export const EnhancedBilingualSidebar = ({
         {!isCollapsed && (
           <button
             onClick={() => toggleSection(section.id)}
-            className={`w-full flex items-center justify-between text-xs font-semibold text-green-300 uppercase tracking-wider mb-3 px-2 hover:text-green-200 transition-colors ${
-              isRTL ? "text-right" : "text-left"
-            }`}
+            className={`w-full flex items-center justify-between mb-3 px-2 text-xs font-semibold uppercase tracking-wider hover:text-green-200 transition-colors text-green-300`}
             aria-expanded={isExpanded}
             aria-controls={`section-${section.id}`}
           >
-            <span>{language === "ar" ? section.titleAr : section.titleEn}</span>
+            {/* Chevron icon */}
             {section.isCollapsible && (
-              <span className="transition-transform duration-200">
+              <span
+                className={`transition-transform duration-200 ${
+                  isExpanded ? "rotate-180" : ""
+                }`}
+              >
                 {isExpanded ? (
                   <ChevronUp className="w-3 h-3" />
                 ) : (
@@ -501,6 +524,13 @@ export const EnhancedBilingualSidebar = ({
                 )}
               </span>
             )}
+
+            {/* Section title */}
+            <span
+              className={`${isRTL ? "text-right" : "text-left"} flex-1 ml-2`}
+            >
+              {language === "ar" ? section.titleAr : section.titleEn}
+            </span>
           </button>
         )}
 
@@ -524,7 +554,9 @@ export const EnhancedBilingualSidebar = ({
       {/* Mobile Menu Button */}
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-green-600 text-white rounded-lg shadow-lg"
+        className={`lg:hidden fixed top-4 ${
+          isRTL ? "right-4" : "left-4"
+        } z-50 p-2 bg-green-600 text-white rounded-lg shadow-lg`}
         aria-label="Toggle navigation menu"
       >
         {isMobileMenuOpen ? (
@@ -545,17 +577,20 @@ export const EnhancedBilingualSidebar = ({
       {/* Sidebar */}
       <aside
         className={`
-        ${className}
-        bg-gradient-to-b from-green-800 via-green-850 to-green-900 text-white flex flex-col shadow-2xl transition-all duration-300
-        ${isCollapsed ? "w-16" : "w-64"}
-        ${isRTL ? "border-l border-green-700" : "border-r border-green-700"}
-        fixed lg:relative h-screen z-50
-        ${
-          isMobileMenuOpen
-            ? "translate-x-0"
-            : "-translate-x-full lg:translate-x-0"
-        }
-      `}
+    ${className}
+    bg-gradient-to-b from-green-800 via-green-850 to-green-900 text-white flex flex-col shadow-2xl transition-all duration-300
+    ${isCollapsed ? "w-16" : "w-64"}
+    ${isRTL ? "border-l border-green-700" : "border-r border-green-700"}
+    fixed lg:relative h-screen z-50
+    ${
+      isMobileMenuOpen
+        ? "translate-x-0"
+        : isRTL
+        ? "translate-x-full lg:translate-x-0"
+        : "-translate-x-full lg:translate-x-0"
+    }
+    ${isRTL ? "right-0 lg:right-auto" : "left-0 lg:left-auto"}
+  `}
         role="navigation"
         aria-label="Main navigation"
       >
@@ -567,16 +602,26 @@ export const EnhancedBilingualSidebar = ({
         >
           <div
             className={`flex items-center gap-3 ${
-              isRTL ? "flex-row-reverse" : ""
-            } ${isCollapsed ? "justify-center" : ""}`}
+              isCollapsed ? "justify-center" : ""
+            }`}
           >
-            <div className="w-10 h-10 bg-white/95 rounded-xl flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform duration-200">
-              {/* <Building2 className="w-6 h-6 text-green-800" /> */}
-              <img src="./logo.jpg" alt="" className="w-12 h-12 rounded-xl" />
+            <div
+              className={`${
+                isRTL ? "order-2" : "order-1"
+              } w-10 h-10 bg-white/95 rounded-xl flex items-center justify-center shadow-lg hover:scale-105 transition-transform duration-200`}
+            >
+              <img
+                src="./logo.jpg"
+                alt="logo"
+                className="w-12 h-12 rounded-xl"
+              />
             </div>
-
             {!isCollapsed && (
-              <div className={isRTL ? "text-right" : "text-left"}>
+              <div
+                className={`flex-1 ${
+                  isRTL ? "order-1 text-right" : "order-2 text-left"
+                }`}
+              >
                 <BilingualText
                   en={companyInfo?.companyNameEn}
                   ar={companyInfo?.companyNameAr}
@@ -596,18 +641,22 @@ export const EnhancedBilingualSidebar = ({
           {/* User Info */}
           {!isCollapsed && user && (
             <div className="mt-4 p-3 bg-green-700/80 rounded-xl border border-green-600/30 backdrop-blur-sm">
-              <div
-                className={`flex items-center gap-2 ${
-                  isRTL ? "flex-row-reverse" : ""
-                }`}
-              >
-                <User className="w-4 h-4 text-green-200/90" />
-                <div className={isRTL ? "text-right" : "text-left"}>
+              <div className="flex items-center gap-2">
+                <div
+                  className={`${isRTL ? "order-2" : "order-1"} flex-shrink-0`}
+                >
+                  <User className="w-4 h-4 text-green-200/90" />
+                </div>
+                <div
+                  className={`flex-1 ${
+                    isRTL ? "order-1 text-right" : "order-2 text-left"
+                  }`}
+                >
                   <div className="text-sm font-semibold tracking-tight">
-                    {user.username}
+                    {isRTL ? matchedUser?.nameAr : matchedUser?.nameEn}
                   </div>
                   <div className="text-xs text-green-200/80 font-medium">
-                    {user.role}
+                    {matchedUser?.role}
                   </div>
                 </div>
               </div>
@@ -639,7 +688,10 @@ export const EnhancedBilingualSidebar = ({
         </header>
 
         {/* Navigation Menu */}
-        <nav className="flex-1 p-4 overflow-y-auto" role="menubar">
+        <nav
+          className="flex-1 p-4 overflow-y-auto sidebar-scroll"
+          role="menubar"
+        >
           <div className="space-y-2">{menuSections.map(renderSection)}</div>
         </nav>
 
@@ -652,15 +704,25 @@ export const EnhancedBilingualSidebar = ({
           {user ? (
             <button
               onClick={() => setShowLogoutConfirm(true)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-green-100/90 hover:bg-green-700/60 transition-all duration-200 hover:shadow-md group ${
-                isRTL ? "flex-row-reverse" : ""
-              } ${isCollapsed ? "justify-center px-2" : ""}`}
+              className={`w-full flex items-center px-4 py-3 rounded-xl text-green-100/90 
+      hover:bg-green-700/60 transition-all duration-200 hover:shadow-md group
+      ${isCollapsed ? "justify-center px-2" : "justify-start"}
+    `}
               title={isCollapsed ? t("nav.signOut", "Sign Out") : undefined}
               aria-label="Sign out"
             >
-              <LogOut className="w-5 h-5" />
+              {/* Icon */}
+              <div className={`${isRTL ? "order-2" : "order-1"} flex-shrink-0`}>
+                <LogOut className="w-5 h-5" />
+              </div>
+
+              {/* Text */}
               {!isCollapsed && (
-                <span className="font-medium tracking-tight">
+                <span
+                  className={`font-medium tracking-tight flex-1 ${
+                    isRTL ? "order-1 text-right ml-3" : "order-2 text-left ml-3"
+                  }`}
+                >
                   <BilingualText en="Sign Out" ar="تسجيل الخروج" />
                 </span>
               )}

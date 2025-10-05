@@ -38,7 +38,7 @@ import {
 import { notificationManager } from "../../services/NotificationEngine.js";
 import { NotificationApiService } from "../../services/notificationApi.js";
 
-export const NotificationCenter = ({ isArabic, currentUserId }) => {
+export const NotificationCenter = ({ isArabic, currentUserId, isRTL }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [filter, setFilter] = useState("all");
@@ -54,7 +54,7 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
     page: 1,
     limit: 20,
     total: 0,
-    pages: 0
+    pages: 0,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -67,34 +67,31 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
   const debounceTimeoutRef = useRef(null);
 
   useEffect(() => {
-    mountedRef.current = true;   // ✅ mark as mounted
+    mountedRef.current = true; // ✅ mark as mounted
 
     return () => {
-      mountedRef.current = false;  // ✅ cleanup on unmount
+      mountedRef.current = false; // ✅ cleanup on unmount
       if (debounceTimeoutRef.current) {
         clearTimeout(debounceTimeoutRef.current);
       }
     };
   }, []);
 
-
-
-
   // Debounced search function
-  const debouncedSearch = useCallback((searchValue) => {
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
-    }
-
-    debounceTimeoutRef.current = setTimeout(() => {
-      if (mountedRef.current && searchValue !== searchTerm) {
-        setSearchTerm(searchValue);
+  const debouncedSearch = useCallback(
+    (searchValue) => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
       }
-    }, 300);
-  }, [searchTerm]);
 
-
-
+      debounceTimeoutRef.current = setTimeout(() => {
+        if (mountedRef.current && searchValue !== searchTerm) {
+          setSearchTerm(searchValue);
+        }
+      }, 300);
+    },
+    [searchTerm]
+  );
 
   // Load notifications from API with proper error handling and loading state
   const loadNotifications = useCallback(
@@ -140,7 +137,6 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
             }));
             console.log("Fetched notifications:", transformedNotifications);
             console.log("Pagination:", response.data.pagination);
-
           } else {
             console.log("No new notifications (304)");
           }
@@ -167,8 +163,6 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
     },
     [pagination.limit] // ✅ only depend on limit
   );
-
-
 
   // Load unread count with proper error handling
   const loadUnreadCount = useCallback(async () => {
@@ -211,12 +205,12 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
 
       try {
         await Promise.all([
-          loadNotifications(1, 'all', ''),
+          loadNotifications(1, "all", ""),
           loadUnreadCount(),
-          loadStats()
+          loadStats(),
         ]);
       } catch (error) {
-        console.error('Initial load failed:', error);
+        console.error("Initial load failed:", error);
       }
     };
 
@@ -230,7 +224,7 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
   // Handle filter changes (reset to first page)
   useEffect(() => {
     if (mountedRef.current) {
-      setPagination(prev => ({ ...prev, page: 1 }));
+      setPagination((prev) => ({ ...prev, page: 1 }));
       loadNotifications(1, filter, searchTerm);
     }
   }, [filter]);
@@ -238,7 +232,7 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
   // Handle search changes (reset to first page)
   useEffect(() => {
     if (mountedRef.current) {
-      setPagination(prev => ({ ...prev, page: 1 }));
+      setPagination((prev) => ({ ...prev, page: 1 }));
       loadNotifications(1, filter, searchTerm);
     }
   }, [searchTerm]);
@@ -266,16 +260,28 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
     };
 
     try {
-      notificationManager.addEventListener("notification-processed", handleNewNotification);
-      notificationManager.addEventListener("delivery-updated", handleDeliveryUpdate);
+      notificationManager.addEventListener(
+        "notification-processed",
+        handleNewNotification
+      );
+      notificationManager.addEventListener(
+        "delivery-updated",
+        handleDeliveryUpdate
+      );
     } catch (error) {
       console.error("Failed to setup notification listeners:", error);
     }
 
     return () => {
       try {
-        notificationManager.removeEventListener("notification-processed", handleNewNotification);
-        notificationManager.removeEventListener("delivery-updated", handleDeliveryUpdate);
+        notificationManager.removeEventListener(
+          "notification-processed",
+          handleNewNotification
+        );
+        notificationManager.removeEventListener(
+          "delivery-updated",
+          handleDeliveryUpdate
+        );
       } catch (error) {
         console.error("Failed to cleanup notification listeners:", error);
       }
@@ -311,8 +317,8 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
         "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT"
       );
       audio.volume = 0.3;
-      audio.play().catch(() => { });
-    } catch (error) { }
+      audio.play().catch(() => {});
+    } catch (error) {}
   };
 
   const markAsRead = async (notificationId) => {
@@ -320,8 +326,8 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
       const response = await NotificationApiService.markAsRead(notificationId);
       if (response.success && mountedRef.current) {
         // Update local state optimistically
-        setNotifications(prev =>
-          prev.map(n =>
+        setNotifications((prev) =>
+          prev.map((n) =>
             n.id === notificationId
               ? { ...n, read: true, readAt: new Date().toISOString() }
               : n
@@ -347,7 +353,7 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
         // Refresh notifications and unread count
         await Promise.all([
           loadNotifications(pagination.page, filter, searchTerm),
-          loadUnreadCount()
+          loadUnreadCount(),
         ]);
       }
     } catch (error) {
@@ -368,9 +374,10 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
       const response = await NotificationApiService.toggleStar(notificationId);
       if (response.success && mountedRef.current) {
         // Update local state optimistically
-        const updatedNotification = NotificationApiService.transformNotification(response.data);
-        setNotifications(prev =>
-          prev.map(n => (n.id === notificationId ? updatedNotification : n))
+        const updatedNotification =
+          NotificationApiService.transformNotification(response.data);
+        setNotifications((prev) =>
+          prev.map((n) => (n.id === notificationId ? updatedNotification : n))
         );
       }
     } catch (error) {
@@ -380,13 +387,17 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
 
   const archiveNotification = async (notificationId) => {
     try {
-      const response = await NotificationApiService.archiveNotification(notificationId);
+      const response = await NotificationApiService.archiveNotification(
+        notificationId
+      );
       if (response.success && mountedRef.current) {
         // Remove from current view or update based on filter
-        if (filter === 'archived') {
+        if (filter === "archived") {
           loadNotifications(pagination.page, filter, searchTerm);
         } else {
-          setNotifications(prev => prev.filter(n => n.id !== notificationId));
+          setNotifications((prev) =>
+            prev.filter((n) => n.id !== notificationId)
+          );
         }
         loadUnreadCount();
       }
@@ -397,9 +408,11 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
 
   const deleteNotification = async (notificationId) => {
     try {
-      const response = await NotificationApiService.deleteNotification(notificationId);
+      const response = await NotificationApiService.deleteNotification(
+        notificationId
+      );
       if (response.success && mountedRef.current) {
-        setNotifications(prev => prev.filter(n => n.id !== notificationId));
+        setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
         loadUnreadCount();
       }
     } catch (error) {
@@ -414,13 +427,16 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
       loadingRef.current = true;
       setLoading(true);
       const notificationIds = Array.from(selectedNotifications);
-      const response = await NotificationApiService.bulkOperation(action, notificationIds);
+      const response = await NotificationApiService.bulkOperation(
+        action,
+        notificationIds
+      );
 
       if (response.success && mountedRef.current) {
         setSelectedNotifications(new Set());
         await Promise.all([
           loadNotifications(pagination.page, filter, searchTerm),
-          loadUnreadCount()
+          loadUnreadCount(),
         ]);
       }
     } catch (error) {
@@ -437,8 +453,13 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
   };
 
   const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= pagination.pages && newPage !== pagination.page && !loadingRef.current) {
-      setPagination(prev => ({ ...prev, page: newPage }));
+    if (
+      newPage >= 1 &&
+      newPage <= pagination.pages &&
+      newPage !== pagination.page &&
+      !loadingRef.current
+    ) {
+      setPagination((prev) => ({ ...prev, page: newPage }));
       loadNotifications(newPage, filter, searchTerm);
     }
   };
@@ -521,7 +542,9 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-        aria-label={`Notifications ${unreadCount > 0 ? `(${unreadCount} unread)` : ""}`}
+        aria-label={`Notifications ${
+          unreadCount > 0 ? `(${unreadCount} unread)` : ""
+        }`}
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
@@ -539,7 +562,9 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
       {/* Notification Panel */}
       {isOpen && (
         <div
-          className="absolute right-0 top-full mt-2 w-96 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 max-h-[600px] overflow-hidden"
+          className={`absolute ${
+            isRTL ? "left-0" : "right-0"
+          } top-full mt-2 w-96 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 max-h-[600px] overflow-hidden`}
           role="dialog"
           aria-label="Notification center"
           aria-modal="false"
@@ -557,14 +582,24 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
                   className="p-1 text-gray-500 hover:text-gray-700 rounded disabled:opacity-50"
                   aria-label="Refresh notifications"
                 >
-                  <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                  <RefreshCw
+                    className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
+                  />
                 </button>
                 <button
                   onClick={() => setSoundEnabled(!soundEnabled)}
                   className="p-1 text-gray-500 hover:text-gray-700 rounded"
-                  aria-label={soundEnabled ? "Disable notification sound" : "Enable notification sound"}
+                  aria-label={
+                    soundEnabled
+                      ? "Disable notification sound"
+                      : "Enable notification sound"
+                  }
                 >
-                  {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                  {soundEnabled ? (
+                    <Volume2 className="w-4 h-4" />
+                  ) : (
+                    <VolumeX className="w-4 h-4" />
+                  )}
                 </button>
                 <button
                   onClick={() => setShowSettings(!showSettings)}
@@ -586,40 +621,53 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
             {/* Search and Filters */}
             <div className="space-y-3">
               <div className="relative">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <Search
+                  className={`w-4 h-4 absolute  left-3 ${
+                    isRTL ? "top-3" : "top-1/2"
+                  }  transform -translate-y-1/2 text-gray-400`}
+                />
                 <input
                   type="text"
-                  placeholder={isArabic ? "البحث في التنبيهات..." : "Search notifications..."}
+                  placeholder={
+                    isArabic
+                      ? "البحث في التنبيهات..."
+                      : "Search notifications..."
+                  }
                   onChange={handleSearchChange}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm"
+                  className={`w-full pl-10 pr-4 ${
+                    isRTL && "placeholder:pr-3"
+                  } py-2 border border-gray-300 rounded-lg text-sm`}
                 />
               </div>
 
               <div className="flex gap-2">
                 <button
                   onClick={() => setFilter("all")}
-                  className={`px-3 py-1 text-xs rounded-full transition-colors ${filter === "all"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                    }`}
+                  className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                    filter === "all"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
                 >
                   {isArabic ? "الكل" : "All"} ({stats.total || 0})
                 </button>
                 <button
                   onClick={() => setFilter("unread")}
-                  className={`px-3 py-1 text-xs rounded-full transition-colors ${filter === "unread"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                    }`}
+                  className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                    filter === "unread"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
                 >
                   {isArabic ? "غير مقروء" : "Unread"} ({stats.unread || 0})
                 </button>
                 <button
                   onClick={() => setFilter("starred")}
-                  className={`px-3 py-1 text-xs rounded-full transition-colors ${filter === "starred"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                    }`}
+                  className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                    filter === "starred"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
                 >
                   {isArabic ? "مميز" : "Starred"} ({stats.starred || 0})
                 </button>
@@ -699,7 +747,10 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
                 </h5>
                 <div className="space-y-2">
                   {channelHealth.map((channel) => (
-                    <div key={channel.channelId} className="flex items-center justify-between text-sm">
+                    <div
+                      key={channel.channelId}
+                      className="flex items-center justify-between text-sm"
+                    >
                       <div className="flex items-center gap-2">
                         {getChannelIcon(channel.channelId.split("_")[0])}
                         <span className="capitalize">
@@ -725,19 +776,33 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
                 </h5>
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div className="bg-white p-2 rounded">
-                    <div className="text-gray-600">{isArabic ? "المرسل" : "Sent"}</div>
-                    <div className="font-semibold text-blue-600">{deliveryStats.sent || 0}</div>
+                    <div className="text-gray-600">
+                      {isArabic ? "المرسل" : "Sent"}
+                    </div>
+                    <div className="font-semibold text-blue-600">
+                      {deliveryStats.sent || 0}
+                    </div>
                   </div>
                   <div className="bg-white p-2 rounded">
-                    <div className="text-gray-600">{isArabic ? "المسلم" : "Delivered"}</div>
-                    <div className="font-semibold text-green-600">{deliveryStats.delivered || 0}</div>
+                    <div className="text-gray-600">
+                      {isArabic ? "المسلم" : "Delivered"}
+                    </div>
+                    <div className="font-semibold text-green-600">
+                      {deliveryStats.delivered || 0}
+                    </div>
                   </div>
                   <div className="bg-white p-2 rounded">
-                    <div className="text-gray-600">{isArabic ? "الفاشل" : "Failed"}</div>
-                    <div className="font-semibold text-red-600">{deliveryStats.failed || 0}</div>
+                    <div className="text-gray-600">
+                      {isArabic ? "الفاشل" : "Failed"}
+                    </div>
+                    <div className="font-semibold text-red-600">
+                      {deliveryStats.failed || 0}
+                    </div>
                   </div>
                   <div className="bg-white p-2 rounded">
-                    <div className="text-gray-600">{isArabic ? "متوسط الوقت" : "Avg Time"}</div>
+                    <div className="text-gray-600">
+                      {isArabic ? "متوسط الوقت" : "Avg Time"}
+                    </div>
                     <div className="font-semibold text-purple-600">
                       {deliveryStats.avgDeliveryTime
                         ? `${Math.round(deliveryStats.avgDeliveryTime / 1000)}s`
@@ -754,12 +819,14 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
                 </span>
                 <button
                   onClick={() => setSoundEnabled(!soundEnabled)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${soundEnabled ? "bg-blue-600" : "bg-gray-200"
-                    }`}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    soundEnabled ? "bg-blue-600" : "bg-gray-200"
+                  }`}
                 >
                   <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${soundEnabled ? "translate-x-6" : "translate-x-1"
-                      }`}
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      soundEnabled ? "translate-x-6" : "translate-x-1"
+                    }`}
                   />
                 </button>
               </div>
@@ -772,7 +839,9 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
               <div className="p-8 text-center">
                 <Loader2 className="w-8 h-8 text-blue-500 animate-spin mx-auto mb-3" />
                 <p className="text-gray-500">
-                  {isArabic ? "جاري تحميل التنبيهات..." : "Loading notifications..."}
+                  {isArabic
+                    ? "جاري تحميل التنبيهات..."
+                    : "Loading notifications..."}
                 </p>
               </div>
             ) : notifications.length === 0 ? (
@@ -784,8 +853,8 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
                       ? "لا توجد نتائج للبحث"
                       : "No search results"
                     : isArabic
-                      ? "لا توجد تنبيهات"
-                      : "No notifications"}
+                    ? "لا توجد تنبيهات"
+                    : "No notifications"}
                 </p>
                 <p className="text-sm text-gray-400">
                   {searchTerm
@@ -793,8 +862,8 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
                       ? "جرب مصطلح بحث مختلف"
                       : "Try a different search term"
                     : isArabic
-                      ? "ستظهر التنبيهات الجديدة هنا"
-                      : "New notifications will appear here"}
+                    ? "ستظهر التنبيهات الجديدة هنا"
+                    : "New notifications will appear here"}
                 </p>
               </div>
             ) : (
@@ -829,14 +898,18 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
                             <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
                           )}
                           <span className="text-xs text-gray-500">
-                            {new Date(notification.timestamp).toLocaleTimeString(
-                              isArabic ? 'ar' : 'en',
-                              { hour: '2-digit', minute: '2-digit' }
-                            )}
+                            {new Date(
+                              notification.timestamp
+                            ).toLocaleTimeString(isArabic ? "ar" : "en", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
                           </span>
                           {notification.sender && (
                             <span className="text-xs text-gray-500 italic">
-                              {isArabic ? "من" : "from"} {notification.sender.name || notification.sender.email}
+                              {isArabic ? "من" : "from"}{" "}
+                              {notification.sender.name ||
+                                notification.sender.email}
                             </span>
                           )}
                         </div>
@@ -848,41 +921,47 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
                         )}
 
                         <p className="text-sm text-gray-700 line-clamp-2">
-                          {notification.content?.body || 'No content available'}
+                          {notification.content?.body || "No content available"}
                         </p>
 
-                        {notification.actions && notification.actions.length > 0 && (
-                          <div className="mt-2 flex gap-2">
-                            {notification.actions.map((action) => (
-                              <button
-                                key={action.id}
-                                onClick={() => {
-                                  if (action.url) {
-                                    window.open(action.url, "_blank");
-                                  }
-                                  if (!notification.read) {
-                                    markAsRead(notification.id);
-                                  }
-                                }}
-                                className={`px-3 py-1 text-xs rounded transition-colors ${action.style === "primary"
-                                  ? "bg-blue-600 text-white hover:bg-blue-700"
-                                  : action.style === "danger"
-                                    ? "bg-red-600 text-white hover:bg-red-700"
-                                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                        {notification.actions &&
+                          notification.actions.length > 0 && (
+                            <div className="mt-2 flex gap-2">
+                              {notification.actions.map((action) => (
+                                <button
+                                  key={action.id}
+                                  onClick={() => {
+                                    if (action.url) {
+                                      window.open(action.url, "_blank");
+                                    }
+                                    if (!notification.read) {
+                                      markAsRead(notification.id);
+                                    }
+                                  }}
+                                  className={`px-3 py-1 text-xs rounded transition-colors ${
+                                    action.style === "primary"
+                                      ? "bg-blue-600 text-white hover:bg-blue-700"
+                                      : action.style === "danger"
+                                      ? "bg-red-600 text-white hover:bg-red-700"
+                                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                                   }`}
-                              >
-                                {isArabic ? action.labelAr || action.label : action.label}
-                              </button>
-                            ))}
-                          </div>
-                        )}
+                                >
+                                  {isArabic
+                                    ? action.labelAr || action.label
+                                    : action.label}
+                                </button>
+                              ))}
+                            </div>
+                          )}
                       </div>
 
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => toggleStar(notification.id)}
                           className="p-1 text-gray-400 hover:text-yellow-500 rounded"
-                          aria-label={notification.starred ? "Remove star" : "Add star"}
+                          aria-label={
+                            notification.starred ? "Remove star" : "Add star"
+                          }
                         >
                           {notification.starred ? (
                             <Star className="w-4 h-4 text-yellow-500 fill-current" />
@@ -904,7 +983,9 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
                               {notification.read ? (
                                 <>
                                   <EyeOff className="w-3 h-3" />
-                                  {isArabic ? "تحديد كغير مقروء" : "Mark unread"}
+                                  {isArabic
+                                    ? "تحديد كغير مقروء"
+                                    : "Mark unread"}
                                 </>
                               ) : (
                                 <>
@@ -914,14 +995,18 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
                               )}
                             </button>
                             <button
-                              onClick={() => archiveNotification(notification.id)}
+                              onClick={() =>
+                                archiveNotification(notification.id)
+                              }
                               className="w-full px-3 py-1 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
                             >
                               <Archive className="w-3 h-3" />
                               {isArabic ? "أرشفة" : "Archive"}
                             </button>
                             <button
-                              onClick={() => deleteNotification(notification.id)}
+                              onClick={() =>
+                                deleteNotification(notification.id)
+                              }
                               className="w-full px-3 py-1 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
                             >
                               <Trash2 className="w-3 h-3" />
@@ -942,7 +1027,8 @@ export const NotificationCenter = ({ isArabic, currentUserId }) => {
             <div className="p-3 border-t border-gray-200 bg-gray-50">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-500">
-                  {isArabic ? "صفحة" : "Page"} {pagination.page} {isArabic ? "من" : "of"} {pagination.pages}
+                  {isArabic ? "صفحة" : "Page"} {pagination.page}{" "}
+                  {isArabic ? "من" : "of"} {pagination.pages}
                 </span>
                 <div className="flex items-center gap-1">
                   <button

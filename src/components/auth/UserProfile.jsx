@@ -25,7 +25,6 @@ export const UserProfile = ({ isArabic = false, onClose }) => {
 
   if (!user) return null;
 
-  // 🔹 Fetch Users on mount
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -43,7 +42,7 @@ export const UserProfile = ({ isArabic = false, onClose }) => {
   // console.log("user", user);
 
   const matchedUser = users.find((u) => u.email === user.email);
-  // console.log("muser", matchedUser?);
+  // console.log("muser", matchedUser);
 
   const handleSave = () => {
     // In production, this would make an API call to update user data
