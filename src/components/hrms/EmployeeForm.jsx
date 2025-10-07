@@ -77,7 +77,10 @@ const EmployeeForm = ({
     if (!value) return null;
 
     // If it’s a BSON Decimal128 object
-    if (typeof value.toString === "function" && value._bsontype === "Decimal128") {
+    if (
+      typeof value.toString === "function" &&
+      value._bsontype === "Decimal128"
+    ) {
       return parseFloat(value.toString());
     }
 
@@ -92,7 +95,6 @@ const EmployeeForm = ({
 
     return null;
   }
-
 
   const [formData, setFormData] = useState({
     // Personal Information
@@ -128,7 +130,8 @@ const EmployeeForm = ({
     baseSalary: employee?.professionalInfo?.salaryInfo?.baseSalary || 0,
     hourly_rate: employee?.professionalInfo?.salaryInfo?.hourly_rate || 0,
     actual_rate: employee?.professionalInfo?.salaryInfo?.actual_rate || 0,
-    overtimeMultiplier: employee?.professionalInfo?.salaryInfo?.overtimeMultiplier || 0,
+    overtimeMultiplier:
+      employee?.professionalInfo?.salaryInfo?.overtimeMultiplier || 0,
     currency: employee?.professionalInfo?.salaryInfo?.currency || "SAR",
 
     // Emergency Contact
@@ -142,7 +145,6 @@ const EmployeeForm = ({
 
     // pass team Id
     teamId: employee?.team_id,
-
   });
 
   const [errors, setErrors] = useState({});
@@ -249,14 +251,14 @@ const EmployeeForm = ({
         },
         emergencyContacts: formData.emergencyName
           ? [
-            {
-              name: formData.emergencyName,
-              relationship: formData.emergencyRelationship,
-              phone: formData.emergencyPhone,
-              email: formData.emergencyEmail,
-              isPrimary: true,
-            },
-          ]
+              {
+                name: formData.emergencyName,
+                relationship: formData.emergencyRelationship,
+                phone: formData.emergencyPhone,
+                email: formData.emergencyEmail,
+                isPrimary: true,
+              },
+            ]
           : [],
         status: formData.status,
         teamId: formData.teamId, // Include teamId
@@ -296,8 +298,8 @@ const EmployeeForm = ({
                 ? "تعديل موظف"
                 : "Edit Employee"
               : isArabic
-                ? "إضافة موظف جديد"
-                : "Add New Employee"}
+              ? "إضافة موظف جديد"
+              : "Add New Employee"}
           </h2>
           <button
             onClick={onClose}
@@ -763,7 +765,9 @@ const EmployeeForm = ({
               </FormField>
 
               <FormField
-                label={isArabic ? "الراتب الأساسي" : "OvertimeMultiplier Salary"}
+                label={
+                  isArabic ? "الراتب الأساسي" : "OvertimeMultiplier Salary"
+                }
                 error={errors.overtimeMultiplier}
                 isArabic={isArabic}
               >
@@ -1016,9 +1020,7 @@ const EmployeeForm = ({
               >
                 <select
                   value={formData.teamId}
-                  onChange={(e) =>
-                    handleInputChange("teamId", e.target.value)
-                  }
+                  onChange={(e) => handleInputChange("teamId", e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">
@@ -1033,8 +1035,6 @@ const EmployeeForm = ({
               </FormField>
             </div>
           </FormSection>
-
-
         </form>
 
         {/* Footer */}
