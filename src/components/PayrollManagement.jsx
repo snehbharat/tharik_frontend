@@ -31,11 +31,10 @@ import {
 import { generateSampleDataApi } from "../data/sampleData";
 
 export const PayrollManagement = ({ isArabic }) => {
-
   const getCurrentMonth = () => {
     const now = new Date();
     const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, "0");
     return `${year}-${month}`;
   };
 
@@ -47,23 +46,47 @@ export const PayrollManagement = ({ isArabic }) => {
     for (let i = 0; i < 3; i++) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, "0");
       const monthValue = `${year}-${month}`;
 
       // Month names in English and Arabic
       const monthNames = {
-        en: ['January', 'February', 'March', 'April', 'May', 'June',
-          'July', 'August', 'September', 'October', 'November', 'December'],
-        ar: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
-          'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر']
+        en: [
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December",
+        ],
+        ar: [
+          "يناير",
+          "فبراير",
+          "مارس",
+          "أبريل",
+          "مايو",
+          "يونيو",
+          "يوليو",
+          "أغسطس",
+          "سبتمبر",
+          "أكتوبر",
+          "نوفمبر",
+          "ديسمبر",
+        ],
       };
 
-      const monthName = monthNames[isArabic ? 'ar' : 'en'][date.getMonth()];
+      const monthName = monthNames[isArabic ? "ar" : "en"][date.getMonth()];
       const displayName = `${monthName} ${year}`;
 
       options.push({
         value: monthValue,
-        label: displayName
+        label: displayName,
       });
     }
 
@@ -131,7 +154,6 @@ export const PayrollManagement = ({ isArabic }) => {
     const projectGroups = new Map();
 
     employees.forEach((employee) => {
-
       const employeeAttendance = monthAttendance.filter(
         (record) => record.employeeId === employee.employeeId
       );
@@ -335,7 +357,13 @@ export const PayrollManagement = ({ isArabic }) => {
     }
 
     return filtered;
-  }, [payrollData.allEmployees, selectedProject, searchTerm, employees, loading]);
+  }, [
+    payrollData.allEmployees,
+    selectedProject,
+    searchTerm,
+    employees,
+    loading,
+  ]);
 
   // Show loading state
   if (loading) {
@@ -344,7 +372,9 @@ export const PayrollManagement = ({ isArabic }) => {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">
-            {isArabic ? "جاري تحميل بيانات الرواتب..." : "Loading payroll data..."}
+            {isArabic
+              ? "جاري تحميل بيانات الرواتب..."
+              : "Loading payroll data..."}
           </p>
         </div>
       </div>
@@ -563,10 +593,12 @@ export const PayrollManagement = ({ isArabic }) => {
         payslipContent += `Month: ${selectedMonth}\n\n`;
 
         payslipContent += `EARNINGS:\n`;
-        payslipContent += `Regular Hours (${emp.regularHours
-          }h): ${emp.regularPay.toFixed(2)} SAR\n`;
-        payslipContent += `Overtime Hours (${emp.overtimeHours
-          }h): ${emp.overtimePay.toFixed(2)} SAR\n`;
+        payslipContent += `Regular Hours (${
+          emp.regularHours
+        }h): ${emp.regularPay.toFixed(2)} SAR\n`;
+        payslipContent += `Overtime Hours (${
+          emp.overtimeHours
+        }h): ${emp.overtimePay.toFixed(2)} SAR\n`;
         payslipContent += `Gross Pay: ${emp.grossPay.toFixed(2)} SAR\n\n`;
 
         payslipContent += `DEDUCTIONS:\n`;
@@ -661,7 +693,9 @@ export const PayrollManagement = ({ isArabic }) => {
           <button
             onClick={handleExportPayroll}
             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-            aria-label={isArabic ? "تصدير بيانات الرواتب" : "Export Payroll Data"}
+            aria-label={
+              isArabic ? "تصدير بيانات الرواتب" : "Export Payroll Data"
+            }
           >
             <Download className="w-4 h-4" />
             {isArabic ? "تصدير" : "Export"}
@@ -793,11 +827,14 @@ export const PayrollManagement = ({ isArabic }) => {
           <nav className="flex">
             <button
               onClick={() => setActiveView("summary")}
-              className={`px-6 py-4 font-medium transition-colors ${activeView === "summary"
-                ? "text-green-600 border-b-2 border-green-600"
-                : "text-gray-500 hover:text-gray-700"
-                }`}
-              aria-label={isArabic ? "عرض ملخص الرواتب" : "View Payroll Summary"}
+              className={`px-6 py-4 font-medium transition-colors ${
+                activeView === "summary"
+                  ? "text-green-600 border-b-2 border-green-600"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+              aria-label={
+                isArabic ? "عرض ملخص الرواتب" : "View Payroll Summary"
+              }
             >
               <div className="flex items-center gap-2">
                 <Calculator className="w-4 h-4" />
@@ -806,11 +843,14 @@ export const PayrollManagement = ({ isArabic }) => {
             </button>
             <button
               onClick={() => setActiveView("projects")}
-              className={`px-6 py-4 font-medium transition-colors ${activeView === "projects"
-                ? "text-green-600 border-b-2 border-green-600"
-                : "text-gray-500 hover:text-gray-700"
-                }`}
-              aria-label={isArabic ? "عرض رواتب المشاريع" : "View Project Payrolls"}
+              className={`px-6 py-4 font-medium transition-colors ${
+                activeView === "projects"
+                  ? "text-green-600 border-b-2 border-green-600"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+              aria-label={
+                isArabic ? "عرض رواتب المشاريع" : "View Project Payrolls"
+              }
             >
               <div className="flex items-center gap-2">
                 <Building2 className="w-4 h-4" />
@@ -819,11 +859,14 @@ export const PayrollManagement = ({ isArabic }) => {
             </button>
             <button
               onClick={() => setActiveView("employees")}
-              className={`px-6 py-4 font-medium transition-colors ${activeView === "employees"
-                ? "text-green-600 border-b-2 border-green-600"
-                : "text-gray-500 hover:text-gray-700"
-                }`}
-              aria-label={isArabic ? "عرض رواتب الموظفين" : "View Employee Payroll"}
+              className={`px-6 py-4 font-medium transition-colors ${
+                activeView === "employees"
+                  ? "text-green-600 border-b-2 border-green-600"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+              aria-label={
+                isArabic ? "عرض رواتب الموظفين" : "View Employee Payroll"
+              }
             >
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4" />
@@ -832,11 +875,14 @@ export const PayrollManagement = ({ isArabic }) => {
             </button>
             <button
               onClick={() => setActiveView("billing")}
-              className={`px-6 py-4 font-medium transition-colors ${activeView === "billing"
-                ? "text-green-600 border-b-2 border-green-600"
-                : "text-gray-500 hover:text-gray-700"
-                }`}
-              aria-label={isArabic ? "عرض فوترة العملاء" : "View Client Billing"}
+              className={`px-6 py-4 font-medium transition-colors ${
+                activeView === "billing"
+                  ? "text-green-600 border-b-2 border-green-600"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+              aria-label={
+                isArabic ? "عرض فوترة العملاء" : "View Client Billing"
+              }
             >
               <div className="flex items-center gap-2">
                 <FileText className="w-4 h-4" />
@@ -880,9 +926,7 @@ export const PayrollManagement = ({ isArabic }) => {
                       </span>
                       {/* +payrollSummary.totalGosiContributions */}
                       <span className="font-bold text-green-900">
-                        {formatCurrency(
-                          payrollSummary.totalGrossPay
-                        )}
+                        {formatCurrency(payrollSummary.totalGrossPay)}
                       </span>
                     </div>
                   </div>
@@ -909,7 +953,7 @@ export const PayrollManagement = ({ isArabic }) => {
                         {formatCurrency(
                           payrollSummary.totalHours > 0
                             ? payrollSummary.totalClientBilling /
-                            payrollSummary.totalHours
+                                payrollSummary.totalHours
                             : 0
                         )}
                       </span>
@@ -954,7 +998,7 @@ export const PayrollManagement = ({ isArabic }) => {
                         {formatCurrency(
                           payrollSummary.totalEmployees > 0
                             ? payrollSummary.totalProfitGenerated /
-                            payrollSummary.totalEmployees
+                                payrollSummary.totalEmployees
                             : 0
                         )}
                       </span>
@@ -1136,7 +1180,9 @@ export const PayrollManagement = ({ isArabic }) => {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full"
-                    aria-label={isArabic ? "البحث في الموظفين" : "Search employees"}
+                    aria-label={
+                      isArabic ? "البحث في الموظفين" : "Search employees"
+                    }
                   />
                 </div>
                 <select
@@ -1543,10 +1589,10 @@ export const PayrollManagement = ({ isArabic }) => {
                     <div className="text-xs text-gray-500">
                       {selectedEmployee.clientBilling > 0
                         ? (
-                          (selectedEmployee.profitGenerated /
-                            selectedEmployee.clientBilling) *
-                          100
-                        ).toFixed(1)
+                            (selectedEmployee.profitGenerated /
+                              selectedEmployee.clientBilling) *
+                            100
+                          ).toFixed(1)
                         : 0}
                       % {isArabic ? "هامش" : "margin"}
                     </div>

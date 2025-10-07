@@ -44,6 +44,7 @@ import EmployeeService, {
   getEmployees,
 } from "../services/EmployeeService";
 import ScheduleTaskService from "../services/ScheduleTaskService";
+import UserService from "../services/UserService";
 
 export const OperationsDepartment = ({ isArabic }) => {
   const [activeTab, setActiveTab] = useState("projects");
@@ -80,6 +81,7 @@ export const OperationsDepartment = ({ isArabic }) => {
     limit: 10,
     totalPages: 1,
   });
+  console.log("sup", supervisors);
 
   const fetchEmployees = async () => {
     try {
@@ -221,14 +223,34 @@ export const OperationsDepartment = ({ isArabic }) => {
   const fetchSupervisor = async (page = 1) => {
     try {
       setLoading(true);
-      const res = await employeeService.getAllEmployees();
 
-      // Filter only active projects
-      const supervisors =
+      // Fetch employees and users
+      const res = await employeeService.getAllEmployees();
+      const res2 = await UserService.getAllUsers();
+      console.log(res2.data, "res2");
+
+      // Filter employees with jobTitle "Supervisor"
+      const supervisorsFromEmployees =
         res?.data?.employees?.filter(
           (employee) => employee?.professionalInfo?.jobTitle === "Supervisor"
         ) || [];
-      setSupervisors(supervisors);
+
+      // Filter users from res2 with role "Operations Supervisor" or "Project Supervisor"
+      const supervisorsFromUsers =
+        res2?.data?.filter(
+          (user) =>
+            user?.role === "Operations Supervisor" ||
+            user?.role === "Project Supervisor"
+        ) || [];
+
+      // Merge both arrays
+      const allSupervisors = [
+        ...supervisorsFromEmployees,
+        ...supervisorsFromUsers,
+      ];
+
+      // Update state
+      setSupervisors(allSupervisors);
     } catch (err) {
       console.error("Error fetching employees:", err.message);
       setError("Failed to load employees");
@@ -2476,10 +2498,10 @@ export const OperationsDepartment = ({ isArabic }) => {
                       {isArabic ? "اختر المشرف" : "Select Supervisor"}
                     </option>
                     {supervisors.map((s) => (
-                      <option key={s.id} value={s._id}>
+                      <option key={s.id || s._id} value={s._id}>
                         {isArabic
-                          ? s.personalInfo.fullNameAr
-                          : s.personalInfo.fullName}
+                          ? s.personalInfo?.fullNameAr || s.nameAr
+                          : s.personalInfo?.fullName || s.nameEn}
                       </option>
                     ))}
                   </select>
