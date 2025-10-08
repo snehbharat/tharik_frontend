@@ -81,7 +81,7 @@ export const OperationsDepartment = ({ isArabic }) => {
     limit: 10,
     totalPages: 1,
   });
-  console.log("sup", supervisors);
+  console.log("sup", schedules);
 
   const fetchEmployees = async () => {
     try {
@@ -127,6 +127,7 @@ export const OperationsDepartment = ({ isArabic }) => {
         page,
         pagination.limit
       );
+      console.log("ssss", res);
 
       setSchedules(res?.data?.data || []);
       setPagination({
@@ -223,14 +224,34 @@ export const OperationsDepartment = ({ isArabic }) => {
   const fetchSupervisor = async (page = 1) => {
     try {
       setLoading(true);
-      const res = await employeeService.getAllEmployees();
 
-      // Filter only active projects
-      const supervisors =
+      // Fetch employees and users
+      const res = await employeeService.getAllEmployees();
+      const res2 = await UserService.getAllUsers();
+      console.log(res2.data, "res2");
+
+      // Filter employees with jobTitle "Supervisor"
+      const supervisorsFromEmployees =
         res?.data?.employees?.filter(
           (employee) => employee?.professionalInfo?.jobTitle === "Supervisor"
         ) || [];
-      setSupervisors(supervisors);
+
+      // Filter users from res2 with role "Operations Supervisor" or "Project Supervisor"
+      const supervisorsFromUsers =
+        res2?.data?.filter(
+          (user) =>
+            user?.role === "Operations Supervisor" ||
+            user?.role === "Project Supervisor"
+        ) || [];
+
+      // Merge both arrays
+      const allSupervisors = [
+        ...supervisorsFromEmployees,
+        ...supervisorsFromUsers,
+      ];
+
+      // Update state
+      setSupervisors(allSupervisors);
     } catch (err) {
       console.error("Error fetching employees:", err.message);
       setError("Failed to load employees");
@@ -509,14 +530,16 @@ export const OperationsDepartment = ({ isArabic }) => {
     project: "",
     team: "",
     supervisor: "",
+    supervisorModel: "",
     date: "",
     startTime: "",
     endTime: "",
     location: "",
     workers: 0,
     vehicles: 0,
-    tasks: [""],
+    tasks: [],
     priority: "Medium",
+    status: "Scheduled",
     notes: "",
   });
   const [newTeam, setNewTeam] = useState({
@@ -576,7 +599,7 @@ export const OperationsDepartment = ({ isArabic }) => {
       status: "Scheduled",
     };
 
-    console.log("newS", newSchedule);
+    console.log("newS", schedulePayload);
 
     const payload = {
       project: newSchedule.project,
@@ -601,6 +624,7 @@ export const OperationsDepartment = ({ isArabic }) => {
         project: "",
         team: "",
         supervisor: "",
+        supervisorModel: "",
         date: "",
         startTime: "",
         endTime: "",
@@ -1064,7 +1088,7 @@ export const OperationsDepartment = ({ isArabic }) => {
         </h1>
         <div className="flex items-center gap-3">
           {/* Connection Status Indicator */}
-          <div className="flex items-center gap-2">
+          {/* <div className="flex items-center gap-2">
             <button
               onClick={toggleConnectionStatus}
               className={`p-2 rounded-lg transition-colors ${
@@ -1100,7 +1124,7 @@ export const OperationsDepartment = ({ isArabic }) => {
           >
             <FileText className="w-4 h-4" />
             {isArabic ? "التقرير الشامل" : "Comprehensive Report"}
-          </button>
+          </button> */}
           <button
             onClick={() => setShowNewSchedule(true)}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
@@ -1352,7 +1376,7 @@ export const OperationsDepartment = ({ isArabic }) => {
                 {isArabic ? "فرق" : "Teams"}
               </div>
             </button>
-            <button
+            {/* <button
               onClick={() => setActiveTab("assignments")}
               className={`px-6 py-4 font-medium transition-colors ${
                 activeTab === "assignments"
@@ -1377,7 +1401,7 @@ export const OperationsDepartment = ({ isArabic }) => {
                 <BarChart3 className="w-4 h-4" />
                 {isArabic ? "الأداء" : "Performance"}
               </div>
-            </button>
+            </button> */}
             {/* <button
               onClick={() => setActiveTab("analytics")}
               className={`px-6 py-4 font-medium transition-colors ${
@@ -1960,8 +1984,8 @@ export const OperationsDepartment = ({ isArabic }) => {
                             <div className="flex items-center gap-1">
                               <Users className="w-4 h-4" />
                               <span>
-                                {schedule.supervisor.first_name +
-                                  schedule.supervisor.last_name}
+                                {schedule?.supervisor?.first_name +
+                                  schedule?.supervisor?.last_name}
                               </span>
                             </div>
                             <div className="flex items-center gap-1">
@@ -2464,22 +2488,38 @@ export const OperationsDepartment = ({ isArabic }) => {
                   </label>
                   <select
                     value={newSchedule.supervisor}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const selectedId = e.target.value;
+
+                      const selectedSupervisor = supervisors.find(
+                        (s) => s._id === selectedId || s.id === selectedId
+                      );
+
+                      // detect if supervisor is from "User" model or "Employee"
+                      let supervisorModel = "Employee"; // default
+                      if (
+                        selectedSupervisor?.role === "Operations Supervisor" ||
+                        selectedSupervisor?.role === "Project Supervisor"
+                      ) {
+                        supervisorModel = "User";
+                      }
+
                       setNewSchedule({
                         ...newSchedule,
-                        supervisor: e.target.value,
-                      })
-                    }
+                        supervisor: selectedId,
+                        supervisorModel,
+                      });
+                    }}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
                   >
                     <option value="">
                       {isArabic ? "اختر المشرف" : "Select Supervisor"}
                     </option>
                     {supervisors.map((s) => (
-                      <option key={s.id} value={s._id}>
+                      <option key={s.id || s._id} value={s.id || s._id}>
                         {isArabic
-                          ? s.personalInfo.fullNameAr
-                          : s.personalInfo.fullName}
+                          ? s.personalInfo?.fullNameAr || s.nameAr
+                          : s.personalInfo?.fullName || s.nameEn}
                       </option>
                     ))}
                   </select>
@@ -2845,8 +2885,8 @@ export const OperationsDepartment = ({ isArabic }) => {
                     {supervisors.map((s) => (
                       <option key={s.id} value={s._id}>
                         {isArabic
-                          ? s.personalInfo.fullNameAr
-                          : s.personalInfo.fullName}
+                          ? s.personalInfo?.fullNameAr || s.nameAr
+                          : s.personalInfo?.fullName || s.nameEn}
                       </option>
                     ))}
                   </select>
@@ -3256,10 +3296,7 @@ export const OperationsDepartment = ({ isArabic }) => {
                   <input
                     value={editingTeam.nameAr}
                     onChange={(e) =>
-                      setEditingTeam({
-                        ...editingTeam,
-                        nameAr: e.target.value,
-                      })
+                      setEditingTeam({ ...editingTeam, nameAr: e.target.value })
                     }
                     className={`w-full border rounded-lg px-3 py-2 ${
                       editingTeam.nameAr
@@ -3361,8 +3398,8 @@ export const OperationsDepartment = ({ isArabic }) => {
                 {
                   label: isArabic ? "المشرف" : "Supervisor",
                   value:
-                    viewSchedule.supervisor.first_name +
-                    viewSchedule.supervisor.last_name,
+                    viewSchedule?.supervisor?.first_name +
+                    viewSchedule?.supervisor?.last_name,
                 },
                 {
                   label: isArabic ? "تاريخ المجدول" : "Scheduled Date",
