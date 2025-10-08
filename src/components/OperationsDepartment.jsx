@@ -1960,8 +1960,8 @@ export const OperationsDepartment = ({ isArabic }) => {
                             <div className="flex items-center gap-1">
                               <Users className="w-4 h-4" />
                               <span>
-                                {schedule.supervisor.first_name +
-                                  schedule.supervisor.last_name}
+                                {schedule?.supervisor?.first_name +
+                                  schedule?.supervisor?.last_name}
                               </span>
                             </div>
                             <div className="flex items-center gap-1">
