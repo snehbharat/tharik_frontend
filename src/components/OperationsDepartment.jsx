@@ -1064,7 +1064,7 @@ export const OperationsDepartment = ({ isArabic }) => {
         </h1>
         <div className="flex items-center gap-3">
           {/* Connection Status Indicator */}
-          <div className="flex items-center gap-2">
+          {/* <div className="flex items-center gap-2">
             <button
               onClick={toggleConnectionStatus}
               className={`p-2 rounded-lg transition-colors ${
@@ -1084,23 +1084,23 @@ export const OperationsDepartment = ({ isArabic }) => {
               {isArabic ? "آخر مزامنة:" : "Last sync:"}{" "}
               {lastSync.toLocaleTimeString()}
             </span>
-          </div>
+          </div> */}
 
-          <button
+          {/* <button
             onClick={refreshData}
             className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
           >
             <RefreshCw className="w-4 h-4" />
             {isArabic ? "تحديث" : "Refresh"}
-          </button>
+          </button> */}
 
-          <button
+          {/* <button
             onClick={handleGenerateComprehensiveReport}
             className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
           >
             <FileText className="w-4 h-4" />
             {isArabic ? "التقرير الشامل" : "Comprehensive Report"}
-          </button>
+          </button> */}
           <button
             onClick={() => setShowNewSchedule(true)}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
@@ -1352,7 +1352,7 @@ export const OperationsDepartment = ({ isArabic }) => {
                 {isArabic ? "فرق" : "Teams"}
               </div>
             </button>
-            <button
+            {/* <button
               onClick={() => setActiveTab("assignments")}
               className={`px-6 py-4 font-medium transition-colors ${
                 activeTab === "assignments"
@@ -1364,8 +1364,8 @@ export const OperationsDepartment = ({ isArabic }) => {
                 <Users className="w-4 h-4" />
                 {isArabic ? "المهام اليومية" : "Daily Assignments"}
               </div>
-            </button>
-            <button
+            </button> */}
+            {/* <button
               onClick={() => setActiveTab("performance")}
               className={`px-6 py-4 font-medium transition-colors ${
                 activeTab === "performance"
@@ -1377,7 +1377,7 @@ export const OperationsDepartment = ({ isArabic }) => {
                 <BarChart3 className="w-4 h-4" />
                 {isArabic ? "الأداء" : "Performance"}
               </div>
-            </button>
+            </button> */}
             {/* <button
               onClick={() => setActiveTab("analytics")}
               className={`px-6 py-4 font-medium transition-colors ${

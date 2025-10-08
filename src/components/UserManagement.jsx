@@ -433,7 +433,7 @@ export const UserManagement = ({ isArabic }) => {
                 {isArabic ? "الأدوار" : "Roles"}
               </div>
             </button>
-            <button
+            {/* <button
               onClick={() => setActiveTab("permissions")}
               className={`px-6 py-4 font-medium transition-colors ${
                 activeTab === "permissions"
@@ -445,7 +445,7 @@ export const UserManagement = ({ isArabic }) => {
                 <Key className="w-4 h-4" />
                 {isArabic ? "الصلاحيات" : "Permissions"}
               </div>
-            </button>
+            </button> */}
           </nav>
         </div>
 
