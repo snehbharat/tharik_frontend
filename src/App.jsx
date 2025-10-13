@@ -47,6 +47,7 @@ import PermissionsPage from "./components/PermissionPage";
 import ProjectServiceClient from "./services/ProjectServiceClient.js";
 import ClientService from "./services/ClientService.js";
 import { PaybleInvoicingSystem } from "./components/PaybleInvoicingSystem.jsx";
+import { SystemSettings } from "./components/SystemSettings.jsx";
 
 const AppContent = () => {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -179,6 +180,8 @@ const AppContent = () => {
         return <CompanyManagement isArabic={isArabic} />;
       case "manpower":
         return <ManpowerManagement isArabic={isArabic} />;
+      case "manpower-1":
+        return <ManpowerManagement isArabic={isArabic} />;
       case "fleet":
         return <FleetManagement isArabic={isArabic} />;
       case "invoices":
@@ -219,6 +222,8 @@ const AppContent = () => {
         return <AttendanceTracking isArabic={isArabic} />;
       case "permissions":
         return <PermissionsPage isArabic={isArabic} />;
+      case "system-settings":
+        return <SystemSettings isArabic={isArabic} />;
       default:
         return <Dashboard isArabic={isArabic} projects={projects} />;
     }

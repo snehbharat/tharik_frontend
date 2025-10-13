@@ -19,14 +19,14 @@ import {
   EmployeeProvider,
   useEmployeeManagement,
 } from "../../context/EmployeeContext.jsx";
-import EmployeeList from "./EmployeeList";
+import EmployeeList from "./EmployeeList.jsx";
 import EmployeeStatistics from "./EmployeeStatistics.jsx";
-import EmployeeForm from "./EmployeeForm";
-import { EmployeeProfileManager } from "./EmployeeProfileManager";
-import { OrganizationalChart } from "./OrganizationalChart";
-import { PerformanceManagement } from "./PerformanceManagement";
-import { DocumentManagement } from "./DocumentManagement";
-import { EmployeeAnalytics } from "./EmployeeAnalytics";
+import EmployeeForm from "./EmployeeForm.jsx";
+import { EmployeeProfileManager } from "./EmployeeProfileManager.jsx";
+import { OrganizationalChart } from "./OrganizationalChart.jsx";
+import { PerformanceManagement } from "./PerformanceManagement.jsx";
+import { DocumentManagement } from "./DocumentManagement.jsx";
+import { EmployeeAnalytics } from "./EmployeeAnalytics.jsx";
 
 // Loading Component
 const LoadingSpinner = ({ isArabic }) => (
@@ -76,15 +76,20 @@ const SuccessMessage = ({ message, onClose, isArabic }) => (
 const ModuleNavigation = ({ activeModule, setActiveModule, isArabic }) => {
   const modules = [
     {
-      id: "profiles",
-      icon: UserCheck,
-      label: isArabic ? "ملفات الموظفين" : "Employee Profiles",
+      id: "lifecycle",
+      icon: Zap,
+      label: isArabic ? "دورة حياة الموظف" : "Employee Lifecycle",
     },
-    {
-      id: "organization",
-      icon: Building2,
-      label: isArabic ? "الهيكل التنظيمي" : "Organization",
-    },
+    // {
+    //   id: "profiles",
+    //   icon: UserCheck,
+    //   label: isArabic ? "ملفات الموظفين" : "Employee Profiles",
+    // },
+    // {
+    //   id: "organization",
+    //   icon: Building2,
+    //   label: isArabic ? "الهيكل التنظيمي" : "Organization",
+    // },
     // {
     //   id: "performance",
     //   icon: Target,
@@ -95,11 +100,7 @@ const ModuleNavigation = ({ activeModule, setActiveModule, isArabic }) => {
     //   icon: FileText,
     //   label: isArabic ? "إدارة الوثائق" : "Document Management",
     // },
-    {
-      id: "lifecycle",
-      icon: Zap,
-      label: isArabic ? "دورة حياة الموظف" : "Employee Lifecycle",
-    },
+
     // {
     //   id: "analytics",
     //   icon: BarChart3,
@@ -236,116 +237,13 @@ const LifecycleManagement = ({ isArabic, employees }) => {
           </div>
         </div>
       </div>
-
-      {/* Lifecycle Action Cards */}
-      {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h4 className="font-semibold text-gray-900 mb-3">
-            {isArabic ? "المهام المعلقة" : "Pending Tasks"}
-          </h4>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between py-2 border-b border-gray-100">
-              <span className="text-sm text-gray-600">
-                {isArabic
-                  ? "استكمال ملفات التأهيل"
-                  : "Complete onboarding files"}
-              </span>
-              <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">
-                3
-              </span>
-            </div>
-            <div className="flex items-center justify-between py-2 border-b border-gray-100">
-              <span className="text-sm text-gray-600">
-                {isArabic
-                  ? "مراجعة طلبات الترقية"
-                  : "Review promotion requests"}
-              </span>
-              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
-                2
-              </span>
-            </div>
-            <div className="flex items-center justify-between py-2">
-              <span className="text-sm text-gray-600">
-                {isArabic ? "معالجة إنهاء الخدمة" : "Process exit procedures"}
-              </span>
-              <span className="bg-red-100 text-red-800 px-2 py-1 rounded text-xs">
-                1
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h4 className="font-semibold text-gray-900 mb-3">
-            {isArabic ? "الإجراءات السريعة" : "Quick Actions"}
-          </h4>
-          <div className="space-y-3">
-            <button className="w-full text-left bg-green-50 hover:bg-green-100 p-3 rounded-lg border border-green-200 transition-colors">
-              <div className="font-medium text-green-800">
-                {isArabic
-                  ? "بدء تأهيل موظف جديد"
-                  : "Start New Employee Onboarding"}
-              </div>
-              <div className="text-xs text-green-600">
-                {isArabic ? "إنشاء مهام التأهيل" : "Create onboarding tasks"}
-              </div>
-            </button>
-            <button className="w-full text-left bg-blue-50 hover:bg-blue-100 p-3 rounded-lg border border-blue-200 transition-colors">
-              <div className="font-medium text-blue-800">
-                {isArabic ? "طلب ترقية" : "Promotion Request"}
-              </div>
-              <div className="text-xs text-blue-600">
-                {isArabic
-                  ? "رفع طلب ترقية جديد"
-                  : "Submit new promotion request"}
-              </div>
-            </button>
-            <button className="w-full text-left bg-red-50 hover:bg-red-100 p-3 rounded-lg border border-red-200 transition-colors">
-              <div className="font-medium text-red-800">
-                {isArabic ? "بدء إجراءات الإنهاء" : "Start Exit Process"}
-              </div>
-              <div className="text-xs text-red-600">
-                {isArabic ? "إنهاء خدمة موظف" : "Initiate employee offboarding"}
-              </div>
-            </button>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h4 className="font-semibold text-gray-900 mb-3">
-            {isArabic ? "إحصائيات سريعة" : "Quick Stats"}
-          </h4>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">
-                {isArabic ? "معدل الاحتفاظ" : "Retention Rate"}
-              </span>
-              <span className="font-semibold text-green-600">94%</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">
-                {isArabic ? "متوسط مدة التأهيل" : "Avg. Onboarding Time"}
-              </span>
-              <span className="font-semibold text-blue-600">
-                12 {isArabic ? "يوم" : "days"}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">
-                {isArabic ? "معدل الترقية السنوي" : "Annual Promotion Rate"}
-              </span>
-              <span className="font-semibold text-purple-600">15%</span>
-            </div>
-          </div>
-        </div>
-      </div> */}
     </div>
   );
 };
 
 // Main Hub Component (without context - will be wrapped)
 const EmployeeManagementHubContent = ({ isArabic = false }) => {
-  const [activeModule, setActiveModule] = useState("profiles");
+  const [activeModule, setActiveModule] = useState("lifecycle");
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [showEmployeeForm, setShowEmployeeForm] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState(null);
@@ -504,42 +402,10 @@ const EmployeeManagementHubContent = ({ isArabic = false }) => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
-            {isArabic ? "مركز إدارة الموظفين" : "Employee Management Hub"}
-          </h1>
-          <p className="text-gray-600 mt-2">
             {isArabic
-              ? "إدارة شاملة لدورة حياة الموظفين والتطوير المهني"
-              : "Comprehensive employee lifecycle and professional development management"}
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleExportEmployees}
-            disabled={loading}
-            className="bg-purple-600 hover:bg-purple-700 disabled:bg-purple-300 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-          >
-            <Download className="w-4 h-4" />
-            {isArabic ? "تصدير البيانات" : "Export Data"}
-          </button>
-
-          <label className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors cursor-pointer">
-            <Upload className="w-4 h-4" />
-            {isArabic ? "استيراد البيانات" : "Import Data"}
-            <input
-              type="file"
-              accept=".csv,.xlsx,.xls"
-              onChange={handleImportEmployees}
-              className="hidden"
-            />
-          </label>
-
-          <button
-            onClick={handleCreateEmployee}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            {isArabic ? "موظف جديد" : "New Employee"}
-          </button>
+              ? "نظرة عامة على الموارد البشرية"
+              : "Human Resource Overview"}
+          </h1>
         </div>
       </div>
 
@@ -579,13 +445,6 @@ const EmployeeManagementHubContent = ({ isArabic = false }) => {
               isArabic={isArabic}
             />
           )}
-
-          {/* {activeModule === "performance" && (
-            <PerformanceManagement
-              employees={employees?.employees || []}
-              isArabic={isArabic}
-            />
-          )} */}
 
           {activeModule === "documents" && (
             <DocumentManagement
@@ -639,7 +498,7 @@ const EmployeeManagementHubContent = ({ isArabic = false }) => {
 };
 
 // Main exported component with Provider
-const EmployeeManagementHub = ({ isArabic = false }) => {
+const EmployeeManagementHubDashboard = ({ isArabic = false }) => {
   return (
     <EmployeeProvider>
       <EmployeeManagementHubContent isArabic={isArabic} />
@@ -647,4 +506,4 @@ const EmployeeManagementHub = ({ isArabic = false }) => {
   );
 };
 
-export default EmployeeManagementHub;
+export default EmployeeManagementHubDashboard;

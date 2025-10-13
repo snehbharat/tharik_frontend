@@ -36,7 +36,7 @@ import { getCompany } from "../services/CompanyService";
 import { QRCodeCanvas } from "qrcode.react";
 import PaybleInvoiceService from "../services/PaybleInvoiceService";
 
-export const FinanceDepartment = ({ isArabic }) => {
+export const FinanceDepartmentDashboard = ({ isArabic }) => {
   // states from clients starts here //
   const [clients, setClients] = useState([]);
   const [viewClient, setViewClient] = useState(null);
@@ -649,7 +649,7 @@ export const FinanceDepartment = ({ isArabic }) => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">
-          {isArabic ? "قسم المالية" : "Finance Department"}
+          {isArabic ? "نظرة عامة على المالية" : "Financial Overview"}
         </h1>
       </div>
 
@@ -669,13 +669,6 @@ export const FinanceDepartment = ({ isArabic }) => {
               </div>
             </div>
           </div>
-          {/* <div className="flex items-center gap-1 text-xs text-green-600">
-            <TrendingUp className="w-3 h-3" />
-            <span>
-              +{financialOverview.monthlyGrowth}%{" "}
-              {isArabic ? "هذا الشهر" : "this month"}
-            </span>
-          </div> */}
         </div>
 
         <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6 border border-blue-200">
@@ -747,51 +740,6 @@ export const FinanceDepartment = ({ isArabic }) => {
           </div>
         </div>
       </div>
-
-      {/* Enhanced KPI Dashboard */}
-      {/* <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          {isArabic ? "مؤشرات الأداء الرئيسية" : "Key Performance Indicators"}
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {kpiMetrics.map((kpi, index) => (
-            <div key={index} className="bg-gray-50 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">
-                  {isArabic ? kpi.nameAr : kpi.name}
-                </span>
-                <span
-                  className={`text-xs font-semibold ${getKpiStatusColor(
-                    kpi.status
-                  )}`}
-                >
-                  {kpi.status === "above"
-                    ? "↗"
-                    : kpi.status === "below"
-                    ? "↘"
-                    : "→"}
-                </span>
-              </div>
-              <div className="text-xl font-bold text-gray-900">
-                {kpi.name.includes("Growth") ||
-                kpi.name.includes("Margin") ||
-                kpi.name.includes("Control")
-                  ? `${kpi.value}%`
-                  : `${(kpi.value / 1000000).toFixed(1)}M SAR`}
-              </div>
-              <div className="text-xs text-gray-500">
-                {isArabic ? "الهدف:" : "Target:"}{" "}
-                {kpi.name.includes("Growth") ||
-                kpi.name.includes("Margin") ||
-                kpi.name.includes("Control")
-                  ? `${kpi.target}%`
-                  : `${(kpi.target / 1000000).toFixed(1)}M SAR`}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div> */}
-      {/* Tabs */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100">
         <div className="border-b border-gray-200">
           <nav className="flex">
@@ -808,7 +756,7 @@ export const FinanceDepartment = ({ isArabic }) => {
                 {isArabic ? "النظرة العامة" : "Overview"}
               </div>
             </button>
-            <button
+            {/* <button
               onClick={() => setActiveTab("receivables")}
               className={`px-6 py-4 font-medium transition-colors ${
                 activeTab === "receivables"
@@ -832,45 +780,6 @@ export const FinanceDepartment = ({ isArabic }) => {
               <div className="flex items-center gap-2">
                 <TrendingDown className="w-4 h-4" />
                 {isArabic ? "المدفوعات" : "Payables"}
-              </div>
-            </button>
-            {/* <button
-              onClick={() => setActiveTab("budget")}
-              className={`px-6 py-4 font-medium transition-colors ${
-                activeTab === "budget"
-                  ? "text-green-600 border-b-2 border-green-600"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <PieChart className="w-4 h-4" />
-                {isArabic ? "تحليل الميزانية" : "Budget Analysis"}
-              </div>
-            </button>
-            <button
-              onClick={() => setActiveTab("analytics")}
-              className={`px-6 py-4 font-medium transition-colors ${
-                activeTab === "analytics"
-                  ? "text-green-600 border-b-2 border-green-600"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <Activity className="w-4 h-4" />
-                {isArabic ? "التحليلات المتقدمة" : "Advanced Analytics"}
-              </div>
-            </button>
-            <button
-              onClick={() => setActiveTab("forecasting")}
-              className={`px-6 py-4 font-medium transition-colors ${
-                activeTab === "forecasting"
-                  ? "text-green-600 border-b-2 border-green-600"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <Target className="w-4 h-4" />
-                {isArabic ? "التنبؤات المالية" : "Financial Forecasting"}
               </div>
             </button> */}
           </nav>

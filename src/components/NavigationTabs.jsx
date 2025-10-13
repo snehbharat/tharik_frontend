@@ -1,29 +1,61 @@
 import React from "react";
-import { BarChart3, Briefcase, Calendar, PieChart, TrendingUp, Users } from "lucide-react";
+import {
+  BarChart3,
+  Briefcase,
+  Calendar,
+  PieChart,
+  TrendingUp,
+  Users,
+} from "lucide-react";
 import { formatCurrency } from "../utils/financialCalculations";
 
-export const NavigationTabs = ({ activeView, setActiveView, isArabic, payrollSummary }) => {
-
+export const NavigationTabs = ({
+  activeView,
+  setActiveView,
+  isArabic,
+  payrollSummary,
+}) => {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100">
       <div className="border-b border-gray-200">
         {/* Navigation tabs */}
         <nav className="flex">
           {[
-            { view: "dashboard", icon: BarChart3, label: isArabic ? "مركز القيادة" : "Command Center" },
-            { view: "employees", icon: Users, label: isArabic ? "إدارة الموظفين" : "Employee Management" },
-            { view: "projects", icon: Briefcase, label: isArabic ? "إدارة المشاريع" : "Project Management" },
-            { view: "attendance", icon: Calendar, label: isArabic ? "تتبع الحضور" : "Attendance Tracking" },
-            { view: "analytics", icon: PieChart, label: isArabic ? "التحليلات المتقدمة" : "Advanced Analytics" },
-            { view: "reports", icon: TrendingUp, label: isArabic ? "مركز ذكاء الأرباح" : "Profit Intelligence" },
+            // { view: "dashboard", icon: BarChart3, label: isArabic ? "مركز القيادة" : "Command Center" },
+            {
+              view: "employees",
+              icon: Users,
+              label: isArabic ? "إدارة الموظفين" : "Employee Management",
+            },
+            {
+              view: "projects",
+              icon: Briefcase,
+              label: isArabic ? "إدارة المشاريع" : "Project Management",
+            },
+            {
+              view: "attendance",
+              icon: Calendar,
+              label: isArabic ? "تتبع الحضور" : "Attendance Tracking",
+            },
+            {
+              view: "analytics",
+              icon: PieChart,
+              label: isArabic ? "التحليلات المتقدمة" : "Advanced Analytics",
+            },
+            {
+              view: "reports",
+              icon: TrendingUp,
+              label: isArabic ? "مركز ذكاء الأرباح" : "Profit Intelligence",
+            },
           ].map(({ view, icon: Icon, label }) => (
             <button
               key={view}
               onClick={() => setActiveView(view)}
-              className={`px-6 py-4 font-medium transition-colors ${activeView === view
+              className={`px-6 py-4 font-medium transition-colors ${
+                activeView === view
                   ? "text-green-600 border-b-2 border-green-600"
                   : "text-gray-500 hover:text-gray-700"
-                }`}
+              }`}
             >
               <div className="flex items-center gap-2">
                 <Icon className="w-4 h-4" />
