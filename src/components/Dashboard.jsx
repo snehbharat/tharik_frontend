@@ -28,14 +28,19 @@ import {
   formatPercentage,
 } from "../utils/financialCalculations";
 import { generateSampleDataApi } from "../data/sampleData";
+import { FinanceDepartmentDashboard } from "./FinanceDepartmentDashboard";
+import { EmployeeManagementDashboard } from "./EmployeeManagementDashboard";
+import { TaskManagementDashboard } from "./TaskManagementDashboard";
+import { useAuth } from "../hooks/useAuth";
+import { OperationsDepartmentDashboard } from "./OperationsDepartmentDashboard";
+import EmployeeManagementHubDashboard from "./hrms/EmployeeManagementHubDashboar";
 
 export const Dashboard = ({ isArabic, projects }) => {
-  const {
-    getDashboardMetrics,
-    getProjectMetrics,
-    generateInsights,
-  } = useWorkforceData();
+  const { user } = useAuth();
+  console.log("user", user.role);
 
+  const { getDashboardMetrics, getProjectMetrics, generateInsights } =
+    useWorkforceData();
 
   // Replace the direct hook with state management for API data
   const [data, setData] = useState({
@@ -63,7 +68,6 @@ export const Dashboard = ({ isArabic, projects }) => {
 
     loadData();
   }, []);
-
 
   const { employees, attendance, insights } = data;
 
@@ -120,8 +124,9 @@ export const Dashboard = ({ isArabic, projects }) => {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `dashboard_export_${new Date().toISOString().split("T")[0]
-        }.csv`;
+      link.download = `dashboard_export_${
+        new Date().toISOString().split("T")[0]
+      }.csv`;
       link.click();
       URL.revokeObjectURL(url);
     } catch (error) {
@@ -142,7 +147,6 @@ export const Dashboard = ({ isArabic, projects }) => {
       </div>
     );
   }
-
 
   // Show error state
   if (error) {
@@ -191,13 +195,13 @@ export const Dashboard = ({ isArabic, projects }) => {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <button
+          {/* <button
             onClick={handleExportData}
             className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
           >
             <Download className="w-4 h-4" />
             {isArabic ? "تصدير البيانات" : "Export Data"}
-          </button>
+          </button> */}
           <button
             onClick={handleRefresh}
             disabled={refreshing}
@@ -211,122 +215,103 @@ export const Dashboard = ({ isArabic, projects }) => {
                 ? "جاري التحديث..."
                 : "Refreshing..."
               : isArabic
-                ? "تحديث"
-                : "Refresh"}
+              ? "تحديث"
+              : "Refresh"}
           </button>
         </div>
       </div>
 
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-        <MetricCard
-          title={isArabic ? "إجمالي القوى العاملة" : "Total Workforce"}
-          value={employees.length}
-          subtitle={`${employees.filter((emp) => emp.status === "active").length
-            } ${isArabic ? "نشط" : "active"}`}
-          icon={Users}
-          gradient="from-blue-50 to-blue-100"
-          borderColor="border-blue-200"
-        />
+      {/* <div className=""> */}
 
-        <MetricCard
-          title={isArabic ? "المشاريع النشطة" : "Active Projects"}
-          value={projects.length}
-          subtitle={`${projects?.length} ${isArabic ? "إجمالي" : "total"}`}
-          icon={Building2}
-          gradient="from-green-50 to-green-100"
-          borderColor="border-green-200"
-        />
-
-        {/* <MetricCard
-          title={isArabic ? "الأرباح الفورية" : "Real-Time Profits"}
-          value={formatCurrency(metrics.realTimeProfits)}
-          subtitle={`${formatPercentage(metrics.averageProfitMargin)} ${isArabic ? "هامش" : "margin"
-            }`}
-          icon={DollarSign}
-          gradient="from-purple-50 to-purple-100"
-          borderColor="border-purple-200"
-          trend={{
-            value: "+15.2%",
-            isPositive: true,
-          }}
-        />
-
-        <MetricCard
-          title={isArabic ? "معدل الاستغلال" : "Utilization Rate"}
-          value={formatPercentage(metrics.utilizationRate)}
-          subtitle={`${metrics.productivityIndex.toFixed(1)} ${isArabic ? "إنتاجية" : "productivity"
-            }`}
-          icon={TrendingUp}
-          gradient="from-yellow-50 to-yellow-100"
-          borderColor="border-yellow-200"
-        /> */}
-      </div>
-
-      {/* Projects Overview */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">
-            {isArabic ? "نظرة عامة على المشاريع" : "Projects Overview"}
-          </h2>
-          <select
-            value={selectedProject}
-            onChange={(e) => {
-              setSelectedProject(e.target.value);
-            }}
-            className="border border-gray-300 rounded-lg px-3 py-2"
-          >
-            <option value="">
-              {isArabic ? "جميع المشاريع" : "All Projects"}
-            </option>
-            {projects?.map((project) => (
-              <option key={project._id} value={project._id}>
-                {project.name}
-              </option>
-            ))}
-          </select>
+      {(user?.role === "admin" || user?.role === "Finance Clerk") && (
+        <div>
+          <FinanceDepartmentDashboard />
         </div>
+      )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {projects
-            ?.filter(
-              (project) => !selectedProject || project._id === selectedProject
-            )
-            .map((project) => (
-              <ProjectInfo
-                key={project._id}
-                project={project}
-                metrics={getProjectMetrics(project._id)}
-                isArabic={isArabic}
-                onSelect={() => {
-                  setSelectedProject(project._id);
+      {(user?.role === "admin" || user?.role === "Operations Supervisor") && (
+        <>
+          <div className="flex items-center justify-between">
+            <h1 className="text-3xl font-bold text-gray-900">
+              {isArabic ? "نظرة عامة على العمليات" : "Operational Overview"}
+            </h1>
+          </div>
+
+          {/* Key Metrics */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+            <MetricCard
+              title={isArabic ? "إجمالي القوى العاملة" : "Total Workforce"}
+              value={employees.length}
+              subtitle={`${
+                employees.filter((emp) => emp.status === "active").length
+              } ${isArabic ? "نشط" : "active"}`}
+              icon={Users}
+              gradient="from-blue-50 to-blue-100"
+              borderColor="border-blue-200"
+            />
+
+            <MetricCard
+              title={isArabic ? "المشاريع النشطة" : "Active Projects"}
+              value={projects.length}
+              subtitle={`${projects?.length} ${isArabic ? "إجمالي" : "total"}`}
+              icon={Building2}
+              gradient="from-green-50 to-green-100"
+              borderColor="border-green-200"
+            />
+          </div>
+
+          {/* Projects Overview */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">
+                {isArabic ? "نظرة عامة على المشاريع" : "Projects Overview"}
+              </h2>
+              <select
+                value={selectedProject}
+                onChange={(e) => {
+                  setSelectedProject(e.target.value);
                 }}
-              />
-            ))}
-        </div>
-      </div>
+                className="border border-gray-300 rounded-lg px-3 py-2"
+              >
+                <option value="">
+                  {isArabic ? "جميع المشاريع" : "All Projects"}
+                </option>
+                {projects?.map((project) => (
+                  <option key={project._id} value={project._id}>
+                    {project.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-      {/* Actionable Insights */}
-      {/* <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <ActionableInsights
-          insights={insights}
-          isArabic={isArabic}
-          onInsightAction={(insightId, action) => {
-            // Handle insight actions
-            switch (action) {
-              case "acknowledge":
-                alert(isArabic ? "تم تأكيد الرؤية" : "Insight acknowledged");
-                break;
-              case "dismiss":
-                alert(isArabic ? "تم تجاهل الرؤية" : "Insight dismissed");
-                break;
-              case "complete":
-                alert(isArabic ? "تم إكمال الإجراء" : "Action completed");
-                break;
-            }
-          }}
-        />
-      </div> */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-14">
+              {projects
+                ?.filter(
+                  (project) =>
+                    !selectedProject || project._id === selectedProject
+                )
+                .map((project) => (
+                  <ProjectInfo
+                    key={project._id}
+                    project={project}
+                    metrics={getProjectMetrics(project._id)}
+                    isArabic={isArabic}
+                    onSelect={() => {
+                      setSelectedProject(project._id);
+                    }}
+                  />
+                ))}
+            </div>
+
+            <EmployeeManagementDashboard />
+            <TaskManagementDashboard isArabic={isArabic} currentUser={user} />
+            <OperationsDepartmentDashboard />
+          </div>
+        </>
+      )}
+      {(user?.role === "admin" || user?.role === "HR Manager") && (
+        <EmployeeManagementHubDashboard />
+      )}
     </div>
   );
 };

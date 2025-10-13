@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   FileText,
   Plus,
@@ -35,8 +35,10 @@ import { getCompany, updateCompany } from "../services/CompanyService";
 import InvoiceService from "../services/InvoiceService";
 import PaybleInvoiceService from "../services/PaybleInvoiceService";
 import { QRCodeCanvas } from "qrcode.react";
+import { useReactToPrint } from "react-to-print";
 
 export const PaybleInvoicingSystem = ({ isArabic }) => {
+  const invoiceRef = useRef();
   const [activeTab, setActiveTab] = useState("invoices");
   const [invoices, setInvoices] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -52,6 +54,14 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
     page: 1,
     limit: 10,
     totalPages: 1,
+  });
+
+  const handlePrint = useReactToPrint({
+    contentRef: invoiceRef,
+    documentTitle: selectedInvoice
+      ? `Invoice-${selectedInvoice.invoiceNumber}`
+      : "Invoice",
+    onAfterPrint: () => console.log("Printed successfully!"),
   });
 
   // Default seller information
@@ -1747,7 +1757,7 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
 
       {/* Invoice Preview Modal */}
       {showPreview && selectedInvoice && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="absolute h-screen inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ">
           <div className="bg-white rounded-xl w-full max-w-4xl max-h-screen overflow-y-auto">
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <h3 className="text-xl font-bold text-gray-900">
@@ -1755,7 +1765,7 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
               </h3>
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => window.print()}
+                  onClick={handlePrint}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
                 >
                   <Printer className="w-4 h-4" />
@@ -1770,17 +1780,24 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
               </div>
             </div>
 
-            <div className="p-6">
+            <div className="p-6" ref={invoiceRef}>
               {/* Invoice Preview Content */}
               <div className="bg-white border border-gray-200 rounded-lg p-8">
                 {/* Header */}
                 <div className="flex justify-between items-start mb-8">
                   <div>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                      {isArabic
-                        ? sellerInfo.companyNameAr
-                        : sellerInfo.companyNameEn}
-                    </h1>
+                    <div className="flex items-center">
+                      <img
+                        src="./logo.jpg"
+                        alt="logo"
+                        className="w-12 h-12 rounded-xl"
+                      />
+                      <h1 className="text-3xl font-bold text-gray-900 mb-2 pl-2 pt-2">
+                        {isArabic
+                          ? sellerInfo.companyNameAr
+                          : sellerInfo.companyNameEn}
+                      </h1>
+                    </div>
                     <p className="text-gray-600">
                       {isArabic ? sellerInfo.addressAr : sellerInfo.addressEn}
                     </p>
@@ -1795,7 +1812,7 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
                     <p className="text-gray-600">
                       {selectedInvoice.invoiceNumber}
                     </p>
-                    <div className="w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center mt-4">
+                    <div className="w-24 h-24 bg-gray-200 rounded-lg ml-11 flex items-center justify-center mt-4">
                       <QRCodeCanvas
                         value={`Seller: ${
                           isArabic
@@ -1839,7 +1856,7 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
                       {selectedInvoice.buyer.crNumber}
                     </p>
                   </div>
-                  <div>
+                  <div className="ml-40">
                     <h3 className="font-semibold text-gray-900 mb-2">
                       {isArabic ? "معلومات بائع" : "Seller Information"}
                     </h3>

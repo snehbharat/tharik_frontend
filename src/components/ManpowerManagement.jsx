@@ -22,7 +22,7 @@ export const ManpowerManagement = ({ isArabic }) => {
   const [attendance, setAttendance] = useState([]);
   const [clients, setClients] = useState([]);
   const [clientSearchQuery, setClientSearchQuery] = useState("");
-  const [activeView, setActiveView] = useState("dashboard");
+  const [activeView, setActiveView] = useState("employees");
   const [selectedProject, setSelectedProject] = useState("all");
   const [showAddProject, setShowAddProject] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -132,7 +132,7 @@ export const ManpowerManagement = ({ isArabic }) => {
   }, [isArabic]);
 
   // Log projects state for debugging
-  useEffect(() => { }, [projects]);
+  useEffect(() => {}, [projects]);
 
   // Refresh data function to reload projects and clients
   const refreshData = async () => {
@@ -198,7 +198,7 @@ export const ManpowerManagement = ({ isArabic }) => {
       ),
       averageProfitMargin: validProjects.length
         ? validProjects.reduce((sum, p) => sum + (p.profitMargin || 0), 0) /
-        validProjects.length
+          validProjects.length
         : 0,
       aggregateHours: Array.isArray(attendance)
         ? attendance.reduce((sum, a) => sum + (a?.hoursWorked || 0), 0)
@@ -206,12 +206,12 @@ export const ManpowerManagement = ({ isArabic }) => {
       productivityIndex:
         Array.isArray(attendance) && validProjects.length
           ? attendance.reduce((sum, a) => sum + (a?.hoursWorked || 0), 0) /
-          validProjects.length
+            validProjects.length
           : 0,
       utilizationRate: validProjects.length
         ? (Array.isArray(attendance)
-          ? attendance.length / validProjects.length
-          : 0) * 100
+            ? attendance.length / validProjects.length
+            : 0) * 100
         : 0,
     };
   }, [projects, attendance]);
@@ -357,9 +357,9 @@ export const ManpowerManagement = ({ isArabic }) => {
       console.error("Error creating project:", error);
       setApiError(
         error.message ||
-        (isArabic
-          ? "حدث خطأ أثناء حفظ المشروع"
-          : "An error occurred while saving the project")
+          (isArabic
+            ? "حدث خطأ أثناء حفظ المشروع"
+            : "An error occurred while saving the project")
       );
     } finally {
       setIsSubmitting(false);
@@ -451,7 +451,7 @@ export const ManpowerManagement = ({ isArabic }) => {
         <Header
           isArabic={isArabic}
           onRefresh={refreshData}
-          onExport={() => { }}
+          onExport={() => {}}
           onAddProject={() => setShowAddProject(true)}
         />
 
@@ -481,9 +481,7 @@ export const ManpowerManagement = ({ isArabic }) => {
           )}
 
           {activeView === "employees" && (
-            <EmployeeManagement
-              isArabic={isArabic}
-            />
+            <EmployeeManagement isArabic={isArabic} />
           )}
 
           {activeView === "projects" && (

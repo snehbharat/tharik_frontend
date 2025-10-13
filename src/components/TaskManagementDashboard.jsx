@@ -3,15 +3,15 @@ import { Plus, MapPin, RefreshCw } from "lucide-react";
 import ApiService from "../services/TaskApiService.js";
 
 // Import all components
-import TaskStatistics from "../components/task/TaskStatistics";
-import UpdatesBanner from "../components/task/UpdatesBanner";
-import TabNavigation from "../components/task/TabNavigation";
-import TaskCard from "../components/task/TaskCard";
-import PhotoModal from "../components/task/PhotoModal";
-import UpdateModal from "../components/task/UpdateModal";
-import SMSModal from "../components/task/SMSModal";
-import NewTaskModal from "../components/task/NewTaskModal";
-import TaskRequirementsFields from "../components/task/TaskRequirementsFields";
+import TaskStatistics from "./task/TaskStatistics.jsx";
+import UpdatesBanner from "./task/UpdatesBanner.jsx";
+import TabNavigation from "./task/TabNavigation.jsx";
+import TaskCard from "./task/TaskCard.jsx";
+import PhotoModal from "./task/PhotoModal.jsx";
+import UpdateModal from "./task/UpdateModal.jsx";
+import SMSModal from "./task/SMSModal.jsx";
+import NewTaskModal from "./task/NewTaskModal.jsx";
+import TaskRequirementsFields from "./task/TaskRequirementsFields.jsx";
 
 // Import utilities
 import {
@@ -20,9 +20,9 @@ import {
   getTypeIcon,
   filterTasks,
   taskTypes,
-} from "../components/task/taskUtils.jsx";
+} from "./task/taskUtils.jsx";
 
-export const TaskManagement = ({ isArabic, currentUser }) => {
+export const TaskManagementDashboard = ({ isArabic, currentUser }) => {
   const [activeTab, setActiveTab] = useState("active");
   const [showNewTask, setShowNewTask] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(null);
@@ -383,10 +383,10 @@ export const TaskManagement = ({ isArabic, currentUser }) => {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">
-          {isArabic ? "إدارة المهام المتقدمة" : "Advanced Task Management"}
+        <h1 className="text-xl font-semi-bold text-gray-900">
+          {isArabic ? "نظرة عامة على المهام" : "Tasks Overview"}
         </h1>
-        <div className="flex items-center gap-3">
+        {/* <div className="flex items-center gap-3">
           <button
             onClick={handleRefresh}
             disabled={loading}
@@ -395,10 +395,10 @@ export const TaskManagement = ({ isArabic, currentUser }) => {
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
             {isArabic ? "تحديث" : "Refresh"}
           </button>
-          {/* <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+          <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
             <MapPin className="w-4 h-4" />
             {isArabic ? "تتبع GPS" : "GPS Tracking"}
-          </button> */}
+          </button>
           <button
             onClick={() => setShowNewTask(true)}
             disabled={loading}
@@ -407,17 +407,17 @@ export const TaskManagement = ({ isArabic, currentUser }) => {
             <Plus className="w-4 h-4" />
             {isArabic ? "مهمة جديدة" : "New Task"}
           </button>
-        </div>
+        </div> */}
       </div>
 
       {/* Task Statistics */}
       <TaskStatistics tasks={tasks} isArabic={isArabic} />
 
       {/* Recent Updates Banner */}
-      <UpdatesBanner isArabic={isArabic} />
+      {/* <UpdatesBanner isArabic={isArabic} /> */}
 
       {/* Tabs */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+      {/* <div className="bg-white rounded-xl shadow-sm border border-gray-100">
         <TabNavigation
           activeTab={activeTab}
           setActiveTab={setActiveTab}
@@ -466,7 +466,7 @@ export const TaskManagement = ({ isArabic, currentUser }) => {
             </div>
           )}
         </div>
-      </div>
+      </div> */}
 
       {/* Modals */}
       <PhotoModal

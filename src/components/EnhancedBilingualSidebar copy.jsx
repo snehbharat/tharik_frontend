@@ -1,28 +1,41 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   Building2,
-  Target,
   Users,
   Truck,
-  KeyIcon,
-  CheckSquare,
   FileText,
   Calculator,
+  Shield,
   Briefcase,
   DollarSign,
   UserCheck,
-  Clock,
+  Settings,
   UserCog,
-  ChevronUp,
+  LogOut,
+  Camera,
+  Target,
+  CheckSquare,
+  Key,
+  User,
+  Clock,
+  Bell,
+  TestTube,
+  ChevronLeft,
+  ChevronRight,
   ChevronDown,
+  ChevronUp,
   Menu,
   X,
-  LogOut,
-  User,
-  ChevronRight,
-  ChevronLeft,
-  Settings,
+  Globe,
+  Zap,
+  Award,
+  Activity,
+  TrendingUp,
+  Home,
+  Mail,
+  Phone,
+  KeyIcon,
 } from "lucide-react";
 import { useBilingual, BilingualText } from "./BilingualLayout";
 import { useAuth } from "../hooks/useAuth";
@@ -37,11 +50,9 @@ export const EnhancedBilingualSidebar = ({
   onToggleCollapse,
   className = "",
 }) => {
-  const { language, isRTL } = useBilingual();
-  const { user, logout } = useAuth();
-
+  const { language, isRTL, t } = useBilingual();
+  const { user, logout, hasPermission } = useAuth();
   const [users, setUsers] = useState([]);
-  const [companyInfo, setCompanyInfo] = useState(null);
   const [expandedSections, setExpandedSections] = useState(
     new Set([
       "main",
@@ -53,273 +64,363 @@ export const EnhancedBilingualSidebar = ({
       "administration",
     ])
   );
+  console.log(user);
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [focusedItem, setFocusedItem] = useState("");
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [companyInfo, setCompanyInfo] = useState(null);
 
-  // --- Fetch users and company info once ---
-  useEffect(() => {
-    const fetchAll = async () => {
-      try {
-        const [usersRes, companyRes] = await Promise.all([
-          UserService.getAllUsers(),
-          getCompany(),
-        ]);
-        setUsers(usersRes?.data || []);
-        setCompanyInfo(companyRes || {});
-      } catch (err) {
-        console.error("Sidebar init failed:", err);
-      }
-    };
-    fetchAll();
-  }, []);
-
-  // --- Identify current user ---
-  const matchedUser = useMemo(
-    () => users.find((u) => u.email === user?.email),
-    [users, user]
-  );
-  const userRole = matchedUser?.role || "guest";
-
-  // --- Role-based Access Map ---
-  const roleBasedAccess = useMemo(
-    () => ({
-      admin: ["*"],
-      "Operations Supervisor": [
-        "dashboard",
-        "task-management",
-        "manpower-1",
-        "fleet",
-        "operations",
-      ],
-      "Finance Clerk": [
-        "dashboard",
-        "invoices",
-        "payable-invoices",
-        "payroll",
-        "finance",
-      ],
-      "HR Manager": ["dashboard", "manpower", "attendance-tracking", "hr"],
-    }),
-    []
-  );
-
-  // --- Menu Structure ---
-  const menuSections = useMemo(
-    () => [
-      {
-        id: "main",
-        titleEn: "MAIN",
-        titleAr: "الرئيسية",
-        items: [
-          {
-            id: "dashboard",
-            icon: LayoutDashboard,
-            nameEn: "Dashboard",
-            nameAr: "لوحة التحكم",
-          },
-        ],
-      },
-      {
-        id: "customer",
-        titleEn: "CUSTOMER MANAGEMENT",
-        titleAr: "إدارة العملاء",
-        items: [
-          {
-            id: "company",
-            icon: Building2,
-            nameEn: "Company & Clients",
-            nameAr: "الشركة والعملاء",
-          },
-          {
-            id: "lead-management",
-            icon: Target,
-            nameEn: "Lead Management",
-            nameAr: "إدارة العملاء المحتملين",
-          },
-        ],
-      },
-      {
-        id: "resources",
-        titleEn: "PROJECT OPERATIONS",
-        titleAr: "تشغيل المشروع",
-        items: [
-          // {
-          //   id: "manpower",
-          //   icon: Users,
-          //   nameEn: "Workforce Management",
-          //   nameAr: "إدارة القوى العاملة",
-          // },
-          {
-            id: "manpower-1",
-            icon: Users,
-            nameEn: "Workforce Management",
-            nameAr: "إدارة القوى العاملة",
-          },
-          {
-            id: "task-management",
-            icon: CheckSquare,
-            nameEn: "Task Management",
-            nameAr: "إدارة المهام",
-          },
-          {
-            id: "fleet",
-            icon: Truck,
-            nameEn: "Fleet Management",
-            nameAr: "إدارة الأسطول",
-          },
-          {
-            id: "operations",
-            icon: Briefcase,
-            nameEn: "Team Scheduling",
-            nameAr: "جدولة الفريق",
-          },
-        ],
-      },
-      {
-        id: "operations",
-        titleEn: "OPERATIONS",
-        titleAr: "العمليات",
-        items: [],
-      },
-      {
-        id: "financial",
-        titleEn: "FINANCIAL MANAGMENTS",
-        titleAr: "الإدارة المالية",
-        items: [
-          {
-            id: "invoices",
-            icon: FileText,
-            nameEn: "Smart Invoicing",
-            nameAr: "الفوترة الذكية",
-          },
-          {
-            id: "payable-invoices",
-            icon: FileText,
-            nameEn: "Payable Invoicing",
-            nameAr: "الفواتير المستحقة",
-          },
-          {
-            id: "payroll",
-            icon: Calculator,
-            nameEn: "Payroll Management",
-            nameAr: "إدارة الرواتب",
-          },
-          {
-            id: "finance",
-            icon: DollarSign,
-            nameEn: "Financial Report",
-            nameAr: "التقرير المالي",
-          },
-        ],
-      },
-      {
-        id: "departments",
-        titleEn: "HUMAN RESOURCE",
-        titleAr: "الموارد البشرية",
-        items: [
-          {
-            id: "manpower",
-            icon: Users,
-            nameEn: "Workforce Management",
-            nameAr: "إدارة القوى العاملة",
-          },
-          {
-            id: "attendance-tracking",
-            icon: Clock,
-            nameEn: "Leave Tracking",
-            nameAr: "تتبع الحضور",
-          },
-          {
-            id: "hr",
-            icon: UserCheck,
-            nameEn: "Human Resources",
-            nameAr: "الموارد البشرية",
-          },
-        ],
-      },
-      {
-        id: "administration",
-        titleEn: "SYSTEM ADMIN",
-        titleAr: "مسؤول النظام",
-        items: [
-          {
-            id: "users",
-            icon: UserCog,
-            nameEn: "User Management",
-            nameAr: "إدارة المستخدمين",
-          },
-          {
-            id: "permissions",
-            icon: KeyIcon,
-            nameEn: "Permissions",
-            nameAr: "إذن",
-          },
-          {
-            id: "system-settings",
-            icon: Settings,
-            nameEn: "System Settings",
-            nameAr: "إعدادات النظام",
-          },
-        ],
-      },
-    ],
-    []
-  );
-
-  // --- Accessible Menu based on Role ---
-  const accessibleIds = useMemo(() => {
-    const allowed = roleBasedAccess[userRole];
-    if (!allowed) return ["dashboard"];
-    if (allowed.includes("*"))
-      return menuSections.flatMap((s) => s.items.map((i) => i.id));
-    return ["dashboard", ...allowed];
-  }, [roleBasedAccess, userRole, menuSections]);
-
-  const filteredSections = useMemo(
-    () =>
-      menuSections
-        .map((sec) => ({
-          ...sec,
-          items: sec.items.filter((i) => accessibleIds.includes(i.id)),
-        }))
-        .filter((sec) => sec.items.length),
-    [accessibleIds, menuSections]
-  );
-
-  // --- Handlers ---
-  const handleLogout = async () => {
+  const fetchUsers = async () => {
     try {
-      await logout();
-      window.location.href = "/login";
-    } catch (err) {
-      console.error("Logout failed:", err);
+      const { data } = await UserService.getAllUsers();
+
+      setUsers(data || []);
+    } catch (error) {
+      console.error("Error fetching users:", error);
     }
   };
 
-  const toggleSection = (id) => {
+  const fetchData = async () => {
+    try {
+      const data = await getCompany();
+      setCompanyInfo(data);
+    } catch (error) {
+      console.error("Failed to load company info", error);
+    }
+  };
+  useEffect(() => {
+    fetchData();
+    fetchUsers();
+  }, []);
+
+  const matchedUser = users.find((u) => u.email === user.email);
+  console.log("companyInfo:", matchedUser);
+
+  const menuSections = [
+    {
+      id: "main",
+      titleEn: "MAIN",
+      titleAr: "الرئيسية",
+      isCollapsible: true,
+      items: [
+        {
+          id: "dashboard",
+          icon: LayoutDashboard,
+          nameEn: "Dashboard",
+          nameAr: "لوحة التحكم",
+          requiresAuth: false,
+          permission: "dashboard.read",
+        },
+        {
+          id: "company",
+          icon: Building2,
+          nameEn: "Company & Clients",
+          nameAr: "الشركة والعملاء",
+          requiresAuth: true,
+          permission: "company.read",
+        },
+      ],
+    },
+    {
+      id: "customer",
+      titleEn: "CUSTOMER MANAGEMENT",
+      titleAr: "إدارة العملاء",
+      isCollapsible: true,
+      items: [
+        {
+          id: "lead-management",
+          icon: Target,
+          nameEn: "Lead Management",
+          nameAr: "إدارة العملاء المحتملين",
+          requiresAuth: true,
+          permission: "leads.read",
+        },
+      ],
+    },
+    {
+      id: "resources",
+      titleEn: "RESOURCES",
+      titleAr: "الموارد",
+      isCollapsible: true,
+      items: [
+        {
+          id: "manpower",
+          icon: Users,
+          nameEn: "Workforce Management",
+          nameAr: "إدارة القوى العاملة",
+          requiresAuth: true,
+          permission: "manpower.read",
+        },
+        {
+          id: "fleet",
+          icon: Truck,
+          nameEn: "Fleet Management",
+          nameAr: "إدارة الأسطول",
+          requiresAuth: true,
+          permission: "fleet.read",
+        },
+        {
+          id: "permissions",
+          icon: KeyIcon,
+          nameEn: "Permissions",
+          nameAr: " إذن",
+          requiresAuth: true,
+          permission: "permissions.read",
+        },
+      ],
+    },
+    {
+      id: "operations",
+      titleEn: "OPERATIONS",
+      titleAr: "العمليات",
+      isCollapsible: true,
+      items: [
+        {
+          id: "task-management",
+          icon: CheckSquare,
+          nameEn: "Task Management",
+          nameAr: "إدارة المهام",
+          requiresAuth: true,
+          permission: "tasks.read",
+        },
+        // {
+        //   id: "work-progress",
+        //   icon: Camera,
+        //   nameEn: "Work Progress",
+        //   nameAr: "تقدم العمل",
+        //   requiresAuth: true,
+        //   permission: "progress.read",
+        // },
+      ],
+    },
+    {
+      id: "financial",
+      titleEn: "FINANCIAL",
+      titleAr: "المالية",
+      isCollapsible: true,
+      items: [
+        {
+          id: "invoices",
+          icon: FileText,
+          nameEn: "Smart Invoicing",
+          nameAr: "الفوترة الذكية",
+          requiresAuth: true,
+          permission: "invoices.read",
+        },
+        {
+          id: "payable-invoices",
+          icon: FileText,
+          nameEn: "Payble Invoicing",
+          nameAr: "الفواتير المستحقة",
+          requiresAuth: true,
+          permission: "invoices.read",
+        },
+        {
+          id: "payroll",
+          icon: Calculator,
+          nameEn: "Payroll Management",
+          nameAr: "إدارة الرواتب",
+          requiresAuth: true,
+          permission: "payroll.read",
+        },
+        // {
+        //   id: "compliance",
+        //   icon: Shield,
+        //   nameEn: "Compliance & Reports",
+        //   nameAr: "الامتثال والتقارير",
+        //   requiresAuth: true,
+        //   permission: "compliance.read",
+        // },
+        // {
+        //   id: "hourly-rates",
+        //   icon: Clock,
+        //   nameEn: "Hourly Rate Management",
+        //   nameAr: "إدارة الأجور بالساعة",
+        //   requiresAuth: true,
+        //   permission: "payroll.read",
+        // },
+      ],
+    },
+    {
+      id: "departments",
+      titleEn: "DEPARTMENTS",
+      titleAr: "الأقسام",
+      isCollapsible: true,
+      items: [
+        {
+          id: "operations",
+          icon: Briefcase,
+          nameEn: "Operations Department",
+          nameAr: "قسم العمليات",
+          requiresAuth: true,
+          permission: "departments.operations",
+        },
+        {
+          id: "finance",
+          icon: DollarSign,
+          nameEn: "Finance Department",
+          nameAr: "قسم المالية",
+          requiresAuth: true,
+          permission: "departments.finance",
+        },
+        {
+          id: "hr",
+          icon: UserCheck,
+          nameEn: "Human Resources",
+          nameAr: "الموارد البشرية",
+          requiresAuth: true,
+          permission: "departments.hr",
+        },
+      ],
+    },
+    {
+      id: "administration",
+      titleEn: "ADMINISTRATION",
+      titleAr: "الإدارة",
+      isCollapsible: true,
+      items: [
+        // {
+        //   id: "integrations",
+        //   icon: Globe,
+        //   nameEn: "Saudi Integrations",
+        //   nameAr: "التكاملات السعودية",
+        //   requiresAuth: true,
+        //   permission: "integrations.read",
+        //   badge: 4,
+        //   isNew: true,
+        // },
+        // {
+        //   id: "user-access-roles",
+        //   icon: Key,
+        //   nameEn: "User Access & Roles",
+        //   nameAr: "الوصول والأدوار",
+        //   requiresAuth: true,
+        //   permission: "admin.roles",
+        // },
+        // {
+        //   id: "system",
+        //   icon: Settings,
+        //   nameEn: "System Setup",
+        //   nameAr: "إعدادات النظام",
+        //   requiresAuth: true,
+        //   permission: "admin.system",
+        // },
+        // {
+        //   id: "notifications",
+        //   icon: Bell,
+        //   nameEn: "Notification System",
+        //   nameAr: "نظام التنبيهات",
+        //   requiresAuth: true,
+        //   permission: "notifications.read",
+        //   badge: 3,
+        // },
+        // {
+        //   id: "notification-tester",
+        //   icon: TestTube,
+        //   nameEn: "Notification Tester",
+        //   nameAr: "اختبار التنبيهات",
+        //   requiresAuth: true,
+        //   permission: "notifications.manage",
+        //   isNew: true,
+        // },
+        {
+          id: "attendance-tracking",
+          icon: Clock,
+          nameEn: "Leave Tracking",
+          nameAr: "تتبع الحضور",
+          requiresAuth: true,
+          permission: "attendance.read",
+        },
+        {
+          id: "users",
+          icon: UserCog,
+          nameEn: "User Management",
+          nameAr: "إدارة المستخدمين",
+          requiresAuth: true,
+          permission: "admin.users",
+        },
+      ],
+    },
+  ];
+
+  // function getCookie(name) {
+  //   const value = `; ${document.cookie}`;
+  //   const parts = value.split(`; ${name}=`);
+  //   if (parts.length === 2) return parts.pop().split(";").shift();
+  // }
+
+  // const token = getCookie("amoagc_token");
+
+  const handleLogout = async () => {
+    try {
+      await logout(); // Call the logout function from useAuth
+      window.location.href = "/login";
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
+  const toggleSection = (sectionId) => {
     if (isCollapsed) return;
-    setExpandedSections((prev) => {
-      const updated = new Set(prev);
-      updated.has(id) ? updated.delete(id) : updated.add(id);
-      return updated;
-    });
+
+    const newExpanded = new Set(expandedSections);
+    if (newExpanded.has(sectionId)) {
+      newExpanded.delete(sectionId);
+    } else {
+      newExpanded.add(sectionId);
+    }
+    setExpandedSections(newExpanded);
   };
 
   const handleMenuClick = (item) => {
+    if (item.requiresAuth && !user) {
+      alert(
+        language === "ar"
+          ? "يجب تسجيل الدخول للوصول لهذه الصفحة"
+          : "Please sign in to access this page"
+      );
+      return;
+    }
+
+    // if (item.permission && !hasPermission(item.permission)) {
+    //   alert(
+    //     language === "ar"
+    //       ? "ليس لديك صلاحية للوصول لهذه الصفحة"
+    //       : "You do not have permission to access this page"
+    //   );
+    //   return;
+    // }
+
+    if (!item.id || typeof item.id !== "string") {
+      console.error("Invalid menu item ID:", item.id);
+      return;
+    }
+
     setActiveModule(item.id);
     setIsMobileMenuOpen(false);
     setFocusedItem(item.id);
   };
 
-  // --- Renderers (unchanged JSX) ---
+  const isMenuItemVisible = (item) => {
+    if (item.requiresAuth && !user) return false;
+    // if (item.permission && !hasPermission(item.permission)) return false;
+    return true;
+  };
+
   const renderMenuItem = (item) => {
     const Icon = item.icon;
     const isActive = activeModule === item.id;
+    const isVisible = isMenuItemVisible(item);
+
+    if (!isVisible) return null;
+
+    // console.log(language, isRTL);
+
     return (
       <li key={item.id}>
         <button
           onClick={() => handleMenuClick(item)}
+          disabled={!isVisible}
           onFocus={() => setFocusedItem(item.id)}
           onBlur={() => setFocusedItem("")}
           className={`w-full flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 text-sm group relative
@@ -330,6 +431,7 @@ export const EnhancedBilingualSidebar = ({
     }
     ${isRTL ? "flex-row-reverse" : "flex-row"}  
     ${isCollapsed ? "justify-center px-2" : "gap-3"}
+    ${!isVisible ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
     ${focusedItem === item.id ? "ring-2 ring-white ring-opacity-50" : ""}`}
           title={
             isCollapsed
@@ -392,26 +494,38 @@ export const EnhancedBilingualSidebar = ({
     );
   };
 
+  // Render section with collapsible functionality
   const renderSection = (section) => {
     const isExpanded = expandedSections.has(section.id);
+    const visibleItems = section.items.filter(isMenuItemVisible);
+
+    if (visibleItems.length === 0) return null;
+
     return (
       <div key={section.id} className="mb-6">
         {!isCollapsed && (
           <button
             onClick={() => toggleSection(section.id)}
-            className="w-full flex items-center justify-between mb-3 px-2 text-xs font-semibold uppercase tracking-wider text-green-300 hover:text-green-200"
+            className={`w-full flex items-center justify-between mb-3 px-2 text-xs font-semibold uppercase tracking-wider hover:text-green-200 transition-colors text-green-300`}
+            aria-expanded={isExpanded}
+            aria-controls={`section-${section.id}`}
           >
-            <span
-              className={`transition-transform duration-200 ${
-                isExpanded ? "rotate-180" : ""
-              }`}
-            >
-              {isExpanded ? (
-                <ChevronUp className="w-3 h-3" />
-              ) : (
-                <ChevronDown className="w-3 h-3" />
-              )}
-            </span>
+            {/* Chevron icon */}
+            {section.isCollapsible && (
+              <span
+                className={`transition-transform duration-200 ${
+                  isExpanded ? "rotate-180" : ""
+                }`}
+              >
+                {isExpanded ? (
+                  <ChevronUp className="w-3 h-3" />
+                ) : (
+                  <ChevronDown className="w-3 h-3" />
+                )}
+              </span>
+            )}
+
+            {/* Section title */}
             <span
               className={`${isRTL ? "text-right" : "text-left"} flex-1 ml-2`}
             >
@@ -419,7 +533,9 @@ export const EnhancedBilingualSidebar = ({
             </span>
           </button>
         )}
+
         <div
+          id={`section-${section.id}`}
           className={`transition-all duration-300 overflow-hidden ${
             isCollapsed || isExpanded
               ? "max-h-screen opacity-100"
@@ -432,14 +548,16 @@ export const EnhancedBilingualSidebar = ({
     );
   };
 
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false); //state for logout confirmation
   return (
     <>
-      {/* Mobile Toggle */}
+      {/* Mobile Menu Button */}
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         className={`lg:hidden fixed top-4 ${
           isRTL ? "right-4" : "left-4"
         } z-50 p-2 bg-green-600 text-white rounded-lg shadow-lg`}
+        aria-label="Toggle navigation menu"
       >
         {isMobileMenuOpen ? (
           <X className="w-6 h-6" />
@@ -448,6 +566,7 @@ export const EnhancedBilingualSidebar = ({
         )}
       </button>
 
+      {/* Mobile Overlay */}
       {isMobileMenuOpen && (
         <div
           className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
@@ -568,15 +687,12 @@ export const EnhancedBilingualSidebar = ({
           )}
         </header>
 
-        {/* Nav */}
+        {/* Navigation Menu */}
         <nav
           className="flex-1 p-4 overflow-y-auto sidebar-scroll"
           role="menubar"
         >
-          <div className="space-y-2">
-            {" "}
-            {filteredSections.map(renderSection)}
-          </div>
+          <div className="space-y-2">{menuSections.map(renderSection)}</div>
         </nav>
 
         {/* Footer */}
@@ -589,9 +705,9 @@ export const EnhancedBilingualSidebar = ({
             <button
               onClick={() => setShowLogoutConfirm(true)}
               className={`w-full flex items-center px-4 py-3 rounded-xl text-green-100/90 
-            hover:bg-green-700/60 transition-all duration-200 hover:shadow-md group
-            ${isCollapsed ? "justify-center px-2" : "justify-start"}
-          `}
+      hover:bg-green-700/60 transition-all duration-200 hover:shadow-md group
+      ${isCollapsed ? "justify-center px-2" : "justify-start"}
+    `}
               title={isCollapsed ? t("nav.signOut", "Sign Out") : undefined}
               aria-label="Sign out"
             >
