@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { formatCurrency } from "../utils/financialCalculations";
 
-export const NavigationTabs = ({
+export const NavigationTabsHR = ({
   activeView,
   setActiveView,
   isArabic,
@@ -22,31 +22,31 @@ export const NavigationTabs = ({
         <nav className="flex">
           {[
             // { view: "dashboard", icon: BarChart3, label: isArabic ? "مركز القيادة" : "Command Center" },
-            // {
-            //   view: "employees",
-            //   icon: Users,
-            //   label: isArabic ? "إدارة الموظفين" : "Employee Management",
-            // },
             {
-              view: "projects",
-              icon: Briefcase,
-              label: isArabic ? "إدارة المشاريع" : "Project Management",
+              view: "employees",
+              icon: Users,
+              label: isArabic ? "إدارة الموظفين" : "Employee Management",
             },
             // {
-            //   view: "attendance",
-            //   icon: Calendar,
-            //   label: isArabic ? "تتبع الحضور" : "Attendance Tracking",
+            //   view: "projects",
+            //   icon: Briefcase,
+            //   label: isArabic ? "إدارة المشاريع" : "Project Management",
             // },
             {
-              view: "analytics",
-              icon: PieChart,
-              label: isArabic ? "التحليلات المتقدمة" : "Advanced Analytics",
+              view: "attendance",
+              icon: Calendar,
+              label: isArabic ? "تتبع الحضور" : "Attendance Tracking",
             },
-            {
-              view: "reports",
-              icon: TrendingUp,
-              label: isArabic ? "مركز ذكاء الأرباح" : "Profit Intelligence",
-            },
+            // {
+            //   view: "analytics",
+            //   icon: PieChart,
+            //   label: isArabic ? "التحليلات المتقدمة" : "Advanced Analytics",
+            // },
+            // {
+            //   view: "reports",
+            //   icon: TrendingUp,
+            //   label: isArabic ? "مركز ذكاء الأرباح" : "Profit Intelligence",
+            // },
           ].map(({ view, icon: Icon, label }) => (
             <button
               key={view}

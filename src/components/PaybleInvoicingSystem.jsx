@@ -36,6 +36,8 @@ import InvoiceService from "../services/InvoiceService";
 import PaybleInvoiceService from "../services/PaybleInvoiceService";
 import { QRCodeCanvas } from "qrcode.react";
 import { useReactToPrint } from "react-to-print";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 export const PaybleInvoicingSystem = ({ isArabic }) => {
   const invoiceRef = useRef();
@@ -97,6 +99,7 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
 
     fetchData();
   }, []);
+  console.log(invoices);
 
   // New invoice form state
   const [newInvoice, setNewInvoice] = useState({
@@ -645,6 +648,60 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
     return matchesSearch && matchesStatus;
   });
 
+  const handleDownloadPayableInvoices = () => {
+    if (!filteredInvoices?.length)
+      return alert(
+        isArabic ? "لا توجد فواتير للتصدير" : "No payable invoices to export"
+      );
+
+    // Prepare summary data
+    const data = filteredInvoices.map((invoice, index) => ({
+      "S.No": index + 1,
+      "Invoice Number": invoice.invoiceNumber,
+      "Invoice Type": invoice.invoiceType,
+      "Seller Name": isArabic
+        ? invoice.seller.nameAr || "غير متوفر"
+        : invoice.seller.nameEn || "N/A",
+      "Seller VAT": invoice.seller.vatNumber || "N/A",
+      "Buyer Name": isArabic
+        ? invoice.buyer.companyNameAr
+        : invoice.buyer.companyNameEn,
+      "Buyer VAT": invoice.buyer.vatNumber || "N/A",
+      "Amount (Incl. VAT)": invoice.subtotalIncludingVat,
+      "Total Paid": invoice.totalPaid,
+      "Balance Due": invoice.balanceDue,
+      Currency: invoice.currency,
+      Status: invoice.status,
+      "Payment Terms": invoice.paymentTerms || "N/A",
+      "Issue Date": invoice.issueDateGregorian
+        ? new Date(invoice.issueDateGregorian).toLocaleDateString("en-GB")
+        : "N/A",
+      "Issue Time": invoice.issueTimeGregorian || "N/A",
+    }));
+
+    // Create worksheet & workbook
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(
+      workbook,
+      worksheet,
+      "Payable Invoices Summary"
+    );
+
+    // Generate Excel file and trigger download
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    saveAs(
+      blob,
+      `Payable_Invoices_Summary_${new Date().toISOString().split("T")[0]}.xlsx`
+    );
+  };
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -653,6 +710,13 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
           {isArabic ? "نظام الفوترة الإلكترونية" : "Payble Invoicing System"}
         </h1>
         <div className="flex items-center gap-3">
+          <button
+            onClick={handleDownloadPayableInvoices}
+            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+          >
+            <Download className="w-4 h-4" />
+            {isArabic ? "تصدير" : "Export"}
+          </button>
           <button
             onClick={() => setShowCreateModal(true)}
             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"

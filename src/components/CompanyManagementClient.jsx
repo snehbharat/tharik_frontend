@@ -22,8 +22,8 @@ import ProjectServiceClient from "../services/ProjectServiceClient";
 import { getCompany } from "../services/CompanyService";
 import { employeeService } from "../services/EmployeeService";
 
-export const CompanyManagement = ({ isArabic }) => {
-  const [activeTab, setActiveTab] = useState("profile");
+export const CompanyManagementClient = ({ isArabic }) => {
+  const [activeTab, setActiveTab] = useState("clients");
   const [showAddClient, setShowAddClient] = useState(false);
   const [editingClient, setEditingClient] = useState(null);
   const [clients, setClients] = useState([]);
@@ -430,7 +430,7 @@ export const CompanyManagement = ({ isArabic }) => {
       <div className="bg-white rounded-xl shadow-sm border border-gray-100">
         <div className="border-b border-gray-200">
           <nav className="flex">
-            <button
+            {/* <button
               onClick={() => setActiveTab("profile")}
               className={`px-6 py-4 font-medium transition-colors ${
                 activeTab === "profile"
@@ -442,8 +442,8 @@ export const CompanyManagement = ({ isArabic }) => {
                 <Building2 className="w-4 h-4" />
                 {isArabic ? "ملف الشركة" : "Company Profile"}
               </div>
-            </button>
-            {/* <button
+            </button> */}
+            <button
               onClick={() => setActiveTab("clients")}
               className={`px-6 py-4 font-medium transition-colors ${
                 activeTab === "clients"
@@ -455,7 +455,7 @@ export const CompanyManagement = ({ isArabic }) => {
                 <Users className="w-4 h-4" />
                 {isArabic ? "العملاء" : "Clients"}
               </div>
-            </button> */}
+            </button>
           </nav>
         </div>
 
