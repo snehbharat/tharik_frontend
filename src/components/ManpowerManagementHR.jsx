@@ -15,14 +15,15 @@ import { Reports } from "./Reports";
 import { EnhancedAttendanceTracker } from "./attendance/EnhancedAttendanceTracker";
 import AddProjectModal from "./AddProjectModal";
 import { EmployeeManagement } from "./EmployeeManagement";
+import { NavigationTabsHR } from "./NavigationTabsHR";
 
-export const ManpowerManagement = ({ isArabic }) => {
+export const ManpowerManagementHR = ({ isArabic }) => {
   // State for projects, attendance, clients, and UI controls
   const [projects, setProjects] = useState([]);
   const [attendance, setAttendance] = useState([]);
   const [clients, setClients] = useState([]);
   const [clientSearchQuery, setClientSearchQuery] = useState("");
-  const [activeView, setActiveView] = useState("projects");
+  const [activeView, setActiveView] = useState("employees");
   const [selectedProject, setSelectedProject] = useState("all");
   const [showAddProject, setShowAddProject] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -456,7 +457,7 @@ export const ManpowerManagement = ({ isArabic }) => {
         />
 
         {/* Navigation tabs */}
-        <NavigationTabs
+        <NavigationTabsHR
           activeView={activeView}
           setActiveView={setActiveView}
           isArabic={isArabic}

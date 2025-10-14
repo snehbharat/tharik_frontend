@@ -48,6 +48,8 @@ import ProjectServiceClient from "./services/ProjectServiceClient.js";
 import ClientService from "./services/ClientService.js";
 import { PaybleInvoicingSystem } from "./components/PaybleInvoicingSystem.jsx";
 import { SystemSettings } from "./components/SystemSettings.jsx";
+import { ManpowerManagementHR } from "./components/ManpowerManagementHR.jsx";
+import { CompanyManagementClient } from "./components/CompanyManagementClient.jsx";
 
 const AppContent = () => {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -178,8 +180,10 @@ const AppContent = () => {
         );
       case "company":
         return <CompanyManagement isArabic={isArabic} />;
+      case "client":
+        return <CompanyManagementClient isArabic={isArabic} />;
       case "manpower":
-        return <ManpowerManagement isArabic={isArabic} />;
+        return <ManpowerManagementHR isArabic={isArabic} />;
       case "manpower-1":
         return <ManpowerManagement isArabic={isArabic} />;
       case "fleet":

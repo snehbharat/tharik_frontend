@@ -35,6 +35,8 @@ import { getCompany, updateCompany } from "../services/CompanyService";
 import { useReactToPrint } from "react-to-print";
 import InvoiceService from "../services/InvoiceService";
 import { QRCodeCanvas } from "qrcode.react";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 export const ZATCAInvoicingSystem = ({ isArabic }) => {
   const invoiceRef = useRef();
@@ -107,6 +109,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
       alert(isArabic ? "فشل حفظ الإعدادات" : "Failed to save settings");
     }
   };
+  console.log(invoices);
 
   // New invoice form state
   const [newInvoice, setNewInvoice] = useState({
@@ -833,6 +836,47 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
     return matchesSearch && matchesStatus;
   });
 
+  const handleDownloadInvoices = () => {
+    if (!filteredInvoices?.length)
+      return alert("No invoices available to export");
+
+    // Prepare data for Excel
+    const data = filteredInvoices.map((invoice, index) => ({
+      "S.No": index + 1,
+      "Invoice Number": invoice.invoiceNumber,
+      "Invoice Type": invoice.invoiceType,
+      "Customer Name": isArabic ? invoice.buyer.nameAr : invoice.buyer.nameEn,
+      "Customer Type": invoice.buyer.type,
+      "VAT Number": invoice.buyer.vatNumber || "N/A",
+      "Date Created": new Date(invoice.createdAt).toLocaleDateString("en-GB"),
+      "Amount (Incl. VAT)": invoice.subtotalIncludingVat,
+      Currency: invoice.currency,
+      Status: invoice.status,
+      "Issued Date": invoice.issueDateGregorian
+        ? new Date(invoice.issueDateGregorian).toLocaleDateString("en-GB")
+        : "N/A",
+      "Payment Terms": invoice.paymentTerms || "N/A",
+    }));
+
+    // Create worksheet & workbook
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Invoices Summary");
+
+    // Generate Excel file and trigger download
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    saveAs(
+      blob,
+      `Invoices_Summary_${new Date().toISOString().split("T")[0]}.xlsx`
+    );
+  };
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -841,14 +885,14 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
           {isArabic ? "نظام الفوترة الإلكترونية" : "E-Invoicing System"}
         </h1>
         <div className="flex items-center gap-3">
-          {/* <button
-            onClick={handleExportInvoices}
+          <button
+            onClick={handleDownloadInvoices}
             className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
           >
             <Download className="w-4 h-4" />
             {isArabic ? "تصدير" : "Export"}
           </button>
-          <button
+          {/* <button
             onClick={handleImportInvoices}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
           >

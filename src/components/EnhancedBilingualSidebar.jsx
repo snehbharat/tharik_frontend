@@ -126,10 +126,10 @@ export const EnhancedBilingualSidebar = ({
         titleAr: "إدارة العملاء",
         items: [
           {
-            id: "company",
+            id: "client",
             icon: Building2,
-            nameEn: "Company & Clients",
-            nameAr: "الشركة والعملاء",
+            nameEn: "Client Directory",
+            nameAr: "دليل العملاء",
           },
           {
             id: "lead-management",
@@ -254,6 +254,12 @@ export const EnhancedBilingualSidebar = ({
             icon: KeyIcon,
             nameEn: "Permissions",
             nameAr: "إذن",
+          },
+          {
+            id: "company",
+            icon: Building2,
+            nameEn: "Company Profile",
+            nameAr: "ملف الشركة",
           },
           {
             id: "system-settings",
