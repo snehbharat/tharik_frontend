@@ -399,7 +399,7 @@ export const CompanyManagement = ({ isArabic }) => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">
-          {isArabic ? "إدارة الشركة والعملاء" : "Company & Client Management"}
+          {isArabic ? "ملف الشركة" : "Company Profile"}
         </h1>
         <div className="flex items-center gap-3">
           {/* <button
@@ -416,13 +416,13 @@ export const CompanyManagement = ({ isArabic }) => {
             <Upload className="w-4 h-4" />
             {isArabic ? "استيراد العملاء" : "Import Clients"}
           </button> */}
-          <button
+          {/* <button
             onClick={() => setShowAddClient(true)}
             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
           >
             <Plus className="w-4 h-4" />
             {isArabic ? "إضافة عميل جديد" : "Add New Client"}
-          </button>
+          </button> */}
         </div>
       </div>
 
