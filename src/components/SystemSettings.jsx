@@ -11,8 +11,8 @@ export const SystemSettings = ({ isArabic }) => {
   const [activeTab, setActiveTab] = useState("settings");
   const [sellerInfo, setSellerInfo] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef(null);
 
@@ -37,7 +37,13 @@ export const SystemSettings = ({ isArabic }) => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"];
+      const validTypes = [
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/gif",
+        "image/webp",
+      ];
       if (!validTypes.includes(file.type)) {
         alert(
           isArabic
@@ -97,16 +103,18 @@ export const SystemSettings = ({ isArabic }) => {
   const handleSaveCompanyDetails = async () => {
     try {
       setUploading(true);
-      
+
       console.log("=== SAVING COMPANY DETAILS ===");
       console.log("Has image file:", !!imageFile);
       console.log("Image file details:", imageFile);
       console.log("Company data keys:", Object.keys(sellerInfo));
       console.log("================================");
-      
+
       await updateCompany(sellerInfo, imageFile);
-      alert(isArabic ? "تم حفظ الإعدادات بنجاح" : "Settings saved successfully");
-      
+      alert(
+        isArabic ? "تم حفظ الإعدادات بنجاح" : "Settings saved successfully"
+      );
+
       const updatedData = await getCompany();
       setSellerInfo(updatedData);
       if (updatedData.companyImage) {
@@ -127,7 +135,9 @@ export const SystemSettings = ({ isArabic }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="text-lg">{isArabic ? "جاري التحميل..." : "Loading..."}</div>
+        <div className="text-lg">
+          {isArabic ? "جاري التحميل..." : "Loading..."}
+        </div>
       </div>
     );
   }
@@ -165,7 +175,9 @@ export const SystemSettings = ({ isArabic }) => {
           {activeTab === "settings" && (
             <div className="space-y-6">
               <h3 className="text-lg font-semibold text-gray-900">
-                {isArabic ? "إعدادات معلومات الشركة" : "Company Information Settings"}
+                {isArabic
+                  ? "إعدادات معلومات الشركة"
+                  : "Company Information Settings"}
               </h3>
 
               {/* Company Logo Section */}
@@ -227,13 +239,18 @@ export const SystemSettings = ({ isArabic }) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "اسم الشركة (إنجليزي)" : "Company Name (English)"}
+                    {isArabic
+                      ? "اسم الشركة (إنجليزي)"
+                      : "Company Name (English)"}
                   </label>
                   <input
                     type="text"
                     value={sellerInfo?.companyNameEn || ""}
                     onChange={(e) =>
-                      setSellerInfo({ ...sellerInfo, companyNameEn: e.target.value })
+                      setSellerInfo({
+                        ...sellerInfo,
+                        companyNameEn: e.target.value,
+                      })
                     }
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
                   />
@@ -246,20 +263,28 @@ export const SystemSettings = ({ isArabic }) => {
                     type="text"
                     value={sellerInfo?.companyNameAr || ""}
                     onChange={(e) =>
-                      setSellerInfo({ ...sellerInfo, companyNameAr: e.target.value })
+                      setSellerInfo({
+                        ...sellerInfo,
+                        companyNameAr: e.target.value,
+                      })
                     }
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "رقم ضريبة القيمة المضافة (15 رقم)" : "VAT Number (15 digits)"}
+                    {isArabic
+                      ? "رقم ضريبة القيمة المضافة (15 رقم)"
+                      : "VAT Number (15 digits)"}
                   </label>
                   <input
                     type="text"
                     value={sellerInfo?.vatNumber || ""}
                     onChange={(e) =>
-                      setSellerInfo({ ...sellerInfo, vatNumber: e.target.value })
+                      setSellerInfo({
+                        ...sellerInfo,
+                        vatNumber: e.target.value,
+                      })
                     }
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
                     maxLength={15}
@@ -290,7 +315,10 @@ export const SystemSettings = ({ isArabic }) => {
                         : ""
                     }
                     onChange={(e) =>
-                      setSellerInfo({ ...sellerInfo, establishmentDate: e.target.value })
+                      setSellerInfo({
+                        ...sellerInfo,
+                        establishmentDate: e.target.value,
+                      })
                     }
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
                   />
@@ -302,10 +330,15 @@ export const SystemSettings = ({ isArabic }) => {
                   <input
                     type="date"
                     value={
-                      sellerInfo?.licenseExpiry ? sellerInfo.licenseExpiry.split("T")[0] : ""
+                      sellerInfo?.licenseExpiry
+                        ? sellerInfo.licenseExpiry.split("T")[0]
+                        : ""
                     }
                     onChange={(e) =>
-                      setSellerInfo({ ...sellerInfo, licenseExpiry: e.target.value })
+                      setSellerInfo({
+                        ...sellerInfo,
+                        licenseExpiry: e.target.value,
+                      })
                     }
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
                   />
@@ -321,7 +354,10 @@ export const SystemSettings = ({ isArabic }) => {
                   <textarea
                     value={sellerInfo?.addressEn || ""}
                     onChange={(e) =>
-                      setSellerInfo({ ...sellerInfo, addressEn: e.target.value })
+                      setSellerInfo({
+                        ...sellerInfo,
+                        addressEn: e.target.value,
+                      })
                     }
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
                     rows={3}
@@ -334,7 +370,10 @@ export const SystemSettings = ({ isArabic }) => {
                   <textarea
                     value={sellerInfo?.addressAr || ""}
                     onChange={(e) =>
-                      setSellerInfo({ ...sellerInfo, addressAr: e.target.value })
+                      setSellerInfo({
+                        ...sellerInfo,
+                        addressAr: e.target.value,
+                      })
                     }
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
                     rows={3}
@@ -365,7 +404,10 @@ export const SystemSettings = ({ isArabic }) => {
                     type="text"
                     value={sellerInfo?.postalCode || ""}
                     onChange={(e) =>
-                      setSellerInfo({ ...sellerInfo, postalCode: e.target.value })
+                      setSellerInfo({
+                        ...sellerInfo,
+                        postalCode: e.target.value,
+                      })
                     }
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
                   />
@@ -451,7 +493,10 @@ export const SystemSettings = ({ isArabic }) => {
                     type="text"
                     value={sellerInfo?.swiftCode || ""}
                     onChange={(e) =>
-                      setSellerInfo({ ...sellerInfo, swiftCode: e.target.value })
+                      setSellerInfo({
+                        ...sellerInfo,
+                        swiftCode: e.target.value,
+                      })
                     }
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
                   />
@@ -467,8 +512,12 @@ export const SystemSettings = ({ isArabic }) => {
                 >
                   <Save className="w-4 h-4" />
                   {uploading
-                    ? isArabic ? "جاري الحفظ..." : "Saving..."
-                    : isArabic ? "حفظ الإعدادات" : "Save Settings"}
+                    ? isArabic
+                      ? "جاري الحفظ..."
+                      : "Saving..."
+                    : isArabic
+                    ? "حفظ الإعدادات"
+                    : "Save Settings"}
                 </button>
               </div>
             </div>
