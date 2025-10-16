@@ -30,8 +30,13 @@ import {
   FileCheck,
   Zap,
   Settings,
+  ImageIcon,
 } from "lucide-react";
-import { getCompany, updateCompany } from "../services/CompanyService";
+import {
+  getCompany,
+  getImageUrl,
+  updateCompany,
+} from "../services/CompanyService";
 import InvoiceService from "../services/InvoiceService";
 import PaybleInvoiceService from "../services/PaybleInvoiceService";
 import { QRCodeCanvas } from "qrcode.react";
@@ -57,6 +62,25 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
     limit: 10,
     totalPages: 1,
   });
+
+  const [imagePreview, setImagePreview] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getCompany();
+        if (data.companyImage) {
+          setImagePreview(getImageUrl(data.companyImage));
+        }
+      } catch (error) {
+        console.error("Failed to load company info", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handlePrint = useReactToPrint({
     contentRef: invoiceRef,
@@ -1851,11 +1875,17 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
                 <div className="flex justify-between items-start mb-8">
                   <div>
                     <div className="flex items-center">
-                      <img
-                        src="./logo.jpg"
-                        alt="logo"
-                        className="w-12 h-12 rounded-xl"
-                      />
+                      {imagePreview ? (
+                        <img
+                          src={imagePreview}
+                          alt="logo"
+                          className="w-12 h-12 rounded-xl"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 border-2 border-gray-300 rounded-lg flex items-center justify-center bg-gray-50">
+                          <ImageIcon className="w-12 h-12 text-gray-400" />
+                        </div>
+                      )}
                       <h1 className="text-3xl font-bold text-gray-900 mb-2 pl-2 pt-2">
                         {isArabic
                           ? sellerInfo.companyNameAr

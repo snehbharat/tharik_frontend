@@ -16,6 +16,7 @@ import { EnhancedAttendanceTracker } from "./attendance/EnhancedAttendanceTracke
 import AddProjectModal from "./AddProjectModal";
 import { EmployeeManagement } from "./EmployeeManagement";
 import { NavigationTabsHR } from "./NavigationTabsHR";
+import { HeaderHR } from "./HeaderHR";
 
 export const ManpowerManagementHR = ({ isArabic }) => {
   // State for projects, attendance, clients, and UI controls
@@ -449,7 +450,7 @@ export const ManpowerManagementHR = ({ isArabic }) => {
         )}
 
         {/* Header component */}
-        <Header
+        <HeaderHR
           isArabic={isArabic}
           onRefresh={refreshData}
           onExport={() => {}}
