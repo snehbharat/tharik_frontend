@@ -35,6 +35,7 @@ import {
   Wifi,
   WifiOff,
   Trash2,
+  User,
 } from "lucide-react";
 import TeamService from "../services/TeamService";
 import VehicleService from "../services/VehicleService";
@@ -45,6 +46,7 @@ import EmployeeService, {
 } from "../services/EmployeeService";
 import ScheduleTaskService from "../services/ScheduleTaskService";
 import UserService from "../services/UserService";
+import EmployeeManagementPO from "./EmployeeManagementPO";
 
 export const OperationsDepartment = ({ isArabic }) => {
   const [activeTab, setActiveTab] = useState("projects");
@@ -1348,23 +1350,23 @@ export const OperationsDepartment = ({ isArabic }) => {
               }`}
             >
               <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
+                <Users className="w-4 h-4" />
                 {isArabic ? "فرق" : "Teams"}
               </div>
             </button>
-            {/* <button
-              onClick={() => setActiveTab("assignments")}
+            <button
+              onClick={() => setActiveTab("employee")}
               className={`px-6 py-4 font-medium transition-colors ${
-                activeTab === "assignments"
+                activeTab === "employee"
                   ? "text-green-600 border-b-2 border-green-600"
                   : "text-gray-500 hover:text-gray-700"
               }`}
             >
               <div className="flex items-center gap-2">
-                <Users className="w-4 h-4" />
-                {isArabic ? "المهام اليومية" : "Daily Assignments"}
+                <User className="w-4 h-4" />
+                {isArabic ? "الموظفون" : "Employees"}
               </div>
-            </button> */}
+            </button>
             {/* <button
               onClick={() => setActiveTab("performance")}
               className={`px-6 py-4 font-medium transition-colors ${
@@ -2094,6 +2096,9 @@ export const OperationsDepartment = ({ isArabic }) => {
             </div>
           )}
 
+          {activeTab === "employee" && (
+            <EmployeeManagementPO isArabic={isArabic} />
+          )}
           {activeTab === "assignments" && (
             <div className="space-y-6">
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">

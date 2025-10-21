@@ -761,6 +761,70 @@ export const FleetManagement = ({ isArabic }) => {
         return 0;
       });
   }, [vehicles, searchTerm, selectedProject, filters]);
+  const activeVehicles = useMemo(() => {
+    return vehicles
+      .filter((v) => v.status === "Active")
+      .filter((vehicle) => {
+        const matchesProject =
+          selectedProject === "all" || vehicle.project === selectedProject;
+        const matchesSearch =
+          searchTerm === "" ||
+          vehicle.plate_number
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          vehicle.driver.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          vehicle.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          vehicle.model.toLowerCase().includes(searchTerm.toLowerCase());
+
+        return matchesProject && matchesSearch;
+      })
+      .sort((a, b) => {
+        // mileage filter
+        if (filters.mileage === "low") return a.mileage - b.mileage;
+        if (filters.mileage === "high") return b.mileage - a.mileage;
+
+        // dailyRate filter
+        if (filters.dailyRate === "low") return a.daily_rate - b.daily_rate;
+        if (filters.dailyRate === "high") return b.daily_rate - a.daily_rate;
+
+        return 0;
+      });
+  }, [vehicles, searchTerm, selectedProject, filters]);
+  const inActiveVehicles = useMemo(() => {
+    return vehicles
+      .filter((v) => v.status === "Inactive")
+      .filter((vehicle) => {
+        const matchesProject =
+          selectedProject === "all" || vehicle.project === selectedProject;
+        const matchesSearch =
+          searchTerm === "" ||
+          vehicle.plate_number
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          vehicle.driver.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          vehicle.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          vehicle.model.toLowerCase().includes(searchTerm.toLowerCase());
+
+        // status filter
+        const matchesStatus =
+          filters.status === "" || vehicle.status === filters.status;
+
+        return matchesProject && matchesSearch && matchesStatus;
+      })
+      .sort((a, b) => {
+        // mileage filter
+        if (filters.mileage === "low") return a.mileage - b.mileage;
+        if (filters.mileage === "high") return b.mileage - a.mileage;
+
+        // dailyRate filter
+        if (filters.dailyRate === "low") return a.daily_rate - b.daily_rate;
+        if (filters.dailyRate === "high") return b.daily_rate - a.daily_rate;
+
+        return 0;
+      });
+  }, [vehicles, searchTerm, selectedProject, filters]);
+  // console.log("active", activeVehicles);
+  // console.log("inactive", inActiveVehicles);
 
   return (
     <div className="p-6 space-y-6">
@@ -847,7 +911,7 @@ export const FleetManagement = ({ isArabic }) => {
             </div>
             <div>
               <div className="text-2xl font-bold text-gray-900">
-                {maintenanceSchedule.length}
+                {vehicles.filter((v) => v.status === "Maintenance").length}
               </div>
               <div className="text-sm text-gray-600">
                 {isArabic ? "صيانة مجدولة" : "Scheduled Maintenance"}
@@ -856,9 +920,7 @@ export const FleetManagement = ({ isArabic }) => {
           </div>
           <div className="text-xs text-yellow-600 flex items-center gap-1">
             <Clock className="w-3 h-3" />
-            {
-              maintenanceSchedule.filter((m) => m.status === "Overdue").length
-            }{" "}
+
             {isArabic ? "متأخرة" : "Overdue"}
           </div>
         </div>
@@ -897,9 +959,9 @@ export const FleetManagement = ({ isArabic }) => {
                   vehicles.filter((v) => {
                     const expiringSoon =
                       new Date(v.insurance) <
-                        new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) ||
+                        new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) ||
                       new Date(v.registration) <
-                        new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
+                        new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
                     return expiringSoon;
                   }).length
                 }
@@ -974,7 +1036,33 @@ export const FleetManagement = ({ isArabic }) => {
             >
               <div className="flex items-center gap-2">
                 <Truck className="w-4 h-4" />
-                {isArabic ? "المركبات" : "Vehicles"}
+                {isArabic ? "جميع المركبات" : "All Vehicles"}
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab("active")}
+              className={`px-6 py-4 font-medium transition-colors ${
+                activeTab === "active"
+                  ? "text-green-600 border-b-2 border-green-600"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Truck className="w-4 h-4" />
+                {isArabic ? "المركبات النشطة" : "Active Vehicles"}
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab("inactive")}
+              className={`px-6 py-4 font-medium transition-colors ${
+                activeTab === "inactive"
+                  ? "text-green-600 border-b-2 border-green-600"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Truck className="w-4 h-4" />
+                {isArabic ? "المركبات غير النشطة" : "Inactive Vehicles"}
               </div>
             </button>
             {/* <button
@@ -1199,7 +1287,340 @@ export const FleetManagement = ({ isArabic }) => {
               </div>
             </div>
           )}
+          {activeTab === "active" && (
+            <div className="space-y-6">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "المركبة" : "Vehicle"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "رقم اللوحة" : "Plate Number"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "السائق" : "Driver"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "المشروع" : "Project"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "المسافة المقطوعة" : "Mileage"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "المعدل اليومي" : "Daily Rate"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "الحالة" : "Status"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "الإجراءات" : "Actions"}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {activeVehicles?.map((vehicle) => (
+                      <tr key={vehicle._id} className="hover:bg-gray-50">
+                        <td className="px-4 py-4">
+                          <div>
+                            <div className="font-medium text-gray-900">
+                              {vehicle.make} {vehicle.model}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {vehicle.type} • {vehicle.year}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {isArabic ? vehicle.colorAr : vehicle.color}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 text-sm font-mono text-gray-900">
+                          <div>{vehicle.plate_number}</div>
+                          <div className="text-xs text-gray-500">
+                            {vehicle.plate_number_en}
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 text-sm text-gray-900">
+                          <div className="font-medium">
+                            {isArabic ? vehicle.driverAr : vehicle.driver}
+                          </div>
+                          <div className="text-xs text-gray-500 flex items-center gap-1">
+                            <Phone className="w-3 h-3" />
+                            {vehicle.driver_phone}
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 text-sm text-gray-900">
+                          {projects.find((c) => c._id === vehicle.project)?.[
+                            isArabic ? "name" : "name"
+                          ] || "-"}
+                        </td>
+                        <td className="px-4 py-4 text-sm text-gray-900">
+                          <div>{vehicle?.mileage?.toLocaleString()} km</div>
+                          <div className="text-xs text-gray-500">
+                            {vehicle.fuel_consumption} L/100km
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 text-sm font-semibold text-gray-900">
+                          <div>{vehicle.daily_rate} SAR</div>
+                          <div className="text-xs text-gray-500">
+                            {vehicle.monthly_rate} SAR/month
+                          </div>
+                        </td>
+                        <td className="px-4 py-4">
+                          <span
+                            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getStatusColor(
+                              vehicle.status
+                            )}`}
+                          >
+                            {vehicle.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleViewVehicle(vehicle._id)}
+                              className="text-blue-600 hover:text-blue-800 p-1 rounded transition-colors"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleEditVehicle(vehicle._id)}
+                              className="text-green-600 hover:text-green-800 p-1 rounded transition-colors"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            {/* <button className="text-purple-600 hover:text-purple-800 p-1 rounded transition-colors">
+                              <Navigation className="w-4 h-4" />
+                            </button> */}
+                            <button
+                              onClick={() => handleDeleteVehicle(vehicle._id)}
+                              className="text-red-600 hover:text-red-800 p-1 rounded transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div className="flex items-center justify-center gap-4 mt-6">
+                  {/* Previous Button */}
+                  <button
+                    onClick={() =>
+                      fetchVehicles(Math.max(1, pagination.page - 1))
+                    }
+                    disabled={pagination.page <= 1}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+      ${
+        pagination.page <= 1
+          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+          : "bg-green-600 text-white hover:bg-green-700"
+      }`}
+                  >
+                    {isArabic ? "السابق" : "Previous"}
+                  </button>
 
+                  {/* Page Info */}
+                  <div className="px-4 py-2 bg-gray-100 rounded-lg text-sm font-medium text-gray-700">
+                    {isArabic ? "صفحة" : "Page"}{" "}
+                    {Number.isFinite(pagination.page) ? pagination.page : 0}{" "}
+                    {isArabic ? "من" : "of"}{" "}
+                    {Number.isFinite(pagination.totalPages)
+                      ? pagination.totalPages
+                      : 0}
+                  </div>
+
+                  {/* Next Button */}
+                  <button
+                    onClick={() =>
+                      fetchVehicles(
+                        Math.min(pagination.totalPages, pagination.page + 1)
+                      )
+                    }
+                    disabled={pagination.page >= pagination.totalPages}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+      ${
+        pagination.page >= pagination.totalPages
+          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+          : "bg-green-600 text-white hover:bg-green-700"
+      }`}
+                  >
+                    {isArabic ? "التالي" : "Next"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+          {activeTab === "inactive" && (
+            <div className="space-y-6">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "المركبة" : "Vehicle"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "رقم اللوحة" : "Plate Number"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "السائق" : "Driver"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "المشروع" : "Project"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "المسافة المقطوعة" : "Mileage"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "المعدل اليومي" : "Daily Rate"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "الحالة" : "Status"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "الإجراءات" : "Actions"}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {inActiveVehicles?.map((vehicle) => (
+                      <tr key={vehicle._id} className="hover:bg-gray-50">
+                        <td className="px-4 py-4">
+                          <div>
+                            <div className="font-medium text-gray-900">
+                              {vehicle.make} {vehicle.model}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {vehicle.type} • {vehicle.year}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {isArabic ? vehicle.colorAr : vehicle.color}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 text-sm font-mono text-gray-900">
+                          <div>{vehicle.plate_number}</div>
+                          <div className="text-xs text-gray-500">
+                            {vehicle.plate_number_en}
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 text-sm text-gray-900">
+                          <div className="font-medium">
+                            {isArabic ? vehicle.driverAr : vehicle.driver}
+                          </div>
+                          <div className="text-xs text-gray-500 flex items-center gap-1">
+                            <Phone className="w-3 h-3" />
+                            {vehicle.driver_phone}
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 text-sm text-gray-900">
+                          {projects.find((c) => c._id === vehicle.project)?.[
+                            isArabic ? "name" : "name"
+                          ] || "-"}
+                        </td>
+                        <td className="px-4 py-4 text-sm text-gray-900">
+                          <div>{vehicle?.mileage?.toLocaleString()} km</div>
+                          <div className="text-xs text-gray-500">
+                            {vehicle.fuel_consumption} L/100km
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 text-sm font-semibold text-gray-900">
+                          <div>{vehicle.daily_rate} SAR</div>
+                          <div className="text-xs text-gray-500">
+                            {vehicle.monthly_rate} SAR/month
+                          </div>
+                        </td>
+                        <td className="px-4 py-4">
+                          <span
+                            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getStatusColor(
+                              vehicle.status
+                            )}`}
+                          >
+                            {vehicle.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleViewVehicle(vehicle._id)}
+                              className="text-blue-600 hover:text-blue-800 p-1 rounded transition-colors"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleEditVehicle(vehicle._id)}
+                              className="text-green-600 hover:text-green-800 p-1 rounded transition-colors"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            {/* <button className="text-purple-600 hover:text-purple-800 p-1 rounded transition-colors">
+                              <Navigation className="w-4 h-4" />
+                            </button> */}
+                            <button
+                              onClick={() => handleDeleteVehicle(vehicle._id)}
+                              className="text-red-600 hover:text-red-800 p-1 rounded transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div className="flex items-center justify-center gap-4 mt-6">
+                  {/* Previous Button */}
+                  <button
+                    onClick={() =>
+                      fetchVehicles(Math.max(1, pagination.page - 1))
+                    }
+                    disabled={pagination.page <= 1}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+      ${
+        pagination.page <= 1
+          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+          : "bg-green-600 text-white hover:bg-green-700"
+      }`}
+                  >
+                    {isArabic ? "السابق" : "Previous"}
+                  </button>
+
+                  {/* Page Info */}
+                  <div className="px-4 py-2 bg-gray-100 rounded-lg text-sm font-medium text-gray-700">
+                    {isArabic ? "صفحة" : "Page"}{" "}
+                    {Number.isFinite(pagination.page) ? pagination.page : 0}{" "}
+                    {isArabic ? "من" : "of"}{" "}
+                    {Number.isFinite(pagination.totalPages)
+                      ? pagination.totalPages
+                      : 0}
+                  </div>
+
+                  {/* Next Button */}
+                  <button
+                    onClick={() =>
+                      fetchVehicles(
+                        Math.min(pagination.totalPages, pagination.page + 1)
+                      )
+                    }
+                    disabled={pagination.page >= pagination.totalPages}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+      ${
+        pagination.page >= pagination.totalPages
+          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+          : "bg-green-600 text-white hover:bg-green-700"
+      }`}
+                  >
+                    {isArabic ? "التالي" : "Next"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* +++++++++++++++++ */}
           {activeTab === "maintenance" && (
             <div className="space-y-6">
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">

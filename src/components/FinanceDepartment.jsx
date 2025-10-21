@@ -167,6 +167,8 @@ export const FinanceDepartment = ({ isArabic }) => {
   // states from payable invoice ends here //
 
   const [activeTab, setActiveTab] = useState("overview");
+  const [subActiveTab, setSubActiveTab] = useState("clientReceivables");
+
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [summary, setSummary] = useState(null);
@@ -587,20 +589,6 @@ export const FinanceDepartment = ({ isArabic }) => {
         return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
-
-  const getKpiStatusColor = (status) => {
-    switch (status) {
-      case "above":
-        return "text-green-600";
-      case "below":
-        return "text-red-600";
-      case "on-target":
-        return "text-blue-600";
-      default:
-        return "text-gray-600";
-    }
-  };
-
   // for clients
   const filteredClients = clients?.filter((client) => {
     const matchesSearch =
@@ -669,13 +657,6 @@ export const FinanceDepartment = ({ isArabic }) => {
               </div>
             </div>
           </div>
-          {/* <div className="flex items-center gap-1 text-xs text-green-600">
-            <TrendingUp className="w-3 h-3" />
-            <span>
-              +{financialOverview.monthlyGrowth}%{" "}
-              {isArabic ? "هذا الشهر" : "this month"}
-            </span>
-          </div> */}
         </div>
 
         <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6 border border-blue-200">
@@ -747,50 +728,6 @@ export const FinanceDepartment = ({ isArabic }) => {
           </div>
         </div>
       </div>
-
-      {/* Enhanced KPI Dashboard */}
-      {/* <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          {isArabic ? "مؤشرات الأداء الرئيسية" : "Key Performance Indicators"}
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {kpiMetrics.map((kpi, index) => (
-            <div key={index} className="bg-gray-50 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">
-                  {isArabic ? kpi.nameAr : kpi.name}
-                </span>
-                <span
-                  className={`text-xs font-semibold ${getKpiStatusColor(
-                    kpi.status
-                  )}`}
-                >
-                  {kpi.status === "above"
-                    ? "↗"
-                    : kpi.status === "below"
-                    ? "↘"
-                    : "→"}
-                </span>
-              </div>
-              <div className="text-xl font-bold text-gray-900">
-                {kpi.name.includes("Growth") ||
-                kpi.name.includes("Margin") ||
-                kpi.name.includes("Control")
-                  ? `${kpi.value}%`
-                  : `${(kpi.value / 1000000).toFixed(1)}M SAR`}
-              </div>
-              <div className="text-xs text-gray-500">
-                {isArabic ? "الهدف:" : "Target:"}{" "}
-                {kpi.name.includes("Growth") ||
-                kpi.name.includes("Margin") ||
-                kpi.name.includes("Control")
-                  ? `${kpi.target}%`
-                  : `${(kpi.target / 1000000).toFixed(1)}M SAR`}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div> */}
       {/* Tabs */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100">
         <div className="border-b border-gray-200">
@@ -834,45 +771,6 @@ export const FinanceDepartment = ({ isArabic }) => {
                 {isArabic ? "المدفوعات" : "Payables"}
               </div>
             </button>
-            {/* <button
-              onClick={() => setActiveTab("budget")}
-              className={`px-6 py-4 font-medium transition-colors ${
-                activeTab === "budget"
-                  ? "text-green-600 border-b-2 border-green-600"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <PieChart className="w-4 h-4" />
-                {isArabic ? "تحليل الميزانية" : "Budget Analysis"}
-              </div>
-            </button>
-            <button
-              onClick={() => setActiveTab("analytics")}
-              className={`px-6 py-4 font-medium transition-colors ${
-                activeTab === "analytics"
-                  ? "text-green-600 border-b-2 border-green-600"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <Activity className="w-4 h-4" />
-                {isArabic ? "التحليلات المتقدمة" : "Advanced Analytics"}
-              </div>
-            </button>
-            <button
-              onClick={() => setActiveTab("forecasting")}
-              className={`px-6 py-4 font-medium transition-colors ${
-                activeTab === "forecasting"
-                  ? "text-green-600 border-b-2 border-green-600"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <Target className="w-4 h-4" />
-                {isArabic ? "التنبؤات المالية" : "Financial Forecasting"}
-              </div>
-            </button> */}
           </nav>
         </div>
 
@@ -1010,587 +908,535 @@ export const FinanceDepartment = ({ isArabic }) => {
           )}
 
           {activeTab === "receivables" && (
-            <div className="space-y-6">
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <h3 className="font-semibold text-yellow-800 mb-2 flex items-center gap-2">
-                  {/* <AlertTriangle className="w-5 h-5" /> */}
-                  {isArabic ? "عملاء" : "Clients"}
-                </h3>
-                <p className="text-sm text-yellow-700">
-                  {isArabic
-                    ? "المستحقات من العملاء"
-                    : "Recievables From the Clients"}
-                </p>
-                {/* <p className="text-sm text-yellow-700">
-                  {isArabic
-                    ? "يوجد مستحقات متأخرة بقيمة 750,000 ريال من عميل واحد"
-                    : "Overdue receivables of 750,000 SAR from 1 client require attention"}
-                </p> */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+              <div className="border-b border-gray-200">
+                <nav className="flex">
+                  <button
+                    onClick={() => setSubActiveTab("clientReceivables")}
+                    className={`px-6 py-4 font-medium transition-colors ${
+                      subActiveTab === "clientReceivables"
+                        ? "text-green-600 border-b-2 border-green-600"
+                        : "text-gray-500 hover:text-gray-700"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4" />
+                      {isArabic
+                        ? "ذمم مدينة عقود العملاء"
+                        : "Client Contract Receivables"}
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => setSubActiveTab("invoiceReceivables")}
+                    className={`px-6 py-4 font-medium transition-colors ${
+                      subActiveTab === "invoiceReceivables"
+                        ? "text-green-600 border-b-2 border-green-600"
+                        : "text-gray-500 hover:text-gray-700"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4" />
+                      {isArabic
+                        ? "ذمم الحسابات المستحقة"
+                        : "Invoice Receivables"}
+                    </div>
+                  </button>
+                </nav>
               </div>
 
-              {/* Search and Filter Controls */}
-              <div className="flex items-center gap-4 mb-4">
-                <div className="relative flex-1">
-                  <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder={
-                      isArabic
-                        ? "البحث في المستحقات..."
-                        : "Search Clients by Name, Email, or Phone_Number..."
-                    }
-                    value={clientSearchTerm}
-                    onChange={(e) => setClientSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full"
-                  />
-                </div>
-                <select
-                  value={clientStatusFilter}
-                  onChange={(e) => setClientStatusFilter(e.target.value)}
-                  className="border border-gray-300 rounded-lg px-3 py-2"
-                >
-                  <option value="all">
-                    {isArabic ? "جميع الحالات" : "All Status"}
-                  </option>
-                  <option value="active">{isArabic ? "نشط" : "Active"}</option>
-                  <option value="inactive">
-                    {isArabic ? "غير نشط" : "inactive"}
-                  </option>
-                  <option value="corporate">
-                    {isArabic ? "شركاتي" : "Corporate"}
-                  </option>
-                  <option value="government">
-                    {isArabic ? "حكومة" : "Government"}
-                  </option>
-                </select>
-              </div>
+              <div className="p-6">
+                {subActiveTab === "clientReceivables" && (
+                  <div className="space-y-6">
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                      <h3 className="font-semibold text-yellow-800 mb-2 flex items-center gap-2">
+                        {/* <AlertTriangle className="w-5 h-5" /> */}
+                        {isArabic ? "عملاء" : "Clients"}
+                      </h3>
+                      <p className="text-sm text-yellow-700">
+                        {isArabic
+                          ? "المستحقات من العملاء"
+                          : "Recievables From the Clients"}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="relative flex-1">
+                        <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                        <input
+                          type="text"
+                          placeholder={
+                            isArabic
+                              ? "البحث في المستحقات..."
+                              : "Search Clients by Name, Email, or Phone_Number..."
+                          }
+                          value={clientSearchTerm}
+                          onChange={(e) => setClientSearchTerm(e.target.value)}
+                          className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full"
+                        />
+                      </div>
+                      <select
+                        value={clientStatusFilter}
+                        onChange={(e) => setClientStatusFilter(e.target.value)}
+                        className="border border-gray-300 rounded-lg px-3 py-2"
+                      >
+                        <option value="all">
+                          {isArabic ? "جميع الحالات" : "All Status"}
+                        </option>
+                        <option value="active">
+                          {isArabic ? "نشط" : "Active"}
+                        </option>
+                        <option value="inactive">
+                          {isArabic ? "غير نشط" : "inactive"}
+                        </option>
+                        <option value="corporate">
+                          {isArabic ? "شركاتي" : "Corporate"}
+                        </option>
+                        <option value="government">
+                          {isArabic ? "حكومة" : "Government"}
+                        </option>
+                      </select>
+                    </div>
 
-              {/* <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          {isArabic ? "العميل" : "Client"}
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          {isArabic ? "المبلغ" : "Amount"}
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          {isArabic ? "تاريخ الاستحقاق" : "Due Date"}
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          {isArabic ? "جهة الاتصال" : "Contact"}
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          {isArabic ? "أيام التأخير" : "Overdue Days"}
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          {isArabic ? "عدد الفواتير" : "Invoice Count"}
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          {isArabic ? "الحالة" : "Status"}
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          {isArabic ? "الإجراءات" : "Actions"}
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {filteredReceivables.map((receivable, index) => (
-                        <tr key={index} className="hover:bg-gray-50">
-                          <td className="px-4 py-4">
-                            <div>
-                              <div className="font-medium text-gray-900">
-                                {isArabic
-                                  ? receivable.clientAr
-                                  : receivable.client}
-                              </div>
-                              <div className="text-sm text-gray-500">
-                                {isArabic ? "الحد الائتماني:" : "Credit Limit:"}{" "}
-                                {receivable.creditLimit.toLocaleString()} SAR
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-4 py-4 text-sm font-semibold text-gray-900">
-                            {receivable.amount.toLocaleString()} SAR
-                          </td>
-                          <td className="px-4 py-4 text-sm text-gray-900">
-                            {receivable.dueDate}
-                          </td>
-                          <td className="px-4 py-4">
-                            <div>
-                              <div className="text-sm font-medium text-gray-900">
-                                {receivable.contactPerson}
-                              </div>
-                              <div className="text-sm text-gray-500">
-                                {receivable.phone}
-                              </div>
-                              <div className="text-sm text-gray-500">
-                                {receivable.email}
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-4 py-4 text-sm text-gray-900">
-                            {receivable.overdueDays > 0 ? (
-                              <span className="text-red-600 font-medium">
-                                {receivable.overdueDays}{" "}
-                                {isArabic ? "يوم" : "days"}
-                              </span>
-                            ) : (
-                              <span className="text-green-600">-</span>
-                            )}
-                          </td>
-                          <td className="px-4 py-4 text-sm text-gray-900">
-                            {receivable.invoiceCount}
-                          </td>
-                          <td className="px-4 py-4">
-                            <span
-                              className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
-                                receivable.status
-                              )}`}
-                            >
-                              {receivable.status}
-                            </span>
-                          </td>
-                          <td className="px-4 py-4">
-                            <div className="flex items-center gap-2">
-                              <button className="text-blue-600 hover:text-blue-800 p-1 rounded">
-                                <Eye className="w-4 h-4" />
-                              </button>
-                              <button className="text-green-600 hover:text-green-800 p-1 rounded">
-                                <Edit className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div> */}
+                    <div className="space-y-6">
+                      {/* Client List */}
+                      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                        <div className="overflow-x-auto">
+                          <table
+                            className="w-full"
+                            role="table"
+                            aria-label="Client management table"
+                          >
+                            <thead className="bg-gray-50">
+                              <tr>
+                                <th
+                                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                  scope="col"
+                                >
+                                  {isArabic ? "العميل" : "Client"}
+                                </th>
+                                <th
+                                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                  scope="col"
+                                >
+                                  {isArabic ? "النوع" : "Type"}
+                                </th>
+                                <th
+                                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                  scope="col"
+                                >
+                                  {isArabic ? "قيمة العقد" : "Contract Value"}
+                                </th>
+                                <th
+                                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                  scope="col"
+                                >
+                                  {isArabic ? "الحالة" : "Status"}
+                                </th>
+                                <th
+                                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                  scope="col"
+                                >
+                                  {isArabic ? "تاريخ الانتهاء" : "Expiry Date"}
+                                </th>
+                                <th
+                                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                  scope="col"
+                                >
+                                  {isArabic ? "الإجراءات" : "Actions"}
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                              {filteredClients.map((client) => (
+                                <tr
+                                  key={client._id}
+                                  className="hover:bg-gray-50"
+                                >
+                                  <td
+                                    className="px-6 py-4 whitespace-nowrap"
+                                    role="cell"
+                                  >
+                                    <div>
+                                      <div className="font-medium text-gray-900">
+                                        {isArabic
+                                          ? client.client_name_arb
+                                          : client.client_name_eng}
+                                      </div>
+                                      <div className="text-sm text-gray-500">
+                                        {client.manpower_count}{" "}
+                                        {isArabic ? "عامل" : "workers"} •{" "}
+                                        {client.vehicle_count}{" "}
+                                        {isArabic ? "مركبة" : "vehicles"}
+                                      </div>
+                                      <div className="text-sm text-gray-500">
+                                        {client.contact_person} •{" "}
+                                        {client.client_mobile_number}
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td
+                                    className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
+                                    role="cell"
+                                  >
+                                    {client.client_type}
+                                  </td>
+                                  <td
+                                    className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
+                                    role="cell"
+                                  >
+                                    {client.contract_value} SAR
+                                  </td>
+                                  <td
+                                    className="px-6 py-4 whitespace-nowrap"
+                                    role="cell"
+                                  >
+                                    <span
+                                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                        client.status === "active"
+                                          ? "bg-green-100 text-green-800"
+                                          : "bg-yellow-100 text-yellow-800"
+                                      }`}
+                                    >
+                                      {client.status}
+                                    </span>
+                                  </td>
+                                  <td
+                                    className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
+                                    role="cell"
+                                  >
+                                    {client.contract_expiery_date
+                                      ? new Date(
+                                          client.contract_expiery_date
+                                        ).toLocaleDateString(
+                                          isArabic ? "ar-EG" : "en-GB",
+                                          {
+                                            day: "2-digit",
+                                            month: "short",
+                                            year: "numeric",
+                                          }
+                                        )
+                                      : ""}
+                                  </td>
+                                  <td
+                                    className="px-6 py-4 whitespace-nowrap text-sm font-medium"
+                                    role="cell"
+                                  >
+                                    <div className="flex ml-5 items-center">
+                                      <button
+                                        onClick={() =>
+                                          handleViewClient(client._id)
+                                        }
+                                        className="text-blue-600 hover:text-blue-800 p-1 rounded transition-colors "
+                                        aria-label={`${
+                                          isArabic ? "عرض" : "View"
+                                        } ${client.client_name_eng}`}
+                                      >
+                                        <Eye
+                                          className="w-4 h-4"
+                                          aria-hidden="true"
+                                        />
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-center gap-4 mt-6">
+                        {/* Previous Button */}
+                        <button
+                          onClick={() =>
+                            fetchClients(Math.max(1, pagination.page - 1))
+                          }
+                          disabled={pagination.page <= 1}
+                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                      ${
+                        pagination.page <= 1
+                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                          : "bg-green-600 text-white hover:bg-green-700"
+                      }`}
+                        >
+                          {isArabic ? "السابق" : "Previous"}
+                        </button>
 
-              <div className="space-y-6">
-                {/* Client List */}
-                <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                  <div className="overflow-x-auto">
-                    <table
-                      className="w-full"
-                      role="table"
-                      aria-label="Client management table"
-                    >
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            scope="col"
-                          >
-                            {isArabic ? "العميل" : "Client"}
-                          </th>
-                          <th
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            scope="col"
-                          >
-                            {isArabic ? "النوع" : "Type"}
-                          </th>
-                          <th
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            scope="col"
-                          >
-                            {isArabic ? "قيمة العقد" : "Contract Value"}
-                          </th>
-                          <th
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            scope="col"
-                          >
-                            {isArabic ? "الحالة" : "Status"}
-                          </th>
-                          <th
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            scope="col"
-                          >
-                            {isArabic ? "تاريخ الانتهاء" : "Expiry Date"}
-                          </th>
-                          <th
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            scope="col"
-                          >
-                            {isArabic ? "الإجراءات" : "Actions"}
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {filteredClients.map((client) => (
-                          <tr key={client._id} className="hover:bg-gray-50">
-                            <td
-                              className="px-6 py-4 whitespace-nowrap"
-                              role="cell"
-                            >
-                              <div>
-                                <div className="font-medium text-gray-900">
-                                  {isArabic
-                                    ? client.client_name_arb
-                                    : client.client_name_eng}
-                                </div>
-                                <div className="text-sm text-gray-500">
-                                  {client.manpower_count}{" "}
-                                  {isArabic ? "عامل" : "workers"} •{" "}
-                                  {client.vehicle_count}{" "}
-                                  {isArabic ? "مركبة" : "vehicles"}
-                                </div>
-                                <div className="text-sm text-gray-500">
-                                  {client.contact_person} •{" "}
-                                  {client.client_mobile_number}
-                                </div>
-                              </div>
-                            </td>
-                            <td
-                              className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
-                              role="cell"
-                            >
-                              {client.client_type}
-                            </td>
-                            <td
-                              className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
-                              role="cell"
-                            >
-                              {client.contract_value} SAR
-                            </td>
-                            <td
-                              className="px-6 py-4 whitespace-nowrap"
-                              role="cell"
-                            >
-                              <span
-                                className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                  client.status === "active"
-                                    ? "bg-green-100 text-green-800"
-                                    : "bg-yellow-100 text-yellow-800"
-                                }`}
-                              >
-                                {client.status}
-                              </span>
-                            </td>
-                            <td
-                              className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
-                              role="cell"
-                            >
-                              {client.contract_expiery_date
-                                ? new Date(
-                                    client.contract_expiery_date
-                                  ).toLocaleDateString(
-                                    isArabic ? "ar-EG" : "en-GB",
-                                    {
+                        {/* Page Info */}
+                        <div className="px-4 py-2 bg-gray-100 rounded-lg text-sm font-medium text-gray-700">
+                          {isArabic ? "صفحة" : "Page"}{" "}
+                          {Number.isFinite(pagination.page)
+                            ? pagination.page
+                            : 0}{" "}
+                          {isArabic ? "من" : "of"}{" "}
+                          {Number.isFinite(pagination.totalPages)
+                            ? pagination.totalPages
+                            : 0}
+                        </div>
+
+                        {/* Next Button */}
+                        <button
+                          onClick={() =>
+                            fetchClients(
+                              Math.min(
+                                pagination.totalPages,
+                                pagination.page + 1
+                              )
+                            )
+                          }
+                          disabled={pagination.page >= pagination.totalPages}
+                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                     ${
+                       pagination.page >= pagination.totalPages
+                         ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                         : "bg-green-600 text-white hover:bg-green-700"
+                     }`}
+                        >
+                          {isArabic ? "التالي" : "Next"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {subActiveTab === "invoiceReceivables" && (
+                  <div className="space-y-6">
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                      <h3 className="font-semibold text-yellow-800 mb-2 flex items-center gap-2">
+                        {/* <AlertTriangle className="w-5 h-5" /> */}
+                        {isArabic ? "فواتير" : "Invoices"}
+                      </h3>
+                      <p className="text-sm text-yellow-700">
+                        {isArabic
+                          ? "المستحقات من الفواتير"
+                          : "Recievables From the Invoices"}
+                      </p>
+                    </div>
+                    <div className="space-y-6">
+                      {/* Search and Filter */}
+                      <div className="flex items-center gap-4">
+                        <div className="relative flex-1">
+                          <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                          <input
+                            type="text"
+                            placeholder={
+                              isArabic
+                                ? "البحث في الفواتير..."
+                                : "Search invoices by invoice number or buyer name..."
+                            }
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full"
+                          />
+                        </div>
+                        <select
+                          value={statusFilter}
+                          onChange={(e) => setStatusFilter(e.target.value)}
+                          className="border border-gray-300 rounded-lg px-3 py-2"
+                        >
+                          <option value="all">
+                            {isArabic ? "جميع الحالات" : "All Status"}
+                          </option>
+                          <option value="Draft">
+                            {isArabic ? "مسودة" : "Draft"}
+                          </option>
+                          <option value="Issued">
+                            {isArabic ? "صادرة" : "Issued"}
+                          </option>
+                          <option value="Sent">
+                            {isArabic ? "مرسلة" : "Sent"}
+                          </option>
+                          <option value="Paid">
+                            {isArabic ? "مدفوعة" : "Paid"}
+                          </option>
+                          <option value="Overdue">
+                            {isArabic ? "متأخرة" : "Overdue"}
+                          </option>
+                        </select>
+                      </div>
+
+                      {/* Invoices Table */}
+                      <div className="overflow-x-auto">
+                        <table className="w-full">
+                          <thead className="bg-gray-50">
+                            <tr>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                {isArabic ? "رقم الفاتورة" : "Invoice Number"}
+                              </th>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                {isArabic ? "العميل" : "Customer"}
+                              </th>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                {isArabic ? "التاريخ" : "Date"}
+                              </th>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                {isArabic ? "المبلغ" : "Amount"}
+                              </th>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                {isArabic ? "الحالة" : "Status"}
+                              </th>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                {isArabic ? "تاريخ الإصدار" : "Issued Date"}
+                              </th>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                {isArabic ? "الإجراءات" : "Actions"}
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-200">
+                            {filteredInvoices?.map((invoice) => (
+                              <tr key={invoice.id} className="hover:bg-gray-50">
+                                <td className="px-4 py-4">
+                                  <div className="font-medium text-gray-900">
+                                    {invoice.invoiceNumber}
+                                  </div>
+                                  <div className="text-sm text-gray-500">
+                                    {invoice.invoiceType}
+                                  </div>
+                                </td>
+                                <td className="px-4 py-4">
+                                  <div className="font-medium text-gray-900">
+                                    {isArabic
+                                      ? invoice.buyer.nameAr
+                                      : invoice.buyer.nameEn}
+                                  </div>
+                                  <div className="text-sm text-gray-500">
+                                    {invoice.buyer.type} •{" "}
+                                    {invoice.buyer.vatNumber || "No VAT"}
+                                  </div>
+                                </td>
+                                <td className="px-4 py-4 text-sm text-gray-900">
+                                  <div>
+                                    {new Date(
+                                      invoice.createdAt
+                                    ).toLocaleDateString("en-GB", {
                                       day: "2-digit",
                                       month: "short",
                                       year: "numeric",
-                                    }
-                                  )
-                                : ""}
-                            </td>
-                            <td
-                              className="px-6 py-4 whitespace-nowrap text-sm font-medium"
-                              role="cell"
-                            >
-                              <div className="flex ml-5 items-center">
-                                <button
-                                  onClick={() => handleViewClient(client._id)}
-                                  className="text-blue-600 hover:text-blue-800 p-1 rounded transition-colors "
-                                  aria-label={`${isArabic ? "عرض" : "View"} ${
-                                    client.client_name_eng
-                                  }`}
-                                >
-                                  <Eye className="w-4 h-4" aria-hidden="true" />
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-                <div className="flex items-center justify-center gap-4 mt-6">
-                  {/* Previous Button */}
-                  <button
-                    onClick={() =>
-                      fetchClients(Math.max(1, pagination.page - 1))
-                    }
-                    disabled={pagination.page <= 1}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                    ${
-                      pagination.page <= 1
-                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                        : "bg-green-600 text-white hover:bg-green-700"
-                    }`}
-                  >
-                    {isArabic ? "السابق" : "Previous"}
-                  </button>
+                                    })}
+                                  </div>
+                                  <div className="text-xs text-gray-500">
+                                    {new Date(invoice.createdAt).toLocaleString(
+                                      "en-US",
+                                      {
+                                        day: "2-digit",
+                                        month: "short",
+                                        year: "numeric",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                        hour12: true, // ✅ ensures AM/PM
+                                      }
+                                    )}
+                                  </div>
+                                </td>
 
-                  {/* Page Info */}
-                  <div className="px-4 py-2 bg-gray-100 rounded-lg text-sm font-medium text-gray-700">
-                    {isArabic ? "صفحة" : "Page"}{" "}
-                    {Number.isFinite(pagination.page) ? pagination.page : 0}{" "}
-                    {isArabic ? "من" : "of"}{" "}
-                    {Number.isFinite(pagination.totalPages)
-                      ? pagination.totalPages
-                      : 0}
-                  </div>
+                                <td className="px-4 py-4 text-sm font-semibold text-gray-900">
+                                  {invoice.subtotalIncludingVat.toLocaleString()}{" "}
+                                  {invoice.currency}
+                                </td>
+                                <td className="px-4 py-4">
+                                  <span
+                                    className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getRecievableStatusColor(
+                                      invoice.status
+                                    )}`}
+                                  >
+                                    {invoice.status}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-4 text-sm text-gray-900">
+                                  <div>
+                                    {invoice.issueDateGregorian
+                                      ? `${new Date(
+                                          invoice.issueDateGregorian
+                                        ).toLocaleDateString("en-GB", {
+                                          day: "2-digit",
+                                          month: "short",
+                                          year: "numeric",
+                                        })} • ${invoice.issueTimeGregorian}`
+                                      : "NA"}
+                                  </div>
+                                  <div className="text-xs text-gray-500">
+                                    {invoice.issueDateGregorian
+                                      ? `${invoice.issueDateHijri} • ${invoice.issueTimeGregorian}`
+                                      : ""}
+                                  </div>
+                                </td>
 
-                  {/* Next Button */}
-                  <button
-                    onClick={() =>
-                      fetchClients(
-                        Math.min(pagination.totalPages, pagination.page + 1)
-                      )
-                    }
-                    disabled={pagination.page >= pagination.totalPages}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                    ${
-                      pagination.page >= pagination.totalPages
-                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                        : "bg-green-600 text-white hover:bg-green-700"
-                    }`}
-                  >
-                    {isArabic ? "التالي" : "Next"}
-                  </button>
-                </div>
-              </div>
+                                <td className="px-4 py-4">
+                                  <div className="flex items-center ml-4 gap-2">
+                                    <button
+                                      onClick={() => {
+                                        handleViewInvoice(invoice._id);
+                                      }}
+                                      className="text-blue-600 hover:text-blue-800 p-1 rounded"
+                                      title={isArabic ? "معاينة" : "Preview"}
+                                    >
+                                      <Eye className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
 
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <h3 className="font-semibold text-yellow-800 mb-2 flex items-center gap-2">
-                  {/* <AlertTriangle className="w-5 h-5" /> */}
-                  {isArabic ? "فواتير" : "Invoices"}
-                </h3>
-                <p className="text-sm text-yellow-700">
-                  {isArabic
-                    ? "المستحقات من الفواتير"
-                    : "Recievables From the Invoices"}
-                </p>
-                {/* <p className="text-sm text-yellow-700">
-                  {isArabic
-                    ? "يوجد مستحقات متأخرة بقيمة 750,000 ريال من عميل واحد"
-                    : "Overdue receivables of 750,000 SAR from 1 client require attention"}
-                </p> */}
-              </div>
-              <div className="space-y-6">
-                {/* Search and Filter */}
-                <div className="flex items-center gap-4">
-                  <div className="relative flex-1">
-                    <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                    <input
-                      type="text"
-                      placeholder={
-                        isArabic
-                          ? "البحث في الفواتير..."
-                          : "Search invoices by invoice number or buyer name..."
-                      }
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full"
-                    />
-                  </div>
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="border border-gray-300 rounded-lg px-3 py-2"
-                  >
-                    <option value="all">
-                      {isArabic ? "جميع الحالات" : "All Status"}
-                    </option>
-                    <option value="Draft">
-                      {isArabic ? "مسودة" : "Draft"}
-                    </option>
-                    <option value="Issued">
-                      {isArabic ? "صادرة" : "Issued"}
-                    </option>
-                    <option value="Sent">{isArabic ? "مرسلة" : "Sent"}</option>
-                    <option value="Paid">{isArabic ? "مدفوعة" : "Paid"}</option>
-                    <option value="Overdue">
-                      {isArabic ? "متأخرة" : "Overdue"}
-                    </option>
-                  </select>
-                </div>
-
-                {/* Invoices Table */}
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          {isArabic ? "رقم الفاتورة" : "Invoice Number"}
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          {isArabic ? "العميل" : "Customer"}
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          {isArabic ? "التاريخ" : "Date"}
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          {isArabic ? "المبلغ" : "Amount"}
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          {isArabic ? "الحالة" : "Status"}
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          {isArabic ? "تاريخ الإصدار" : "Issued Date"}
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          {isArabic ? "الإجراءات" : "Actions"}
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {filteredInvoices?.map((invoice) => (
-                        <tr key={invoice.id} className="hover:bg-gray-50">
-                          <td className="px-4 py-4">
-                            <div className="font-medium text-gray-900">
-                              {invoice.invoiceNumber}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {invoice.invoiceType}
-                            </div>
-                          </td>
-                          <td className="px-4 py-4">
-                            <div className="font-medium text-gray-900">
-                              {isArabic
-                                ? invoice.buyer.nameAr
-                                : invoice.buyer.nameEn}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {invoice.buyer.type} •{" "}
-                              {invoice.buyer.vatNumber || "No VAT"}
-                            </div>
-                          </td>
-                          <td className="px-4 py-4 text-sm text-gray-900">
-                            <div>
-                              {new Date(invoice.createdAt).toLocaleDateString(
-                                "en-GB",
-                                {
-                                  day: "2-digit",
-                                  month: "short",
-                                  year: "numeric",
-                                }
-                              )}
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              {new Date(invoice.createdAt).toLocaleString(
-                                "en-US",
-                                {
-                                  day: "2-digit",
-                                  month: "short",
-                                  year: "numeric",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                  hour12: true, // ✅ ensures AM/PM
-                                }
-                              )}
-                            </div>
-                          </td>
-
-                          <td className="px-4 py-4 text-sm font-semibold text-gray-900">
-                            {invoice.subtotalIncludingVat.toLocaleString()}{" "}
-                            {invoice.currency}
-                          </td>
-                          <td className="px-4 py-4">
-                            <span
-                              className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getRecievableStatusColor(
-                                invoice.status
-                              )}`}
-                            >
-                              {invoice.status}
-                            </span>
-                          </td>
-                          <td className="px-4 py-4 text-sm text-gray-900">
-                            <div>
-                              {invoice.issueDateGregorian
-                                ? `${new Date(
-                                    invoice.issueDateGregorian
-                                  ).toLocaleDateString("en-GB", {
-                                    day: "2-digit",
-                                    month: "short",
-                                    year: "numeric",
-                                  })} • ${invoice.issueTimeGregorian}`
-                                : "NA"}
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              {invoice.issueDateGregorian
-                                ? `${invoice.issueDateHijri} • ${invoice.issueTimeGregorian}`
-                                : ""}
-                            </div>
-                          </td>
-
-                          <td className="px-4 py-4">
-                            <div className="flex items-center ml-4 gap-2">
-                              <button
-                                onClick={() => {
-                                  handleViewInvoice(invoice._id);
-                                }}
-                                className="text-blue-600 hover:text-blue-800 p-1 rounded"
-                                title={isArabic ? "معاينة" : "Preview"}
-                              >
-                                <Eye className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="flex items-center justify-center gap-4 mt-6">
-                  {/* Previous Button */}
-                  <button
-                    onClick={() =>
-                      fetchInvoices(Math.max(1, invoicePagination.page - 1))
-                    }
-                    disabled={invoicePagination.page <= 1}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                      <div className="flex items-center justify-center gap-4 mt-6">
+                        {/* Previous Button */}
+                        <button
+                          onClick={() =>
+                            fetchInvoices(
+                              Math.max(1, invoicePagination.page - 1)
+                            )
+                          }
+                          disabled={invoicePagination.page <= 1}
+                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
                                 ${
                                   invoicePagination.page <= 1
                                     ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                                     : "bg-green-600 text-white hover:bg-green-700"
                                 }`}
-                  >
-                    {isArabic ? "السابق" : "Previous"}
-                  </button>
+                        >
+                          {isArabic ? "السابق" : "Previous"}
+                        </button>
 
-                  {/* Page Info */}
-                  <div className="px-4 py-2 bg-gray-100 rounded-lg text-sm font-medium text-gray-700">
-                    {isArabic ? "صفحة" : "Page"}{" "}
-                    {Number.isFinite(invoicePagination.page)
-                      ? invoicePagination.page
-                      : 0}{" "}
-                    {isArabic ? "من" : "of"}{" "}
-                    {Number.isFinite(invoicePagination.totalPages)
-                      ? invoicePagination.totalPages
-                      : 0}
-                  </div>
+                        {/* Page Info */}
+                        <div className="px-4 py-2 bg-gray-100 rounded-lg text-sm font-medium text-gray-700">
+                          {isArabic ? "صفحة" : "Page"}{" "}
+                          {Number.isFinite(invoicePagination.page)
+                            ? invoicePagination.page
+                            : 0}{" "}
+                          {isArabic ? "من" : "of"}{" "}
+                          {Number.isFinite(invoicePagination.totalPages)
+                            ? invoicePagination.totalPages
+                            : 0}
+                        </div>
 
-                  {/* Next Button */}
-                  <button
-                    onClick={() =>
-                      fetchInvoices(
-                        Math.min(
-                          invoicePagination.totalPages,
-                          invoicePagination.page + 1
-                        )
-                      )
-                    }
-                    disabled={
-                      invoicePagination.page >= invoicePagination.totalPages
-                    }
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                        {/* Next Button */}
+                        <button
+                          onClick={() =>
+                            fetchInvoices(
+                              Math.min(
+                                invoicePagination.totalPages,
+                                invoicePagination.page + 1
+                              )
+                            )
+                          }
+                          disabled={
+                            invoicePagination.page >=
+                            invoicePagination.totalPages
+                          }
+                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
                               ${
                                 invoicePagination.page >=
                                 invoicePagination.totalPages
                                   ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                                   : "bg-green-600 text-white hover:bg-green-700"
                               }`}
-                  >
-                    {isArabic ? "التالي" : "Next"}
-                  </button>
-                </div>
+                        >
+                          {isArabic ? "التالي" : "Next"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
