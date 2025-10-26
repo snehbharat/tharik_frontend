@@ -2118,7 +2118,7 @@ export const FleetManagement = ({ isArabic }) => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "سنة الصنع" : "Year"}
+                      {isArabic ? "سنة الصنع" : "Year"} *
                     </label>
                     <input
                       type="number"
@@ -2155,7 +2155,7 @@ export const FleetManagement = ({ isArabic }) => {
                       {isArabic ? "المسافة المقطوعة" : "Mileage"}
                     </label>
                     <input
-                      type="text"
+                      type="number"
                       value={newVehicle.mileage}
                       onChange={(e) =>
                         setNewVehicle({
@@ -2164,7 +2164,7 @@ export const FleetManagement = ({ isArabic }) => {
                         })
                       }
                       className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                      placeholder="White"
+                      placeholder="10km/lit"
                     />
                   </div>
                   <div>
@@ -2181,7 +2181,7 @@ export const FleetManagement = ({ isArabic }) => {
                         })
                       }
                       className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                      placeholder="White"
+                      placeholder="00"
                     />
                   </div>
                   <div>
@@ -2348,7 +2348,8 @@ export const FleetManagement = ({ isArabic }) => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       {isArabic
                         ? "اسم السائق (إنجليزي)"
-                        : "Driver Name (English)"}
+                        : "Driver Name (English)"}{" "}
+                      *
                     </label>
                     <input
                       type="text"
@@ -2379,7 +2380,7 @@ export const FleetManagement = ({ isArabic }) => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "رقم هاتف السائق" : "Driver Phone"}
+                      {isArabic ? "رقم هاتف السائق" : "Driver Phone"} *
                     </label>
                     <input
                       type="tel"
@@ -2405,7 +2406,7 @@ export const FleetManagement = ({ isArabic }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "انتهاء التأمين" : "Insurance Expiry"}
+                      {isArabic ? "انتهاء التأمين" : "Insurance Expiry"} *
                     </label>
                     <input
                       type="date"
@@ -2421,7 +2422,7 @@ export const FleetManagement = ({ isArabic }) => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "انتهاء التسجيل" : "Registration Expiry"}
+                      {isArabic ? "انتهاء التسجيل" : "Registration Expiry"} *
                     </label>
                     <input
                       type="date"
@@ -2825,7 +2826,8 @@ export const FleetManagement = ({ isArabic }) => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       {isArabic
                         ? "اسم السائق (إنجليزي)"
-                        : "Driver Name (English)"}
+                        : "Driver Name (English)"}{" "}
+                      *
                     </label>
                     <input
                       type="text"
@@ -2859,7 +2861,7 @@ export const FleetManagement = ({ isArabic }) => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "رقم هاتف السائق" : "Driver Phone"}
+                      {isArabic ? "رقم هاتف السائق" : "Driver Phone"} *
                     </label>
                     <input
                       type="tel"
@@ -2880,12 +2882,12 @@ export const FleetManagement = ({ isArabic }) => {
               {/* Document Expiry Dates */}
               <div>
                 <h4 className="font-semibold text-gray-900 mb-4">
-                  {isArabic ? "تواريخ انتهاء الوثائق" : "Document Expiry Dates"}
+                  {isArabic ? "تواريخ انتهاء الوثائق" : "Document Expiry Dates"}{" "}
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "انتهاء التأمين" : "Insurance Expiry"}
+                      {isArabic ? "انتهاء التأمين" : "Insurance Expiry"} *
                     </label>
                     <input
                       type="date"
@@ -2907,7 +2909,7 @@ export const FleetManagement = ({ isArabic }) => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "انتهاء التسجيل" : "Registration Expiry"}
+                      {isArabic ? "انتهاء التسجيل" : "Registration Expiry"} *
                     </label>
                     <input
                       type="date"

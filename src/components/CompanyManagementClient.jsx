@@ -1029,7 +1029,7 @@ export const CompanyManagementClient = ({ isArabic }) => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "نوع العميل" : "Client Type"}
+                    {isArabic ? "نوع العميل" : "Client Type"} *
                   </label>
                   <select
                     value={editingClient.client_type}
@@ -1050,7 +1050,7 @@ export const CompanyManagementClient = ({ isArabic }) => {
                     {isArabic ? "قيمة العقد" : "Contract Value"} *
                   </label>
                   <input
-                    type="text"
+                    type="number"
                     value={
                       editingClient.contract_value?.$numberDecimal ||
                       editingClient.contract_value
@@ -1165,7 +1165,7 @@ export const CompanyManagementClient = ({ isArabic }) => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "البريد الإلكتروني" : "Email"}
+                    {isArabic ? "البريد الإلكتروني" : "Email"} *
                   </label>
                   <input
                     type="email"
@@ -1177,14 +1177,15 @@ export const CompanyManagementClient = ({ isArabic }) => {
                       })
                     }
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    required
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "رقم الهاتف" : "Phone Number"}
+                    {isArabic ? "رقم الهاتف" : "Phone Number"} *
                   </label>
                   <input
-                    type="tel"
+                    type="number"
                     value={editingClient.client_mobile_number || ""}
                     onChange={(e) =>
                       setEditingClient({
@@ -1193,6 +1194,7 @@ export const CompanyManagementClient = ({ isArabic }) => {
                       })
                     }
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    required
                   />
                 </div>
               </div>
@@ -1271,7 +1273,7 @@ export const CompanyManagementClient = ({ isArabic }) => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "نوع العميل" : "Client Type"}
+                    {isArabic ? "نوع العميل" : "Client Type"} *
                   </label>
                   <select
                     value={newClient.type}
@@ -1289,7 +1291,7 @@ export const CompanyManagementClient = ({ isArabic }) => {
                     {isArabic ? "قيمة العقد" : "Contract Value"} *
                   </label>
                   <input
-                    type="text"
+                    type="number"
                     value={newClient.contractValue}
                     onChange={(e) =>
                       setNewClient({
@@ -1307,7 +1309,7 @@ export const CompanyManagementClient = ({ isArabic }) => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "تاريخ انتهاء العقد" : "Contract Expiry Date"}
+                    {isArabic ? "تاريخ انتهاء العقد" : "Contract Expiry Date"} *
                   </label>
                   <input
                     type="date"
@@ -1390,7 +1392,7 @@ export const CompanyManagementClient = ({ isArabic }) => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "البريد الإلكتروني" : "Email"}
+                    {isArabic ? "البريد الإلكتروني" : "Email"} *
                   </label>
                   <input
                     type="email"
@@ -1399,19 +1401,21 @@ export const CompanyManagementClient = ({ isArabic }) => {
                       setNewClient({ ...newClient, email: e.target.value })
                     }
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    required
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "رقم الهاتف" : "Phone Number"}
+                    {isArabic ? "رقم الهاتف" : "Phone Number"} *
                   </label>
                   <input
-                    type="tel"
+                    type="number"
                     value={newClient.phone}
                     onChange={(e) =>
                       setNewClient({ ...newClient, phone: e.target.value })
                     }
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    required
                   />
                 </div>
               </div>

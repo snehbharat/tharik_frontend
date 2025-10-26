@@ -1,8 +1,26 @@
 import React, { useState } from "react";
-import { Camera, MessageSquare, Phone, MapPin, Calendar, User, Clock, MoreVertical, Edit, Trash2, CheckCircle, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Camera,
+  MessageSquare,
+  Phone,
+  MapPin,
+  Calendar,
+  User,
+  Clock,
+  MoreVertical,
+  Edit,
+  Trash2,
+  CheckCircle,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import TaskUpdate from "./TaskUpdate";
 import TaskRequirements from "./TaskRequirements";
-import { formatDate, formatTime, getRelativeTime } from "../../utils/dataTransformers";
+import {
+  formatDate,
+  formatTime,
+  getRelativeTime,
+} from "../../utils/dataTransformers";
 import ProgressSlider from "./ProgressSlider";
 
 const TaskCard = ({
@@ -15,12 +33,14 @@ const TaskCard = ({
   setShowUpdateModal,
   setShowSMSModal,
   onTaskUpdate,
-  loading = false
+  loading = false,
 }) => {
   const [showDetails, setShowDetails] = useState(false);
   const [showActions, setShowActions] = useState(false);
   const [showAllUpdates, setShowAllUpdates] = useState(false);
   const [localLoading, setLocalLoading] = useState(false);
+
+  console.log("task", task);
 
   const taskId = task.id || task._id;
 
@@ -30,7 +50,7 @@ const TaskCard = ({
       try {
         await onTaskUpdate(taskId, { status: newStatus });
       } catch (error) {
-        console.error('Error updating task status:', error);
+        console.error("Error updating task status:", error);
       } finally {
         setLocalLoading(false);
       }
@@ -43,7 +63,7 @@ const TaskCard = ({
       try {
         await onTaskUpdate(taskId, { progress: newProgress });
       } catch (error) {
-        console.error('Error updating task progress:', error);
+        console.error("Error updating task progress:", error);
       } finally {
         setLocalLoading(false);
       }
@@ -55,12 +75,12 @@ const TaskCard = ({
   const priorityColor = getPriorityColor(task.priority);
 
   // Determine which updates to show
-  const updatesToShow = task.updates && task.updates.length > 0
-    ? (showAllUpdates
-      ? task.updates.slice().reverse() // Show all updates, newest first
-      : task.updates.slice(-3).reverse() // Show last 3 updates, newest first
-    )
-    : [];
+  const updatesToShow =
+    task.updates && task.updates.length > 0
+      ? showAllUpdates
+        ? task.updates.slice().reverse() // Show all updates, newest first
+        : task.updates.slice(-3).reverse() // Show last 3 updates, newest first
+      : [];
 
   return (
     <div className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
@@ -76,7 +96,9 @@ const TaskCard = ({
                 <h3 className="text-lg font-semibold text-gray-900">
                   {isArabic ? task.titleAr || task.title : task.title}
                 </h3>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${priorityColor}`}>
+                <span
+                  className={`px-2 py-1 rounded-full text-xs font-medium ${priorityColor}`}
+                >
                   {task.priority}
                 </span>
               </div>
@@ -97,7 +119,9 @@ const TaskCard = ({
                 )}
               </div>
               <div className="flex items-center gap-3">
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusColor}`}>
+                <span
+                  className={`px-3 py-1 rounded-full text-sm font-medium ${statusColor}`}
+                >
                   {task.status}
                 </span>
                 <div className="flex items-center gap-2">
@@ -107,7 +131,9 @@ const TaskCard = ({
                       style={{ width: `${task.progress || 0}%` }}
                     ></div>
                   </div>
-                  <span className="text-sm text-gray-600">{task.progress || 0}%</span>
+                  <span className="text-sm text-gray-600">
+                    {task.progress || 0}%
+                  </span>
                 </div>
               </div>
             </div>
@@ -158,8 +184,10 @@ const TaskCard = ({
                   </button>
                   <div className="border-t border-gray-100 my-1"></div>
                   <button
-                    onClick={() => handleStatusUpdate('Completed')}
-                    disabled={loading || localLoading || task.status === 'Completed'}
+                    onClick={() => handleStatusUpdate("Completed")}
+                    disabled={
+                      loading || localLoading || task.status === "Completed"
+                    }
                     className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center gap-2 text-green-600 disabled:opacity-50"
                   >
                     <CheckCircle className="w-4 h-4" />
@@ -204,7 +232,7 @@ const TaskCard = ({
           <ProgressSlider
             value={task.progress || 0}
             onChange={handleProgressUpdate}
-            disabled={loading || localLoading || task.status === 'Completed'}
+            disabled={loading || localLoading || task.status === "Completed"}
             isArabic={isArabic}
           />
         </div>
@@ -220,7 +248,9 @@ const TaskCard = ({
                 {isArabic ? "الوصف:" : "Description:"}
               </h4>
               <p className="text-gray-700 text-sm">
-                {isArabic ? task.descriptionAr || task.description : task.description}
+                {isArabic
+                  ? task.descriptionAr || task.description
+                  : task.description}
               </p>
             </div>
           )}
@@ -320,7 +350,13 @@ const TaskCard = ({
           </div>
         </div>
 
-        <div className={`space-y-3 ${showAllUpdates ? 'max-h-96 overflow-y-auto' : 'max-h-60 overflow-y-auto'}`}>
+        <div
+          className={`space-y-3 ${
+            showAllUpdates
+              ? "max-h-96 overflow-y-auto"
+              : "max-h-60 overflow-y-auto"
+          }`}
+        >
           {updatesToShow.length > 0 ? (
             updatesToShow.map((update, index) => (
               <TaskUpdate
@@ -347,7 +383,9 @@ const TaskCard = ({
               onClick={() => setShowAllUpdates(true)}
               className="w-full text-blue-600 hover:text-blue-800 text-sm py-2 border-t border-gray-100 flex items-center justify-center gap-2 transition-colors"
             >
-              {isArabic ? `عرض جميع التحديثات (${task.updates.length})` : `View all ${task.updates.length} updates`}
+              {isArabic
+                ? `عرض جميع التحديثات (${task.updates.length})`
+                : `View all ${task.updates.length} updates`}
               <ChevronDown className="w-4 h-4" />
             </button>
           </div>

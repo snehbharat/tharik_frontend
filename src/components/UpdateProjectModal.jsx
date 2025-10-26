@@ -382,7 +382,7 @@ export default function UpdateProjectModal({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {isArabic ? "هامش الربح (%)" : "Profit Margin (%)"}
+                {isArabic ? "هامش الربح (%)" : "Profit Margin (%)"} *
               </label>
               <input
                 type="number"
@@ -424,6 +424,7 @@ export default function UpdateProjectModal({
                 {isArabic ? "مستوى المخاطر" : "Progerss"}
               </label>
               <input
+                type="number"
                 value={editingProject.progress}
                 onChange={(e) => handleFieldChange("progress", e.target.value)}
                 className="w-full border rounded-lg px-3 py-2 border-gray-300"
