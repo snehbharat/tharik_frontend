@@ -148,6 +148,12 @@ const EmployeeManagementContent = ({ isArabic }) => {
     if (window.confirm(isArabic ? 'هل أنت متأكد من حذف هذا الموظف؟' : 'Are you sure you want to delete this employee?')) {
       try {
         await deleteEmployee(employeeId);
+        // Close the profile modal if the deleted employee is currently selected
+        if (selectedEmployee && selectedEmployee._id === employeeId) {
+          setSelectedEmployee(null);
+        }
+        // Refresh the employee list
+        await fetchEmployees();
       } catch (error) {
         console.error('Error deleting employee:', error);
       }

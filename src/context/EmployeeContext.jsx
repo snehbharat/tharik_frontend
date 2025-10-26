@@ -75,9 +75,17 @@ const employeeReducer = (state, action) => {
       };
 
     case EMPLOYEE_ACTIONS.DELETE_EMPLOYEE:
+      // Ensure employees is an array or extract from object structure
+      const currentEmployees = Array.isArray(state.employees)
+        ? state.employees
+        : (state.employees?.employees || []);
+
       return {
         ...state,
-        employees: state.employees.filter((emp) => emp.id !== action.payload),
+        employees: {
+          ...state.employees,
+          employees: currentEmployees.filter((emp) => emp._id !== action.payload)
+        },
         loading: false,
         error: null,
       };
@@ -278,9 +286,8 @@ export const useEmployeeActions = () => {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = `employees_export_${
-          new Date().toISOString().split("T")[0]
-        }.${format}`;
+        link.download = `employees_export_${new Date().toISOString().split("T")[0]
+          }.${format}`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
