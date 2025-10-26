@@ -9,7 +9,7 @@ const TaskRequirementsFields = ({ newTask, setNewTask, isArabic }) => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {isArabic ? "نوع الرخصة المطلوبة" : "Required License Type"}
+                  {isArabic ? "نوع الرخصة المطلوبة" : "Required License Type"} *
                 </label>
                 <select
                   value={newTask.requirements.licenseType}

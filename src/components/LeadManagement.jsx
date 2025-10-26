@@ -1031,10 +1031,10 @@ export const LeadManagement = ({ isArabic }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "رقم الهاتف" : "Phone Number"}
+                    {isArabic ? "رقم الهاتف" : "Phone Number"} *
                   </label>
                   <input
-                    type="tel"
+                    type="number"
                     value={newLead.phone}
                     onChange={(e) =>
                       setNewLead({ ...newLead, phone: e.target.value })
@@ -1117,7 +1117,8 @@ export const LeadManagement = ({ isArabic }) => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {isArabic
                       ? "القيمة المتوقعة (ريال)"
-                      : "Expected Value (SAR)"}
+                      : "Expected Value (SAR)"}{" "}
+                    *
                   </label>
                   <input
                     type="number"
@@ -1144,7 +1145,7 @@ export const LeadManagement = ({ isArabic }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "انتهاء التأمين" : "Next FollowUp"}
+                    {isArabic ? "انتهاء التأمين" : "Next FollowUp"} *
                   </label>
                   <input
                     type="date"
@@ -1219,7 +1220,7 @@ export const LeadManagement = ({ isArabic }) => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "الاسم (إنجليزي)" : "Name (English)"}
+                    {isArabic ? "الاسم (إنجليزي)" : "Name (English)"} *
                   </label>
                   <input
                     type="text"
@@ -1228,6 +1229,7 @@ export const LeadManagement = ({ isArabic }) => {
                       setEditingLead({ ...editingLead, name: e.target.value })
                     }
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    required
                   />
                 </div>
                 <div>
@@ -1252,7 +1254,7 @@ export const LeadManagement = ({ isArabic }) => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "الشركة (إنجليزي)" : "Company (English)"}
+                    {isArabic ? "الشركة (إنجليزي)" : "Company (English)"} *
                   </label>
                   <input
                     type="text"
@@ -1264,6 +1266,7 @@ export const LeadManagement = ({ isArabic }) => {
                       })
                     }
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    required
                   />
                 </div>
                 <div>
@@ -1288,7 +1291,7 @@ export const LeadManagement = ({ isArabic }) => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "البريد الإلكتروني" : "Email"}
+                    {isArabic ? "البريد الإلكتروني" : "Email"} *
                   </label>
                   <input
                     type="email"
@@ -1297,19 +1300,21 @@ export const LeadManagement = ({ isArabic }) => {
                       setEditingLead({ ...editingLead, email: e.target.value })
                     }
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    required
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "رقم الهاتف" : "Phone"}
+                    {isArabic ? "رقم الهاتف" : "Phone"} *
                   </label>
                   <input
-                    type="text"
+                    type="number"
                     value={editingLead.phone}
                     onChange={(e) =>
                       setEditingLead({ ...editingLead, phone: e.target.value })
                     }
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    required
                   />
                 </div>
               </div>
@@ -1367,7 +1372,7 @@ export const LeadManagement = ({ isArabic }) => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "القيمة" : "Value"}
+                    {isArabic ? "القيمة" : "Value"} *
                   </label>
                   <input
                     type="number"
@@ -1376,6 +1381,7 @@ export const LeadManagement = ({ isArabic }) => {
                       setEditingLead({ ...editingLead, value: e.target.value })
                     }
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    required
                   />
                 </div>
                 <div>

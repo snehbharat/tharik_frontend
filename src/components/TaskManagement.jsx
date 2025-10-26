@@ -186,6 +186,46 @@ export const TaskManagement = ({ isArabic, currentUser }) => {
     }
   };
 
+  // const handleAddUpdate = async (taskId) => {
+  //   if (!newUpdate.text.trim()) {
+  //     alert(isArabic ? "يرجى كتابة التحديث" : "Please enter update text");
+  //     return;
+  //   }
+
+  //   try {
+  //     setLoading(true);
+
+  //     const updateData = {
+  //       text: newUpdate.text,
+  //       textAr: newUpdate.textAr || newUpdate.text,
+  //       type: "text",
+  //     };
+
+  //     const response = await ApiService.addTaskUpdate(taskId, updateData);
+
+  //     if (response.response) {
+  //       // Reset form first
+  //       setNewUpdate({ text: "", textAr: "", photos: [] });
+
+  //       // Close modal
+  //       setShowUpdateModal(false);
+
+  //       // Show success message
+  //       alert(
+  //         isArabic ? "تم إضافة التحديث بنجاح!" : "Update added successfully!"
+  //       );
+
+  //       // Refresh the task list by calling loadTasks
+  //       await loadTasks();
+  //     }
+  //   } catch (err) {
+  //     setError(err.message);
+  //     alert(isArabic ? `خطأ: ${err.message}` : `Error: ${err.message}`);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const handleAddUpdate = async (taskId) => {
     if (!newUpdate.text.trim()) {
       alert(isArabic ? "يرجى كتابة التحديث" : "Please enter update text");
@@ -195,10 +235,17 @@ export const TaskManagement = ({ isArabic, currentUser }) => {
     try {
       setLoading(true);
 
+      const localTime = new Date().toLocaleTimeString("en-US", {
+        hour12: true,
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
       const updateData = {
         text: newUpdate.text,
         textAr: newUpdate.textAr || newUpdate.text,
         type: "text",
+        time: localTime,
       };
 
       const response = await ApiService.addTaskUpdate(taskId, updateData);
@@ -206,16 +253,12 @@ export const TaskManagement = ({ isArabic, currentUser }) => {
       if (response.response) {
         // Reset form first
         setNewUpdate({ text: "", textAr: "", photos: [] });
-
-        // Close modal
         setShowUpdateModal(false);
 
-        // Show success message
         alert(
           isArabic ? "تم إضافة التحديث بنجاح!" : "Update added successfully!"
         );
 
-        // Refresh the task list by calling loadTasks
         await loadTasks();
       }
     } catch (err) {

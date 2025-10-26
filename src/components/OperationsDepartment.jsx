@@ -2465,7 +2465,7 @@ export const OperationsDepartment = ({ isArabic }) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "المشرف" : "Supervisor"}
+                    {isArabic ? "المشرف" : "Supervisor"} *
                   </label>
                   <select
                     value={newSchedule.supervisor}
@@ -2514,7 +2514,7 @@ export const OperationsDepartment = ({ isArabic }) => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "وقت البداية" : "Start Time"}
+                    {isArabic ? "وقت البداية" : "Start Time"} *
                   </label>
                   <input
                     type="time"
@@ -2530,7 +2530,7 @@ export const OperationsDepartment = ({ isArabic }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "وقت الانتهاء" : "End Time"}
+                    {isArabic ? "وقت الانتهاء" : "End Time"} *
                   </label>
                   <input
                     type="time"
@@ -2546,7 +2546,7 @@ export const OperationsDepartment = ({ isArabic }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "الأولوية" : "Priority"}
+                    {isArabic ? "الأولوية" : "Priority"} *
                   </label>
                   <select
                     value={newSchedule.priority}
@@ -2832,7 +2832,7 @@ export const OperationsDepartment = ({ isArabic }) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "المشرف" : "Supervisor"}
+                    {isArabic ? "المشرف" : "Supervisor"} *
                   </label>
                   <select
                     value={editingSchedule.supervisor}
@@ -2884,7 +2884,7 @@ export const OperationsDepartment = ({ isArabic }) => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "وقت البداية" : "Start Time"}
+                    {isArabic ? "وقت البداية" : "Start Time"} *
                   </label>
                   <input
                     type="time"
@@ -2900,7 +2900,7 @@ export const OperationsDepartment = ({ isArabic }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "وقت الانتهاء" : "End Time"}
+                    {isArabic ? "وقت الانتهاء" : "End Time"} *
                   </label>
                   <input
                     type="time"

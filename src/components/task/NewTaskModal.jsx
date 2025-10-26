@@ -1,16 +1,16 @@
 import React from "react";
 import { Save, X, Navigation } from "lucide-react";
 
-const NewTaskModal = ({ 
-  showNewTask, 
-  setShowNewTask, 
-  newTask, 
-  setNewTask, 
-  handleCreateTask, 
-  taskTypes, 
-  employees, 
+const NewTaskModal = ({
+  showNewTask,
+  setShowNewTask,
+  newTask,
+  setNewTask,
+  handleCreateTask,
+  taskTypes,
+  employees,
   renderRequirementsFields,
-  isArabic 
+  isArabic,
 }) => {
   if (!showNewTask) return null;
 
@@ -38,9 +38,7 @@ const NewTaskModal = ({
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {isArabic
-                    ? "عنوان المهمة (إنجليزي)"
-                    : "Task Title (English)"}{" "}
+                  {isArabic ? "عنوان المهمة (إنجليزي)" : "Task Title (English)"}{" "}
                   *
                 </label>
                 <input
@@ -160,7 +158,7 @@ const NewTaskModal = ({
               </div>
             </div>
 
-            <div className="mt-4">
+            {/* <div className="mt-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 {isArabic ? "الإحداثيات الجغرافية" : "GPS Coordinates"}
               </label>
@@ -183,7 +181,7 @@ const NewTaskModal = ({
                   {isArabic ? "تحديد الموقع" : "Get Location"}
                 </button>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Description */}

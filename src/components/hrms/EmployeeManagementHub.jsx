@@ -513,7 +513,7 @@ const EmployeeManagementHubContent = ({ isArabic = false }) => {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <button
+          {/* <button
             onClick={handleExportEmployees}
             disabled={loading}
             className="bg-purple-600 hover:bg-purple-700 disabled:bg-purple-300 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
@@ -531,7 +531,7 @@ const EmployeeManagementHubContent = ({ isArabic = false }) => {
               onChange={handleImportEmployees}
               className="hidden"
             />
-          </label>
+          </label> */}
 
           <button
             onClick={handleCreateEmployee}

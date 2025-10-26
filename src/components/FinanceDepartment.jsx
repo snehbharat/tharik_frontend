@@ -985,7 +985,7 @@ export const FinanceDepartment = ({ isArabic }) => {
                           {isArabic ? "نشط" : "Active"}
                         </option>
                         <option value="inactive">
-                          {isArabic ? "غير نشط" : "inactive"}
+                          {isArabic ? "غير نشط" : "Inactive"}
                         </option>
                         <option value="corporate">
                           {isArabic ? "شركاتي" : "Corporate"}
