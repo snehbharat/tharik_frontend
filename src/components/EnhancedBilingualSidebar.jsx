@@ -23,11 +23,12 @@ import {
   ChevronRight,
   ChevronLeft,
   Settings,
+  ImageIcon,
 } from "lucide-react";
 import { useBilingual, BilingualText } from "./BilingualLayout";
 import { useAuth } from "../hooks/useAuth";
 import axios from "axios";
-import { getCompany } from "../services/CompanyService";
+import { getCompany, getImageUrl } from "../services/CompanyService";
 import UserService from "../services/UserService";
 
 export const EnhancedBilingualSidebar = ({
@@ -56,6 +57,25 @@ export const EnhancedBilingualSidebar = ({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [focusedItem, setFocusedItem] = useState("");
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [imagePreview, setImagePreview] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getCompany();
+        if (data.companyImage) {
+          setImagePreview(getImageUrl(data.companyImage));
+        }
+      } catch (error) {
+        console.error("Failed to load company info", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   // --- Fetch users and company info once ---
   useEffect(() => {
@@ -492,17 +512,23 @@ export const EnhancedBilingualSidebar = ({
               isCollapsed ? "justify-center" : ""
             }`}
           >
-            <div
-              className={`${
-                isRTL ? "order-2" : "order-1"
-              } w-10 h-10 bg-white/95 rounded-xl flex items-center justify-center shadow-lg hover:scale-105 transition-transform duration-200`}
-            >
-              <img
-                src="./logo.jpg"
-                alt="logo"
-                className="w-12 h-12 rounded-xl"
-              />
-            </div>
+            {imagePreview ? (
+              <div
+                className={`${
+                  isRTL ? "order-2" : "order-1"
+                } w-10 h-10 bg-white/95 rounded-xl flex items-center justify-center shadow-lg hover:scale-105 transition-transform duration-200`}
+              >
+                <img
+                  src={imagePreview}
+                  alt="logo"
+                  className="w-12 h-12 rounded-xl"
+                />
+              </div>
+            ) : (
+              <div className="w-12 h-12 border-2 border-gray-300 rounded-lg flex items-center justify-center bg-gray-50">
+                <ImageIcon className="w-12 h-12 text-gray-400" />
+              </div>
+            )}
             {!isCollapsed && (
               <div
                 className={`flex-1 ${

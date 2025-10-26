@@ -13,13 +13,14 @@ import {
   Upload,
   X,
 } from "lucide-react";
-import { MetricCard } from "./MetricCard";
+import { MetricCard } from "./MetricCard.jsx";
 import {
   EmployeeProvider,
   useEmployeeManagement,
 } from "../context/EmployeeContext.jsx";
-import EmployeeForm from "../components/hrms/EmployeeForm";
-import { EmployeeProfileManager } from "../components/hrms/EmployeeProfileManager";
+import EmployeeForm from "./hrms/EmployeeForm.jsx";
+import { EmployeeProfileManager } from "./hrms/EmployeeProfileManager.jsx";
+import EmployeeFormPO from "./hrms/EmployeeFormPO.jsx";
 
 const filterEmployees = (employees, searchTerm, filters) => {
   return employees.filter((emp) => {
@@ -169,12 +170,6 @@ const EmployeeManagementContent = ({ isArabic }) => {
     ) {
       try {
         await deleteEmployee(employeeId);
-        // Close the profile modal if the deleted employee is currently selected
-        if (selectedEmployee && selectedEmployee._id === employeeId) {
-          setSelectedEmployee(null);
-        }
-        // Refresh the employee list
-        await fetchEmployees();
       } catch (error) {
         console.error("Error deleting employee:", error);
       }
@@ -296,7 +291,7 @@ const EmployeeManagementContent = ({ isArabic }) => {
       )}
 
       {/* Employee Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <MetricCard
           title={isArabic ? "إجمالي الموظفين" : "Total Employees"}
           value={totalEmployees}
@@ -325,10 +320,10 @@ const EmployeeManagementContent = ({ isArabic }) => {
           gradient="from-red-50 to-red-100"
           borderColor="border-red-200"
         />
-      </div>
+      </div> */}
 
       {/* Header Actions */}
-      <div className="flex items-center justify-between">
+      {/* <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">
           {isArabic ? "إدارة الموظفين" : "Employee Management"}
         </h2>
@@ -361,7 +356,7 @@ const EmployeeManagementContent = ({ isArabic }) => {
             {isArabic ? "إضافة موظف" : "Add Employee"}
           </button>
         </div>
-      </div>
+      </div> */}
 
       {/* Search and Filters */}
       <div className="flex items-center gap-4 flex-wrap">
@@ -472,6 +467,8 @@ const EmployeeManagementContent = ({ isArabic }) => {
                 </tr>
               ) : (
                 filteredEmployees.map((employee) => {
+                  console.log("employeeee", employee);
+
                   const project = getProjectForEmployee(employee);
                   const departmentName = getDepartmentName(
                     employee.professionalInfo?.departmentId?._id
@@ -541,7 +538,7 @@ const EmployeeManagementContent = ({ isArabic }) => {
                         </div>
                       </td>
                       <td className="px-4 py-4">
-                        <div className="flex gap-1">
+                        <div className="flex  gap-1">
                           <span
                             className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getStatusColor(
                               employee.status
@@ -573,13 +570,13 @@ const EmployeeManagementContent = ({ isArabic }) => {
                           >
                             <Edit className="w-4 h-4" />
                           </button>
-                          <button
+                          {/* <button
                             onClick={() => handleDeleteEmployee(employee._id)}
                             className="text-red-600 hover:text-red-800 p-1 rounded"
                             title={isArabic ? "حذف" : "Delete"}
                           >
                             <Trash2 className="w-4 h-4" />
-                          </button>
+                          </button> */}
                         </div>
                       </td>
                     </tr>
@@ -604,7 +601,7 @@ const EmployeeManagementContent = ({ isArabic }) => {
 
       {/* Employee Form Modal */}
       {showEmployeeForm && (
-        <EmployeeForm
+        <EmployeeFormPO
           employee={editingEmployee}
           departments={departments}
           onSave={handleSaveEmployee}
@@ -618,7 +615,7 @@ const EmployeeManagementContent = ({ isArabic }) => {
 };
 
 // Main component with Provider wrapper
-export const EmployeeManagement = ({ isArabic = false }) => {
+export const EmployeeManagementPO = ({ isArabic = false }) => {
   return (
     <EmployeeProvider>
       <EmployeeManagementContent isArabic={isArabic} />
@@ -626,4 +623,4 @@ export const EmployeeManagement = ({ isArabic = false }) => {
   );
 };
 
-export default EmployeeManagement;
+export default EmployeeManagementPO;
