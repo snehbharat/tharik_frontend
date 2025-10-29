@@ -146,13 +146,13 @@ const EmployeeCard = ({
             >
               <Edit className="w-4 h-4" />
             </button>
-            <button
+            {/* <button
               onClick={() => onViewDocuments(employee)}
               className="text-purple-600 hover:text-purple-800 p-1 rounded"
               title={isArabic ? "الوثائق" : "Documents"}
             >
               <FileText className="w-4 h-4" />
-            </button>
+            </button> */}
           </div>
         </div>
       </div>

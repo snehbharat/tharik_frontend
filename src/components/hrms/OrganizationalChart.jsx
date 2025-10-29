@@ -65,7 +65,7 @@ export const OrganizationalChart = ({ departments, employees, isArabic }) => {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <button
+          {/* <button
             onClick={() => setViewMode(viewMode === "tree" ? "grid" : "tree")}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
           >
@@ -81,7 +81,7 @@ export const OrganizationalChart = ({ departments, employees, isArabic }) => {
               : isArabic
               ? "عرض الشجرة"
               : "Tree View"}
-          </button>
+          </button> */}
           <button
             onClick={() => setIsFullscreen(!isFullscreen)}
             className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
@@ -99,10 +99,10 @@ export const OrganizationalChart = ({ departments, employees, isArabic }) => {
               ? "ملء الشاشة"
               : "Fullscreen"}
           </button>
-          <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+          {/* <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
             <Download className="w-4 h-4" />
             {isArabic ? "تصدير المخطط" : "Export Chart"}
-          </button>
+          </button> */}
         </div>
       </div>
 
