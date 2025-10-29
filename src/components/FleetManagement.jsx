@@ -859,7 +859,8 @@ export const FleetManagement = ({ isArabic }) => {
       </div>
 
       {/* Fleet Overview Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+        {/* Total Vehicles */}
         <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -874,10 +875,53 @@ export const FleetManagement = ({ isArabic }) => {
               </div>
             </div>
           </div>
+          <div className="text-xs text-blue-600 flex items-center gap-1">
+            <CheckCircle className="w-3 h-3" />
+            {vehicles.length} {isArabic ? "الإجمالي" : "Total"}
+          </div>
+        </div>
+
+        {/* Active Vehicles */}
+        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+              <Truck className="w-5 h-5 text-green-600" />
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-gray-900">
+                {vehicles.filter((v) => v.status === "Active").length}
+              </div>
+              <div className="text-sm text-gray-600">
+                {isArabic ? "المركبات النشطة" : "Active Vehicles"}
+              </div>
+            </div>
+          </div>
           <div className="text-xs text-green-600 flex items-center gap-1">
             <CheckCircle className="w-3 h-3" />
             {vehicles.filter((v) => v.status === "Active").length}{" "}
-            {isArabic ? "متاحة" : "Available"}
+            {isArabic ? "نشطة" : "Active"}
+          </div>
+        </div>
+
+        {/* Inactive Vehicles */}
+        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+              <Truck className="w-5 h-5 text-red-600" />
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-gray-900">
+                {vehicles.filter((v) => v.status === "Inactive").length}
+              </div>
+              <div className="text-sm text-gray-600">
+                {isArabic ? "المركبات غير النشطة" : "Inactive Vehicles"}
+              </div>
+            </div>
+          </div>
+          <div className="text-xs text-red-600 flex items-center gap-1">
+            <CheckCircle className="w-3 h-3" />
+            {vehicles.filter((v) => v.status === "Inactive").length}{" "}
+            {isArabic ? "غير نشطة" : "Inactive"}
           </div>
         </div>
 

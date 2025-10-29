@@ -42,11 +42,11 @@ export const NavigationTabs = ({
               icon: PieChart,
               label: isArabic ? "التحليلات المتقدمة" : "Advanced Analytics",
             },
-            {
-              view: "reports",
-              icon: TrendingUp,
-              label: isArabic ? "مركز ذكاء الأرباح" : "Profit Intelligence",
-            },
+            // {
+            //   view: "reports",
+            //   icon: TrendingUp,
+            //   label: isArabic ? "مركز ذكاء الأرباح" : "Profit Intelligence",
+            // },
           ].map(({ view, icon: Icon, label }) => (
             <button
               key={view}
