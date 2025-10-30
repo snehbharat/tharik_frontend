@@ -1894,10 +1894,7 @@ export const OperationsDepartment = ({ isArabic }) => {
                           <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
                             <div className="flex items-center gap-1">
                               <Users className="w-4 h-4" />
-                              <span>
-                                {schedule?.supervisor?.first_name +
-                                  schedule?.supervisor?.last_name}
-                              </span>
+                              <span>{schedule?.supervisor?.nameEn}</span>
                             </div>
                             <div className="flex items-center gap-1">
                               <Calendar className="w-4 h-4" />
@@ -2780,9 +2777,7 @@ export const OperationsDepartment = ({ isArabic }) => {
                     </option>
                     {supervisors.map((s) => (
                       <option key={s.id} value={s._id}>
-                        {isArabic
-                          ? s.personalInfo.fullNameAr
-                          : s.personalInfo.fullName}
+                        {isArabic ? s.nameAr : s.nameEn}
                       </option>
                     ))}
                   </select>
@@ -3296,9 +3291,7 @@ export const OperationsDepartment = ({ isArabic }) => {
                 },
                 {
                   label: isArabic ? "المشرف" : "Supervisor",
-                  value:
-                    viewSchedule.supervisor.first_name +
-                    viewSchedule.supervisor.last_name,
+                  value: viewSchedule?.supervisor?.nameEn,
                 },
                 {
                   label: isArabic ? "تاريخ المجدول" : "Scheduled Date",

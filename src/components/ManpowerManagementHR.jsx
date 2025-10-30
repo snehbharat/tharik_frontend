@@ -17,6 +17,7 @@ import AddProjectModal from "./AddProjectModal";
 import { EmployeeManagement } from "./EmployeeManagement";
 import { NavigationTabsHR } from "./NavigationTabsHR";
 import { HeaderHR } from "./HeaderHR";
+import Department from "./Department";
 
 export const ManpowerManagementHR = ({ isArabic }) => {
   // State for projects, attendance, clients, and UI controls
@@ -517,6 +518,7 @@ export const ManpowerManagementHR = ({ isArabic }) => {
           {activeView === "reports" && (
             <Reports dashboardMetrics={dashboardMetrics} isArabic={isArabic} />
           )}
+          {activeView === "department" && <Department isArabic={isArabic} />}
         </div>
       </div>
 
