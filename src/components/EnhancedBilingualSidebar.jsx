@@ -173,8 +173,8 @@ export const EnhancedBilingualSidebar = ({
           {
             id: "manpower-1",
             icon: Users,
-            nameEn: "Workforce Management",
-            nameAr: "إدارة القوى العاملة",
+            nameEn: "Project Management",
+            nameAr: "إدارة المشاريع",
           },
           {
             id: "task-management",
