@@ -475,9 +475,7 @@ export const CompanyManagement = ({ isArabic }) => {
                         {companyInfo?.city}
                       </h3>
                       <p className="text-sm text-gray-600">
-                        {isArabic
-                          ? "العمليات والمقاولات العامة"
-                          : "Operations & General Contracting"}
+                        {companyInfo?.tagline}
                       </p>
                     </div>
                   </div>
