@@ -15,14 +15,19 @@ import { Reports } from "./Reports";
 import { EnhancedAttendanceTracker } from "./attendance/EnhancedAttendanceTracker";
 import AddProjectModal from "./AddProjectModal";
 import { EmployeeManagement } from "./EmployeeManagement";
+import { NavigationTabsHR } from "./NavigationTabsHR";
+import { HeaderHR } from "./HeaderHR";
+import Department from "./Department";
+import { NavigationTabsHR2 } from "./NavigationTabsHR2";
+import { HeaderHR2 } from "./HeaderHR2";
 
-export const ManpowerManagement = ({ isArabic }) => {
+export const ManpowerManagementHR2 = ({ isArabic }) => {
   // State for projects, attendance, clients, and UI controls
   const [projects, setProjects] = useState([]);
   const [attendance, setAttendance] = useState([]);
   const [clients, setClients] = useState([]);
   const [clientSearchQuery, setClientSearchQuery] = useState("");
-  const [activeView, setActiveView] = useState("projects");
+  const [activeView, setActiveView] = useState("attendance");
   const [selectedProject, setSelectedProject] = useState("all");
   const [showAddProject, setShowAddProject] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -431,8 +436,6 @@ export const ManpowerManagement = ({ isArabic }) => {
     }
   };
 
-  console.log(projects);
-
   return (
     <>
       <div className="p-6 space-y-6">
@@ -450,7 +453,7 @@ export const ManpowerManagement = ({ isArabic }) => {
         )}
 
         {/* Header component */}
-        <Header
+        <HeaderHR2
           isArabic={isArabic}
           onRefresh={refreshData}
           onExport={() => {}}
@@ -458,7 +461,7 @@ export const ManpowerManagement = ({ isArabic }) => {
         />
 
         {/* Navigation tabs */}
-        <NavigationTabs
+        <NavigationTabsHR2
           activeView={activeView}
           setActiveView={setActiveView}
           isArabic={isArabic}
@@ -517,6 +520,7 @@ export const ManpowerManagement = ({ isArabic }) => {
           {activeView === "reports" && (
             <Reports dashboardMetrics={dashboardMetrics} isArabic={isArabic} />
           )}
+          {activeView === "department" && <Department isArabic={isArabic} />}
         </div>
       </div>
 

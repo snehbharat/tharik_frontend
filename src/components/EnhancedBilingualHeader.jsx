@@ -103,8 +103,8 @@ export const EnhancedBilingualHeader = ({ onMenuToggle }) => {
                   tag="h1"
                 />
                 <BilingualText
-                  en="Operations & General Contracting"
-                  ar="العمليات والمقاولات العامة"
+                  en={companyInfo?.tagline}
+                  ar=""
                   className="text-sm text-gray-600"
                   tag="p"
                 />

@@ -426,23 +426,49 @@ export const CompanyManagementClient = ({ isArabic }) => {
         </div>
       </div>
 
+      {/* Client Statistics */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-blue-50 rounded-lg p-4">
+          <div className="text-2xl font-bold text-blue-600">
+            {clientCount.totalClient}
+          </div>
+          <div className="text-sm text-blue-700">
+            {isArabic ? "إجمالي العملاء" : "Total Clients"}
+          </div>
+        </div>
+
+        <div className="bg-green-50 rounded-lg p-4">
+          <div className="text-2xl font-bold text-green-600">
+            {clientCount.activeClient}
+          </div>
+          <div className="text-sm text-green-700">
+            {isArabic ? "عملاء نشطون" : "Active Clients"}
+          </div>
+        </div>
+
+        <div className="bg-purple-50 rounded-lg p-4">
+          <div className="text-2xl font-bold text-purple-600">
+            {clientCount.activeCorporateClient}
+          </div>
+          <div className="text-sm text-purple-700">
+            {isArabic ? "عملاء الشركات" : "Corporate Clients"}
+          </div>
+        </div>
+
+        <div className="bg-yellow-50 rounded-lg p-4">
+          <div className="text-2xl font-bold text-yellow-600">
+            {clientCount.activeGovtClient}
+          </div>
+          <div className="text-sm text-yellow-700">
+            {isArabic ? "العملاء الحكوميين" : "Government Clients"}
+          </div>
+        </div>
+      </div>
+
       {/* Tabs */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100">
         <div className="border-b border-gray-200">
           <nav className="flex">
-            {/* <button
-              onClick={() => setActiveTab("profile")}
-              className={`px-6 py-4 font-medium transition-colors ${
-                activeTab === "profile"
-                  ? "text-green-600 border-b-2 border-green-600"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <Building2 className="w-4 h-4" />
-                {isArabic ? "ملف الشركة" : "Company Profile"}
-              </div>
-            </button> */}
             <button
               onClick={() => setActiveTab("clients")}
               className={`px-6 py-4 font-medium transition-colors ${
@@ -454,6 +480,32 @@ export const CompanyManagementClient = ({ isArabic }) => {
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4" />
                 {isArabic ? "العملاء" : "Clients"}
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab("active-clients")}
+              className={`px-6 py-4 font-medium transition-colors ${
+                activeTab === "active-clients"
+                  ? "text-green-600 border-b-2 border-green-600"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Users className="w-4 h-4" />
+                {isArabic ? "العملاء النشطون" : "Active Clients"}
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab("inactive-clients")}
+              className={`px-6 py-4 font-medium transition-colors ${
+                activeTab === "inactive-clients"
+                  ? "text-green-600 border-b-2 border-green-600"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Users className="w-4 h-4" />
+                {isArabic ? "العملاء غير النشطين" : "Inactive Clients"}
               </div>
             </button>
           </nav>
@@ -620,7 +672,7 @@ export const CompanyManagementClient = ({ isArabic }) => {
           {activeTab === "clients" && (
             <div className="space-y-6">
               {/* Client Statistics */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="bg-blue-50 rounded-lg p-4">
                   <div className="text-2xl font-bold text-blue-600">
                     {clientCount.totalClient}
@@ -656,7 +708,7 @@ export const CompanyManagementClient = ({ isArabic }) => {
                     {isArabic ? "العملاء الحكوميين" : "Government Clients"}
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Client List */}
               <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -815,6 +867,512 @@ export const CompanyManagementClient = ({ isArabic }) => {
                           </td>
                         </tr>
                       ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div className="flex items-center justify-center gap-4 mt-6">
+                {/* Previous Button */}
+                <button
+                  onClick={() => fetchClients(Math.max(1, pagination.page - 1))}
+                  disabled={pagination.page <= 1}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+      ${
+        pagination.page <= 1
+          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+          : "bg-green-600 text-white hover:bg-green-700"
+      }`}
+                >
+                  {isArabic ? "السابق" : "Previous"}
+                </button>
+
+                {/* Page Info */}
+                <div className="px-4 py-2 bg-gray-100 rounded-lg text-sm font-medium text-gray-700">
+                  {isArabic ? "صفحة" : "Page"}{" "}
+                  {Number.isFinite(pagination.page) ? pagination.page : 0}{" "}
+                  {isArabic ? "من" : "of"}{" "}
+                  {Number.isFinite(pagination.totalPages)
+                    ? pagination.totalPages
+                    : 0}
+                </div>
+
+                {/* Next Button */}
+                <button
+                  onClick={() =>
+                    fetchClients(
+                      Math.min(pagination.totalPages, pagination.page + 1)
+                    )
+                  }
+                  disabled={pagination.page >= pagination.totalPages}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+      ${
+        pagination.page >= pagination.totalPages
+          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+          : "bg-green-600 text-white hover:bg-green-700"
+      }`}
+                >
+                  {isArabic ? "التالي" : "Next"}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "active-clients" && (
+            <div className="space-y-6">
+              {/* Client Statistics */}
+              {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="bg-blue-50 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-blue-600">
+                    {clientCount.totalClient}
+                  </div>
+                  <div className="text-sm text-blue-700">
+                    {isArabic ? "إجمالي العملاء" : "Total Clients"}
+                  </div>
+                </div>
+
+                <div className="bg-green-50 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-green-600">
+                    {clientCount.activeClient}
+                  </div>
+                  <div className="text-sm text-green-700">
+                    {isArabic ? "عملاء نشطون" : "Active Clients"}
+                  </div>
+                </div>
+
+                <div className="bg-purple-50 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-purple-600">
+                    {clientCount.activeCorporateClient}
+                  </div>
+                  <div className="text-sm text-purple-700">
+                    {isArabic ? "عملاء الشركات" : "Corporate Clients"}
+                  </div>
+                </div>
+
+                <div className="bg-yellow-50 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-yellow-600">
+                    {clientCount.activeGovtClient}
+                  </div>
+                  <div className="text-sm text-yellow-700">
+                    {isArabic ? "العملاء الحكوميين" : "Government Clients"}
+                  </div>
+                </div>
+              </div> */}
+
+              {/* Client List */}
+              <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table
+                    className="w-full"
+                    role="table"
+                    aria-label="Client management table"
+                  >
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          scope="col"
+                        >
+                          {isArabic ? "العميل" : "Client"}
+                        </th>
+                        <th
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          scope="col"
+                        >
+                          {isArabic ? "النوع" : "Type"}
+                        </th>
+                        <th
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          scope="col"
+                        >
+                          {isArabic ? "قيمة العقد" : "Contract Value"}
+                        </th>
+                        <th
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          scope="col"
+                        >
+                          {isArabic ? "الحالة" : "Status"}
+                        </th>
+                        <th
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          scope="col"
+                        >
+                          {isArabic ? "تاريخ الانتهاء" : "Expiry Date"}
+                        </th>
+                        <th
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          scope="col"
+                        >
+                          {isArabic ? "الإجراءات" : "Actions"}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {clients
+                        .filter((c) => c.status === "active")
+                        .map((client) => (
+                          <tr key={client._id} className="hover:bg-gray-50">
+                            <td
+                              className="px-6 py-4 whitespace-nowrap"
+                              role="cell"
+                            >
+                              <div>
+                                <div className="font-medium text-gray-900">
+                                  {isArabic
+                                    ? client.client_name_arb
+                                    : client.client_name_eng}
+                                </div>
+                                <div className="text-sm text-gray-500">
+                                  {client.manpower_count}{" "}
+                                  {isArabic ? "عامل" : "workers"} •{" "}
+                                  {client.vehicle_count}{" "}
+                                  {isArabic ? "مركبة" : "vehicles"}
+                                </div>
+                                <div className="text-sm text-gray-500">
+                                  {client.contact_person} •{" "}
+                                  {client.client_mobile_number}
+                                </div>
+                              </div>
+                            </td>
+                            <td
+                              className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
+                              role="cell"
+                            >
+                              {client.client_type}
+                            </td>
+                            <td
+                              className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
+                              role="cell"
+                            >
+                              {client.contract_value} SAR
+                            </td>
+                            <td
+                              className="px-6 py-4 whitespace-nowrap"
+                              role="cell"
+                            >
+                              <span
+                                className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                  client.status === "active"
+                                    ? "bg-green-100 text-green-800"
+                                    : "bg-yellow-100 text-yellow-800"
+                                }`}
+                              >
+                                {client.status}
+                              </span>
+                            </td>
+                            <td
+                              className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
+                              role="cell"
+                            >
+                              {client.contract_expiery_date
+                                ? new Date(
+                                    client.contract_expiery_date
+                                  ).toLocaleDateString(
+                                    isArabic ? "ar-EG" : "en-GB",
+                                    {
+                                      day: "2-digit",
+                                      month: "short",
+                                      year: "numeric",
+                                    }
+                                  )
+                                : ""}
+                            </td>
+                            <td
+                              className="px-6 py-4 whitespace-nowrap text-sm font-medium"
+                              role="cell"
+                            >
+                              <div className="flex items-center gap-2">
+                                <button
+                                  onClick={() => handleViewClient(client._id)}
+                                  className="text-blue-600 hover:text-blue-800 p-1 rounded transition-colors"
+                                  aria-label={`${isArabic ? "عرض" : "View"} ${
+                                    client.client_name_eng
+                                  }`}
+                                >
+                                  <Eye className="w-4 h-4" aria-hidden="true" />
+                                </button>
+
+                                <button
+                                  onClick={() => handleEditClient(client._id)}
+                                  className="text-green-600 hover:text-green-800 p-1 rounded transition-colors"
+                                  aria-label={`${isArabic ? "تعديل" : "Edit"} ${
+                                    client.client_name_eng
+                                  }`}
+                                >
+                                  <Edit
+                                    className="w-4 h-4"
+                                    aria-hidden="true"
+                                  />
+                                </button>
+
+                                <button
+                                  onClick={() => handleDeleteClient(client._id)}
+                                  className="text-red-600 hover:text-red-800 p-1 rounded transition-colors"
+                                  aria-label={`${isArabic ? "حذف" : "Delete"} ${
+                                    client.client_name_eng
+                                  }`}
+                                >
+                                  <Trash2
+                                    className="w-4 h-4"
+                                    aria-hidden="true"
+                                  />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div className="flex items-center justify-center gap-4 mt-6">
+                {/* Previous Button */}
+                <button
+                  onClick={() => fetchClients(Math.max(1, pagination.page - 1))}
+                  disabled={pagination.page <= 1}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+      ${
+        pagination.page <= 1
+          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+          : "bg-green-600 text-white hover:bg-green-700"
+      }`}
+                >
+                  {isArabic ? "السابق" : "Previous"}
+                </button>
+
+                {/* Page Info */}
+                <div className="px-4 py-2 bg-gray-100 rounded-lg text-sm font-medium text-gray-700">
+                  {isArabic ? "صفحة" : "Page"}{" "}
+                  {Number.isFinite(pagination.page) ? pagination.page : 0}{" "}
+                  {isArabic ? "من" : "of"}{" "}
+                  {Number.isFinite(pagination.totalPages)
+                    ? pagination.totalPages
+                    : 0}
+                </div>
+
+                {/* Next Button */}
+                <button
+                  onClick={() =>
+                    fetchClients(
+                      Math.min(pagination.totalPages, pagination.page + 1)
+                    )
+                  }
+                  disabled={pagination.page >= pagination.totalPages}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+      ${
+        pagination.page >= pagination.totalPages
+          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+          : "bg-green-600 text-white hover:bg-green-700"
+      }`}
+                >
+                  {isArabic ? "التالي" : "Next"}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "inactive-clients" && (
+            <div className="space-y-6">
+              {/* Client Statistics */}
+              {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="bg-blue-50 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-blue-600">
+                    {clientCount.totalClient}
+                  </div>
+                  <div className="text-sm text-blue-700">
+                    {isArabic ? "إجمالي العملاء" : "Total Clients"}
+                  </div>
+                </div>
+
+                <div className="bg-green-50 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-green-600">
+                    {clientCount.activeClient}
+                  </div>
+                  <div className="text-sm text-green-700">
+                    {isArabic ? "عملاء نشطون" : "Active Clients"}
+                  </div>
+                </div>
+
+                <div className="bg-purple-50 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-purple-600">
+                    {clientCount.activeCorporateClient}
+                  </div>
+                  <div className="text-sm text-purple-700">
+                    {isArabic ? "عملاء الشركات" : "Corporate Clients"}
+                  </div>
+                </div>
+
+                <div className="bg-yellow-50 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-yellow-600">
+                    {clientCount.activeGovtClient}
+                  </div>
+                  <div className="text-sm text-yellow-700">
+                    {isArabic ? "العملاء الحكوميين" : "Government Clients"}
+                  </div>
+                </div>
+              </div> */}
+
+              {/* Client List */}
+              <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table
+                    className="w-full"
+                    role="table"
+                    aria-label="Client management table"
+                  >
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          scope="col"
+                        >
+                          {isArabic ? "العميل" : "Client"}
+                        </th>
+                        <th
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          scope="col"
+                        >
+                          {isArabic ? "النوع" : "Type"}
+                        </th>
+                        <th
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          scope="col"
+                        >
+                          {isArabic ? "قيمة العقد" : "Contract Value"}
+                        </th>
+                        <th
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          scope="col"
+                        >
+                          {isArabic ? "الحالة" : "Status"}
+                        </th>
+                        <th
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          scope="col"
+                        >
+                          {isArabic ? "تاريخ الانتهاء" : "Expiry Date"}
+                        </th>
+                        <th
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          scope="col"
+                        >
+                          {isArabic ? "الإجراءات" : "Actions"}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {clients
+                        .filter((c) => c.status === "inactive")
+                        .map((client) => (
+                          <tr key={client._id} className="hover:bg-gray-50">
+                            <td
+                              className="px-6 py-4 whitespace-nowrap"
+                              role="cell"
+                            >
+                              <div>
+                                <div className="font-medium text-gray-900">
+                                  {isArabic
+                                    ? client.client_name_arb
+                                    : client.client_name_eng}
+                                </div>
+                                <div className="text-sm text-gray-500">
+                                  {client.manpower_count}{" "}
+                                  {isArabic ? "عامل" : "workers"} •{" "}
+                                  {client.vehicle_count}{" "}
+                                  {isArabic ? "مركبة" : "vehicles"}
+                                </div>
+                                <div className="text-sm text-gray-500">
+                                  {client.contact_person} •{" "}
+                                  {client.client_mobile_number}
+                                </div>
+                              </div>
+                            </td>
+                            <td
+                              className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
+                              role="cell"
+                            >
+                              {client.client_type}
+                            </td>
+                            <td
+                              className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
+                              role="cell"
+                            >
+                              {client.contract_value} SAR
+                            </td>
+                            <td
+                              className="px-6 py-4 whitespace-nowrap"
+                              role="cell"
+                            >
+                              <span
+                                className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                  client.status === "active"
+                                    ? "bg-green-100 text-green-800"
+                                    : "bg-yellow-100 text-yellow-800"
+                                }`}
+                              >
+                                {client.status}
+                              </span>
+                            </td>
+                            <td
+                              className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
+                              role="cell"
+                            >
+                              {client.contract_expiery_date
+                                ? new Date(
+                                    client.contract_expiery_date
+                                  ).toLocaleDateString(
+                                    isArabic ? "ar-EG" : "en-GB",
+                                    {
+                                      day: "2-digit",
+                                      month: "short",
+                                      year: "numeric",
+                                    }
+                                  )
+                                : ""}
+                            </td>
+                            <td
+                              className="px-6 py-4 whitespace-nowrap text-sm font-medium"
+                              role="cell"
+                            >
+                              <div className="flex items-center gap-2">
+                                <button
+                                  onClick={() => handleViewClient(client._id)}
+                                  className="text-blue-600 hover:text-blue-800 p-1 rounded transition-colors"
+                                  aria-label={`${isArabic ? "عرض" : "View"} ${
+                                    client.client_name_eng
+                                  }`}
+                                >
+                                  <Eye className="w-4 h-4" aria-hidden="true" />
+                                </button>
+
+                                <button
+                                  onClick={() => handleEditClient(client._id)}
+                                  className="text-green-600 hover:text-green-800 p-1 rounded transition-colors"
+                                  aria-label={`${isArabic ? "تعديل" : "Edit"} ${
+                                    client.client_name_eng
+                                  }`}
+                                >
+                                  <Edit
+                                    className="w-4 h-4"
+                                    aria-hidden="true"
+                                  />
+                                </button>
+
+                                <button
+                                  onClick={() => handleDeleteClient(client._id)}
+                                  className="text-red-600 hover:text-red-800 p-1 rounded transition-colors"
+                                  aria-label={`${isArabic ? "حذف" : "Delete"} ${
+                                    client.client_name_eng
+                                  }`}
+                                >
+                                  <Trash2
+                                    className="w-4 h-4"
+                                    aria-hidden="true"
+                                  />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
                     </tbody>
                   </table>
                 </div>
