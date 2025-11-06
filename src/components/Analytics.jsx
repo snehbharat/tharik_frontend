@@ -25,18 +25,26 @@ export const Analytics = ({ projects, isArabic, loading }) => (
             >
               <div>
                 <div className="font-medium text-gray-900">{project.name}</div>
-                <div className="text-sm text-gray-500">{isArabic ? "مشروع" : "project"}</div>
+                <div className="text-sm text-gray-500">
+                  {isArabic ? "مشروع" : "project"}
+                </div>
               </div>
               <div className="text-right">
-                <div className="font-semibold text-green-600">{formatPercentage(project.profitMargin || 0)}</div>
-                <div className="text-sm text-gray-500">{isArabic ? "هامش الربح" : "profit margin"}</div>
+                <div className="font-semibold text-green-600">
+                  {formatPercentage(project.progress || 0)}
+                </div>
+                <div className="text-sm text-gray-500">
+                  {isArabic ? "معدل التقدم" : "Progress Rate"}
+                </div>
               </div>
             </div>
           ))}
         </div>
       ) : (
         <div className="text-center text-gray-500 py-8">
-          {isArabic ? "لا توجد مشاريع للتحليل" : "No projects available for analysis"}
+          {isArabic
+            ? "لا توجد مشاريع للتحليل"
+            : "No projects available for analysis"}
         </div>
       )}
     </div>

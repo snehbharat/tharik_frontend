@@ -71,19 +71,15 @@ const NewTaskModal = ({
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   {isArabic ? "نوع المهمة" : "Task Type"} *
                 </label>
-                <select
+                <input
+                  type="text"
                   value={newTask.type}
                   onChange={(e) =>
                     setNewTask({ ...newTask, type: e.target.value })
                   }
+                  placeholder={isArabic ? "أدخل نوع المهمة" : "Enter task type"}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                >
-                  {taskTypes.map((type) => (
-                    <option key={type.value} value={type.value}>
-                      {isArabic ? type.labelAr : type.label}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -120,24 +116,73 @@ const NewTaskModal = ({
             <div className="grid grid-cols-2 gap-4 mt-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {isArabic ? "المسؤول عن المهمة" : "Assigned To"} *
+                  {isArabic ? "المسؤولون عن المهمة" : "Assigned To"} *
                 </label>
+
+                {/* Dropdown to add employees */}
                 <select
-                  value={newTask.assignedTo}
-                  onChange={(e) =>
-                    setNewTask({ ...newTask, assignedTo: e.target.value })
-                  }
+                  value=""
+                  onChange={(e) => {
+                    const selected = e.target.value;
+                    if (selected && !newTask.assignedTo.includes(selected)) {
+                      setNewTask({
+                        ...newTask,
+                        assignedTo: [...newTask.assignedTo, selected],
+                      });
+                    }
+                  }}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                  required
                 >
-                  <option value="">Select Employee</option>
+                  <option value="">
+                    {isArabic ? "اختر موظفًا" : "Select Employee"}
+                  </option>
                   {employees.map((emp) => (
                     <option key={emp.value} value={emp.value}>
                       {isArabic ? emp.labelAr : emp.label}
                     </option>
                   ))}
                 </select>
+
+                {/* Show selected employees as chips */}
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {newTask.assignedTo.map((empId) => {
+                    const emp = employees.find((e) => e.value === empId);
+                    return (
+                      <div
+                        key={empId}
+                        className="flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+                      >
+                        <span>
+                          {emp ? (isArabic ? emp.labelAr : emp.label) : empId}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setNewTask({
+                              ...newTask,
+                              assignedTo: newTask.assignedTo.filter(
+                                (id) => id !== empId
+                              ),
+                            })
+                          }
+                          className="ml-2 text-blue-600 hover:text-red-600 font-bold"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {newTask.assignedTo.length === 0 && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    {isArabic
+                      ? "يرجى اختيار موظف واحد على الأقل"
+                      : "Please select at least one employee"}
+                  </p>
+                )}
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   {isArabic ? "الموقع" : "Location"}

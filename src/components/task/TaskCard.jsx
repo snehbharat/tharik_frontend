@@ -82,6 +82,8 @@ const TaskCard = ({
         : task.updates.slice(-3).reverse() // Show last 3 updates, newest first
       : [];
 
+  console.log(task);
+
   return (
     <div className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
       {/* Header */}
@@ -103,9 +105,25 @@ const TaskCard = ({
                 </span>
               </div>
               <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 flex-wrap">
                   <User className="w-4 h-4" />
-                  <span>{isArabic ? task.assignedToAr : task.assignedTo}</span>
+                  {Array.isArray(task.assigned_to) &&
+                  task.assigned_to.length > 0 ? (
+                    task.assigned_to.map((emp) => (
+                      <span
+                        key={emp._id}
+                        className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full text-xs"
+                      >
+                        {isArabic
+                          ? emp.nameAr || `${emp.first_name} ${emp.last_name}`
+                          : emp.name || `${emp.first_name} ${emp.last_name}`}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-gray-400">
+                      {isArabic ? "غير معين" : "Unassigned"}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-1">
                   <Calendar className="w-4 h-4" />

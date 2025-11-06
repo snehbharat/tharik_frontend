@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { formatCurrency } from "../utils/financialCalculations";
 
-export const NavigationTabsHR = ({
+export const NavigationTabsHR2 = ({
   activeView,
   setActiveView,
   isArabic,
@@ -23,26 +23,26 @@ export const NavigationTabsHR = ({
         <nav className="flex">
           {[
             // { view: "dashboard", icon: BarChart3, label: isArabic ? "مركز القيادة" : "Command Center" },
-            {
-              view: "employees",
-              icon: Users,
-              label: isArabic ? "إدارة الموظفين" : "Employee Management",
-            },
+            // {
+            //   view: "employees",
+            //   icon: Users,
+            //   label: isArabic ? "إدارة الموظفين" : "Employee Management",
+            // },
             // {
             //   view: "projects",
             //   icon: Briefcase,
             //   label: isArabic ? "إدارة المشاريع" : "Project Management",
             // },
-            // {
-            //   view: "attendance",
-            //   icon: Calendar,
-            //   label: isArabic ? "تتبع الحضور" : "Attendance Tracking",
-            // },
             {
-              view: "department",
-              icon: Building,
-              label: isArabic ? "قسم" : "Department",
+              view: "attendance",
+              icon: Calendar,
+              label: isArabic ? "تتبع الحضور" : "Attendance Tracking",
             },
+            // {
+            //   view: "department",
+            //   icon: Building,
+            //   label: isArabic ? "قسم" : "Department",
+            // },
             // {
             //   view: "analytics",
             //   icon: PieChart,

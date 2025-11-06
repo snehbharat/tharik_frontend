@@ -1,11 +1,11 @@
 import React from "react";
 import { Plus, Download } from "lucide-react";
 
-export const HeaderHR = ({ isArabic, onRefresh, onExport, onAddProject }) => (
+export const HeaderHR2 = ({ isArabic, onRefresh, onExport, onAddProject }) => (
   <div className="flex items-center justify-between">
     {/* Header title */}
     <h1 className="text-3xl font-bold text-gray-900">
-      {isArabic ? "إدارة الموظفين" : "Employee Management"}
+      {isArabic ? "إدارة الحضور" : "Attendance Tracking"}
     </h1>
     {/* Action buttons */}
     {/* <div className="flex items-center gap-3">

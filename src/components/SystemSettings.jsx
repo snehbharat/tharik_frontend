@@ -273,6 +273,22 @@ export const SystemSettings = ({ isArabic }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "شعار الشركة" : "Company Tagline"}
+                  </label>
+                  <input
+                    type="text"
+                    value={sellerInfo?.tagline || ""}
+                    onChange={(e) =>
+                      setSellerInfo({
+                        ...sellerInfo,
+                        tagline: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     {isArabic
                       ? "رقم ضريبة القيمة المضافة (15 رقم)"
                       : "VAT Number (15 digits)"}
