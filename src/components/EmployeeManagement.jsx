@@ -158,6 +158,61 @@ const EmployeeManagementContent = ({ isArabic }) => {
     [employeesData]
   );
 
+  function formatCurrency(employee, type) {
+
+    let amount = 0;
+
+    const actualRate =
+      parseFloat(employee?.actual_rate?.$numberDecimal) ||
+      parseFloat(employee?.professionalInfo?.salaryInfo?.actual_rate?.$numberDecimal) ||
+      parseFloat(employee?.actual_rate) ||
+      0;
+
+    const hourlyRate =
+      parseFloat(employee?.hourly_rate?.$numberDecimal) ||
+      parseFloat(employee?.professionalInfo?.salaryInfo?.hourly_rate?.$numberDecimal) ||
+      parseFloat(employee?.hourly_rate) ||
+      0;
+
+    if (type === "hourly-rate") {
+      amount = hourlyRate;
+    } else {
+      amount = actualRate;
+    }
+
+    return new Intl.NumberFormat('en-SA', {
+      style: 'currency',
+      currency: employee?.salaryInfo?.currency || 'SAR',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(amount);
+  }
+
+
+  function calculateProfitMargin(employee) {
+    if (!employee) throw new Error("Employee object is required.");
+
+    // Handle possible nested values and Mongo Decimal128 conversions
+    const actualRate =
+      parseFloat(employee.actual_rate?.$numberDecimal) ||
+      parseFloat(employee.professionalInfo?.salaryInfo?.actual_rate?.$numberDecimal) ||
+      parseFloat(employee.actual_rate) ||
+      0;
+
+    const hourlyRate =
+      parseFloat(employee.hourly_rate?.$numberDecimal) ||
+      parseFloat(employee.professionalInfo?.salaryInfo?.hourly_rate?.$numberDecimal) ||
+      parseFloat(employee.hourly_rate) ||
+      0;
+
+    // Calculate profit margin using your formula
+    const profitMargin =
+      actualRate > 0 ? ((actualRate - hourlyRate) / actualRate) * 100 : 0;
+
+    // Return with two decimals
+    return Number(profitMargin.toFixed(2));
+  }
+
   // Event handlers
   const handleDeleteEmployee = async (employeeId) => {
     if (
@@ -435,6 +490,12 @@ const EmployeeManagementContent = ({ isArabic }) => {
                   {isArabic ? "القسم" : "Department"}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  {isArabic ? 'الأجور' : 'Rates'}
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  {isArabic ? "المشروع" : "Profit Margin"}
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                   {isArabic ? "المشروع" : "Project"}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
@@ -478,8 +539,8 @@ const EmployeeManagementContent = ({ isArabic }) => {
                   );
                   const expiringDocs = employee.documents
                     ? employee.documents.filter(
-                        (doc) => getDaysUntilExpiry(doc.expiryDate) <= 30
-                      )
+                      (doc) => getDaysUntilExpiry(doc.expiryDate) <= 30
+                    )
                     : [];
 
                   return (
@@ -517,10 +578,34 @@ const EmployeeManagementContent = ({ isArabic }) => {
                         </div>
                       </td>
                       <td className="px-4 py-4">
+                        <div className="text-sm">
+                          <div className="text-gray-600">{isArabic ? 'التكلفة:' : 'Cost:'} {formatCurrency(employee, "hourly-rate")}/hr</div>
+                          <div className="text-green-600 font-medium">{isArabic ? 'الفوترة:' : 'Billing:'} {formatCurrency(employee.actualRate, "actual-rate")}/hr</div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-2">
+                          <div className={`text-sm font-semibold ${calculateProfitMargin(employee) > 30 ? 'text-green-600' :
+                            calculateProfitMargin(employee) > 15 ? 'text-yellow-600' : 'text-red-600'
+                            }`}>
+                            {calculateProfitMargin(employee).toFixed(1)}%
+                          </div>
+                          <div className="w-16 bg-gray-200 rounded-full h-2">
+                            <div
+                              className={`h-2 rounded-full ${calculateProfitMargin(employee) > 30 ? 'bg-green-500' :
+                                calculateProfitMargin(employee) > 15 ? 'bg-yellow-500' : 'bg-red-500'
+                                }`}
+                              style={{ width: `${Math.min(calculateProfitMargin(employee), 100)}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="px-4 py-4">
                         <div className="text-sm text-gray-900">
-                          {employee?.team_id ? (
+                          {employee?.project_id?.name ? (
                             <span className="text-green-600">
-                              {isArabic ? "مُعيَّن" : "Assigned"}
+                              {employee?.project_id?.name}
                             </span>
                           ) : (
                             <span className="text-yellow-600">
@@ -534,10 +619,10 @@ const EmployeeManagementContent = ({ isArabic }) => {
                           {employee.hire_date
                             ? new Date(employee.hire_date).toLocaleDateString()
                             : employee.professionalInfo?.hireDate
-                            ? new Date(
+                              ? new Date(
                                 employee.professionalInfo.hireDate
                               ).toLocaleDateString()
-                            : "N/A"}
+                              : "N/A"}
                         </div>
                       </td>
                       <td className="px-4 py-4">

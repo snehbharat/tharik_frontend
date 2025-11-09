@@ -61,6 +61,7 @@ const EmployeeForm = ({
     employeeRoles,
     nationalities,
     teams,
+    projects,
     loading: enumsLoading,
     error: enumsError,
   } = useEnums();
@@ -72,6 +73,8 @@ const EmployeeForm = ({
 
   // Combined loading state
   const apiLoading = departmentsLoading || enumsLoading;
+
+  console.log("projects", projects);
 
   function decimalToNumber(value) {
     if (!value) return null;
@@ -145,6 +148,7 @@ const EmployeeForm = ({
 
     // pass team Id
     teamId: employee?.team_id,
+    projectId: employee?.project_id?._id,
   });
 
   const [errors, setErrors] = useState({});
@@ -211,6 +215,11 @@ const EmployeeForm = ({
       return;
     }
     try {
+
+      console.log("formData", formData);
+
+      console.log("formData projectId", formData.projectId);
+
       const employeeData = {
         personalInfo: {
           firstName: formData.firstName,
@@ -251,18 +260,20 @@ const EmployeeForm = ({
         },
         emergencyContacts: formData.emergencyName
           ? [
-              {
-                name: formData.emergencyName,
-                relationship: formData.emergencyRelationship,
-                phone: formData.emergencyPhone,
-                email: formData.emergencyEmail,
-                isPrimary: true,
-              },
-            ]
+            {
+              name: formData.emergencyName,
+              relationship: formData.emergencyRelationship,
+              phone: formData.emergencyPhone,
+              email: formData.emergencyEmail,
+              isPrimary: true,
+            },
+          ]
           : [],
         status: formData.status,
         teamId: formData.teamId, // Include teamId
+        projectId: formData.projectId,
       };
+      console.log("employeeData", employeeData);
       await onSave(employeeData);
     } catch (error) {
       console.error("Form submission error:", error);
@@ -298,8 +309,8 @@ const EmployeeForm = ({
                 ? "تعديل موظف"
                 : "Edit Employee"
               : isArabic
-              ? "إضافة موظف جديد"
-              : "Add New Employee"}
+                ? "إضافة موظف جديد"
+                : "Add New Employee"}
           </h2>
           <button
             onClick={onClose}
@@ -1035,6 +1046,37 @@ const EmployeeForm = ({
               </FormField>
             </div>
           </FormSection>
+
+          {/* Project Section */}
+          <FormSection
+            title={isArabic ? "العنوان" : "Projects Information"}
+            icon={MapPin}
+            isArabic={isArabic}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                label={isArabic ? "الجنسية" : "Projects"}
+                error={errors.projects}
+                isArabic={isArabic}
+              >
+                <select
+                  value={formData.projectId}
+                  onChange={(e) => handleInputChange("projectId", e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">
+                    {isArabic ? "اختر الفريق" : "Select Project"}
+                  </option>
+                  {projects.map((project) => (
+                    <option key={project.projectName} value={project.projectId}>
+                      {project.projectName}
+                    </option>
+                  ))}
+                </select>
+              </FormField>
+            </div>
+          </FormSection>
+
         </form>
 
         {/* Footer */}

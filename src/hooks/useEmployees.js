@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { employeeService } from "../services/EmployeeService";
+import ProjectServiceClient from "../services/ProjectServiceClient";
 
 export const useEmployees = (initialFilters = {}) => {
   const [employees, setEmployees] = useState([]);
@@ -178,6 +179,7 @@ export const useEnums = () => {
   const [employeeRoles, setEmployeeRoles] = useState([]);
   const [nationalities, setNationalities] = useState([]);
   const [teams, setTeams] = useState([]);
+  const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -191,6 +193,13 @@ export const useEnums = () => {
         employeeService.getNationalities(),
         employeeService.getTeamsForEmployee(),
       ]);
+
+      const projectsResponse = await ProjectServiceClient.getAllProjectsForEmployee();
+
+      if (projectsResponse.response) {
+        console.log("projectsResponse.data", projectsResponse.data);
+        setProjects(projectsResponse.data);
+      }
 
       if (rolesResponse.status === "fulfilled" && rolesResponse.value?.data) {
         setEmployeeRoles(rolesResponse.value.data);
@@ -232,6 +241,7 @@ export const useEnums = () => {
     employeeRoles,
     nationalities,
     teams,
+    projects,
     loading,
     error,
     refetch: fetchEnums,
