@@ -700,7 +700,7 @@ export const UserManagement = ({ isArabic }) => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "الاسم (إنجليزي)" : "Name (English)"}
+                    {isArabic ? "الاسم (إنجليزي)" : "Name (English)"} *
                   </label>
                   <input
                     type="text"
@@ -713,7 +713,7 @@ export const UserManagement = ({ isArabic }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "الاسم (عربي)" : "Name (Arabic)"}
+                    {isArabic ? "الاسم (عربي)" : "Name (Arabic)"} *
                   </label>
                   <input
                     type="text"
@@ -730,7 +730,7 @@ export const UserManagement = ({ isArabic }) => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "اسم المستخدم" : "Username"}
+                    {isArabic ? "اسم المستخدم" : "Username"} *
                   </label>
                   <input
                     type="text"
@@ -743,7 +743,7 @@ export const UserManagement = ({ isArabic }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "البريد الإلكتروني" : "Email"}
+                    {isArabic ? "البريد الإلكتروني" : "Email"} *
                   </label>
                   <input
                     type="email"
@@ -760,7 +760,7 @@ export const UserManagement = ({ isArabic }) => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "رقم الهاتف" : "Phone Number"}
+                    {isArabic ? "رقم الهاتف" : "Phone Number"} *
                   </label>
                   <input
                     type="tel"
@@ -776,7 +776,7 @@ export const UserManagement = ({ isArabic }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "الدور" : "Role"}
+                    {isArabic ? "الدور" : "Role"} *
                   </label>
                   <select
                     value={formData.role}
@@ -802,7 +802,7 @@ export const UserManagement = ({ isArabic }) => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "القسم" : "Department"}
+                    {isArabic ? "القسم" : "Department"} *
                   </label>
                   <select
                     value={formData.department}
@@ -820,7 +820,7 @@ export const UserManagement = ({ isArabic }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "كلمة المرور" : "Password"}
+                    {isArabic ? "كلمة المرور" : "Password"} *
                   </label>
                   <input
                     type="password"
@@ -836,7 +836,7 @@ export const UserManagement = ({ isArabic }) => {
               {/* Status */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {isArabic ? "الحالة" : "Status"}
+                  {isArabic ? "الحالة" : "Status"} *
                 </label>
                 <select
                   value={formData.status}

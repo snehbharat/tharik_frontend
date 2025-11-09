@@ -5,6 +5,7 @@ import {
   Calendar,
   PieChart,
   TrendingUp,
+  Building,
   Users,
 } from "lucide-react";
 import { formatCurrency } from "../utils/financialCalculations";
@@ -32,10 +33,15 @@ export const NavigationTabsHR = ({
             //   icon: Briefcase,
             //   label: isArabic ? "إدارة المشاريع" : "Project Management",
             // },
+            // {
+            //   view: "attendance",
+            //   icon: Calendar,
+            //   label: isArabic ? "تتبع الحضور" : "Attendance Tracking",
+            // },
             {
-              view: "attendance",
-              icon: Calendar,
-              label: isArabic ? "تتبع الحضور" : "Attendance Tracking",
+              view: "department",
+              icon: Building,
+              label: isArabic ? "قسم" : "Department",
             },
             // {
             //   view: "analytics",

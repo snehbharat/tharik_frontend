@@ -797,7 +797,7 @@ export const PayrollManagement = ({ isArabic }) => {
       </div>
 
       {/* Integration Status Banner */}
-      <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-4">
+      {/* <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-4">
         <div className="flex items-center gap-3">
           <CheckCircle className="w-6 h-6 text-green-600" />
           <div className="flex-1">
@@ -819,7 +819,7 @@ export const PayrollManagement = ({ isArabic }) => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* View Tabs */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100">
@@ -1147,7 +1147,7 @@ export const PayrollManagement = ({ isArabic }) => {
                       </div>
                       <button
                         onClick={() => {
-                          setSelectedProject(project.projectId);
+                          // setSelectedProject(project.projectId);
                           setActiveView("employees");
                         }}
                         className="text-blue-600 hover:text-blue-800 text-sm font-medium"
@@ -1272,9 +1272,9 @@ export const PayrollManagement = ({ isArabic }) => {
                             <div className="text-red-600">
                               -{formatCurrency(employee.gosiContribution)}
                             </div>
-                            <div className="text-gray-500 text-xs">
+                            {/* <div className="text-gray-500 text-xs">
                               GOSI + Other
-                            </div>
+                            </div> */}
                           </div>
                         </td>
                         <td className="px-4 py-4 text-sm font-bold text-green-600">
@@ -1299,7 +1299,7 @@ export const PayrollManagement = ({ isArabic }) => {
                             >
                               <Eye className="w-4 h-4" />
                             </button>
-                            <button
+                            {/* <button
                               className="text-green-600 hover:text-green-800 p-1 rounded"
                               aria-label={
                                 isArabic
@@ -1308,7 +1308,7 @@ export const PayrollManagement = ({ isArabic }) => {
                               }
                             >
                               <FileText className="w-4 h-4" />
-                            </button>
+                            </button> */}
                           </div>
                         </td>
                       </tr>

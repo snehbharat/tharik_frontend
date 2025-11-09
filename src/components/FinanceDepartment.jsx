@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   DollarSign,
   TrendingUp,
@@ -35,10 +35,13 @@ import InvoiceService from "../services/InvoiceService";
 import { getCompany } from "../services/CompanyService";
 import { QRCodeCanvas } from "qrcode.react";
 import PaybleInvoiceService from "../services/PaybleInvoiceService";
+import ProjectServiceClient from "../services/ProjectServiceClient";
+import { Reports } from "./Reports";
 
 export const FinanceDepartment = ({ isArabic }) => {
   // states from clients starts here //
   const [clients, setClients] = useState([]);
+  const [projects, setProjects] = useState([]);
   const [viewClient, setViewClient] = useState(null);
   const [clientSearchTerm, setClientSearchTerm] = useState("");
   const [clientStatusFilter, setClientStatusFilter] = useState("all");
@@ -50,6 +53,82 @@ export const FinanceDepartment = ({ isArabic }) => {
     limit: 10,
     totalPages: 1,
   });
+
+  // Helper function to safely extract projects data from API response
+  const extractProjectsData = (response) => {
+    // Handle different possible response structures
+    if (!response) return [];
+
+    // If response.data is an array, return it directly
+    if (Array.isArray(response.data)) {
+      return response.data;
+    }
+
+    // If response.data.projects exists, return it
+    if (response.data?.projects && Array.isArray(response.data.projects)) {
+      return response.data.projects;
+    }
+
+    // If response.data.data exists, return it
+    if (response.data?.data && Array.isArray(response.data.data)) {
+      return response.data.data;
+    }
+
+    // If response itself is an array, return it
+    if (Array.isArray(response)) {
+      return response;
+    }
+
+    // Default to empty array if no valid structure found
+    console.warn("Unexpected API response structure:", response);
+    return [];
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const [projectResponse] = await Promise.all([
+          ProjectServiceClient.getAllProjects(1, 100),
+        ]);
+
+        const projectsData = extractProjectsData(projectResponse);
+        setProjects(projectsData);
+      } catch (err) {
+        console.error("Error fetching initial data:", err);
+        setError(isArabic ? "فشل في جلب البيانات" : "Failed to fetch data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [isArabic]);
+
+  // Calculate dashboard metrics
+  const dashboardMetrics = useMemo(() => {
+    const validProjects = Array.isArray(projects)
+      ? projects.filter((p) => p && typeof p === "object")
+      : [];
+    return {
+      activeProjects: validProjects.filter(
+        (p) => p.status?.toLowerCase() === "active"
+      ).length,
+      crossProjectRevenue: validProjects.reduce(
+        (sum, p) => sum + (p.budget || 0),
+        0
+      ),
+      realTimeProfits: validProjects.reduce(
+        (sum, p) => sum + ((p.budget || 0) * (p.profitMargin || 0)) / 100,
+        0
+      ),
+      averageProfitMargin: validProjects.length
+        ? validProjects.reduce((sum, p) => sum + (p.profitMargin || 0), 0) /
+          validProjects.length
+        : 0,
+    };
+  }, [projects]);
 
   const fetchClients = async (page = 1) => {
     try {
@@ -771,6 +850,19 @@ export const FinanceDepartment = ({ isArabic }) => {
                 {isArabic ? "المدفوعات" : "Payables"}
               </div>
             </button>
+            <button
+              onClick={() => setActiveTab("reports")}
+              className={`px-6 py-4 font-medium transition-colors ${
+                activeTab === "reports"
+                  ? "text-green-600 border-b-2 border-green-600"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-4 h-4" />
+                {isArabic ? "مركز ذكاء الأرباح" : "Profit Intelligence"}
+              </div>
+            </button>
           </nav>
         </div>
 
@@ -985,7 +1077,7 @@ export const FinanceDepartment = ({ isArabic }) => {
                           {isArabic ? "نشط" : "Active"}
                         </option>
                         <option value="inactive">
-                          {isArabic ? "غير نشط" : "inactive"}
+                          {isArabic ? "غير نشط" : "Inactive"}
                         </option>
                         <option value="corporate">
                           {isArabic ? "شركاتي" : "Corporate"}
@@ -1647,6 +1739,9 @@ export const FinanceDepartment = ({ isArabic }) => {
                 </button>
               </div>
             </div>
+          )}
+          {activeTab === "reports" && (
+            <Reports dashboardMetrics={dashboardMetrics} isArabic={isArabic} />
           )}
 
           {/* {activeTab === "budget" && (

@@ -103,15 +103,15 @@ export const EnhancedBilingualHeader = ({ onMenuToggle }) => {
                   tag="h1"
                 />
                 <BilingualText
-                  en="Operations & General Contracting"
-                  ar="العمليات والمقاولات العامة"
+                  en={companyInfo?.tagline}
+                  ar=""
                   className="text-sm text-gray-600"
                   tag="p"
                 />
               </div>
             </div>
           </div>
-          <div className="flex-1 max-w-md mx-8 hidden md:block order-2">
+          {/* <div className="flex-1 max-w-md mx-8 hidden md:block order-2">
             <div className="relative">
               <Search
                 className={`w-5 h-5 absolute top-1/2 transform -translate-y-1/2 text-gray-400 ${
@@ -128,7 +128,7 @@ export const EnhancedBilingualHeader = ({ onMenuToggle }) => {
                 }`}
               />
             </div>
-          </div>
+          </div> */}
           <div
             className={`flex items-center gap-2 ${
               isRTL ? "order-1" : "order-3"
@@ -137,7 +137,7 @@ export const EnhancedBilingualHeader = ({ onMenuToggle }) => {
             <div className={`${isRTL ? "order-6" : "order-1"}`}>
               <SessionStatusIndicator isArabic={language === "ar"} />
             </div>
-            <button
+            {/* <button
               onClick={() => setShowSearch(!showSearch)}
               className={`${
                 isRTL ? "order-5" : "order-2"
@@ -146,7 +146,7 @@ export const EnhancedBilingualHeader = ({ onMenuToggle }) => {
               aria-expanded={showSearch}
             >
               <Search className="w-5 h-5" />
-            </button>
+            </button> */}
             <div className={`${isRTL ? "order-4" : "order-3"}`}>
               <LanguageSwitcher />
             </div>
@@ -157,14 +157,14 @@ export const EnhancedBilingualHeader = ({ onMenuToggle }) => {
                 currentUserId="current_user"
               />
             </div>
-            <button
+            {/* <button
               className={`${
                 isRTL ? "order-2" : "order-5"
               } p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors`}
               aria-label={isRTL ? "الإعدادات" : "Settings"}
             >
               <Settings className="w-5 h-5" aria-hidden="true" />
-            </button>
+            </button> */}
             <div className={`relative ${isRTL ? "order-1" : "order-6"}`}>
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}

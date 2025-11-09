@@ -48,9 +48,9 @@ export const TaskManagement = ({ isArabic, currentUser }) => {
   const [newTask, setNewTask] = useState({
     title: "",
     titleAr: "",
-    type: "Driver Assignment",
+    type: "",
     priority: "Medium",
-    assignedTo: "",
+    assignedTo: [],
     dueDate: "",
     location: "",
     coordinates: "",
@@ -70,6 +70,8 @@ export const TaskManagement = ({ isArabic, currentUser }) => {
       equipment: [],
     },
   });
+
+  console.log(newTask);
 
   // Load tasks on component mount and tab change
   useEffect(() => {
@@ -121,7 +123,7 @@ export const TaskManagement = ({ isArabic, currentUser }) => {
   };
 
   const handleCreateTask = async () => {
-    if (!newTask.title || !newTask.assignedTo || !newTask.dueDate) {
+    if (!newTask.title || newTask.assignedTo.length === 0 || !newTask.dueDate) {
       alert(
         isArabic ? "يرجى ملء الحقول المطلوبة" : "Please fill in required fields"
       );
@@ -133,20 +135,21 @@ export const TaskManagement = ({ isArabic, currentUser }) => {
 
       const taskData = {
         ...newTask,
-        assignedTo: newTask.assignedTo, // Map to backend field
-        dueDate: newTask.dueDate,
+        assigned_to: newTask.assignedTo,
+        due_date: newTask.dueDate,
       };
+
+      console.log(";;", taskData);
 
       const response = await ApiService.createTask(taskData, currentUser?.id);
 
       if (response.response) {
-        // Reset form first
         setNewTask({
           title: "",
           titleAr: "",
-          type: "Driver Assignment",
+          type: "",
           priority: "Medium",
-          assignedTo: "",
+          assignedTo: [],
           dueDate: "",
           location: "",
           coordinates: "",
@@ -167,15 +170,10 @@ export const TaskManagement = ({ isArabic, currentUser }) => {
           },
         });
 
-        // Close modal
         setShowNewTask(false);
-
-        // Show success message
         alert(
           isArabic ? "تم إنشاء المهمة بنجاح!" : "Task created successfully!"
         );
-
-        // Refresh the task list by calling loadTasks
         await loadTasks();
       }
     } catch (err) {
@@ -186,6 +184,46 @@ export const TaskManagement = ({ isArabic, currentUser }) => {
     }
   };
 
+  // const handleAddUpdate = async (taskId) => {
+  //   if (!newUpdate.text.trim()) {
+  //     alert(isArabic ? "يرجى كتابة التحديث" : "Please enter update text");
+  //     return;
+  //   }
+
+  //   try {
+  //     setLoading(true);
+
+  //     const updateData = {
+  //       text: newUpdate.text,
+  //       textAr: newUpdate.textAr || newUpdate.text,
+  //       type: "text",
+  //     };
+
+  //     const response = await ApiService.addTaskUpdate(taskId, updateData);
+
+  //     if (response.response) {
+  //       // Reset form first
+  //       setNewUpdate({ text: "", textAr: "", photos: [] });
+
+  //       // Close modal
+  //       setShowUpdateModal(false);
+
+  //       // Show success message
+  //       alert(
+  //         isArabic ? "تم إضافة التحديث بنجاح!" : "Update added successfully!"
+  //       );
+
+  //       // Refresh the task list by calling loadTasks
+  //       await loadTasks();
+  //     }
+  //   } catch (err) {
+  //     setError(err.message);
+  //     alert(isArabic ? `خطأ: ${err.message}` : `Error: ${err.message}`);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const handleAddUpdate = async (taskId) => {
     if (!newUpdate.text.trim()) {
       alert(isArabic ? "يرجى كتابة التحديث" : "Please enter update text");
@@ -195,10 +233,17 @@ export const TaskManagement = ({ isArabic, currentUser }) => {
     try {
       setLoading(true);
 
+      const localTime = new Date().toLocaleTimeString("en-US", {
+        hour12: true,
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
       const updateData = {
         text: newUpdate.text,
         textAr: newUpdate.textAr || newUpdate.text,
         type: "text",
+        time: localTime,
       };
 
       const response = await ApiService.addTaskUpdate(taskId, updateData);
@@ -206,16 +251,12 @@ export const TaskManagement = ({ isArabic, currentUser }) => {
       if (response.response) {
         // Reset form first
         setNewUpdate({ text: "", textAr: "", photos: [] });
-
-        // Close modal
         setShowUpdateModal(false);
 
-        // Show success message
         alert(
           isArabic ? "تم إضافة التحديث بنجاح!" : "Update added successfully!"
         );
 
-        // Refresh the task list by calling loadTasks
         await loadTasks();
       }
     } catch (err) {

@@ -173,8 +173,8 @@ export const EnhancedBilingualSidebar = ({
           {
             id: "manpower-1",
             icon: Users,
-            nameEn: "Workforce Management",
-            nameAr: "إدارة القوى العاملة",
+            nameEn: "Project Management",
+            nameAr: "إدارة المشاريع",
           },
           {
             id: "task-management",
@@ -239,10 +239,16 @@ export const EnhancedBilingualSidebar = ({
         titleAr: "الموارد البشرية",
         items: [
           {
-            id: "manpower",
+            id: "employeeManagement",
             icon: Users,
-            nameEn: "Workforce Management",
-            nameAr: "إدارة القوى العاملة",
+            nameEn: "Employee Management",
+            nameAr: "إدارة الموظفين",
+          },
+          {
+            id: "attendanceTracking",
+            icon: Users,
+            nameEn: "Attendance Tracking",
+            nameAr: "تتبع الحضور",
           },
           {
             id: "attendance-tracking",
@@ -542,8 +548,8 @@ export const EnhancedBilingualSidebar = ({
                   tag="h1"
                 />
                 <BilingualText
-                  en="Operations & Contracting"
-                  ar="العمليات والمقاولات"
+                  en={companyInfo?.tagline}
+                  ar=""
                   className="text-green-200/90 text-sm font-medium"
                   tag="p"
                 />

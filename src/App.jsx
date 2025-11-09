@@ -50,6 +50,7 @@ import { PaybleInvoicingSystem } from "./components/PaybleInvoicingSystem.jsx";
 import { SystemSettings } from "./components/SystemSettings.jsx";
 import { ManpowerManagementHR } from "./components/ManpowerManagementHR.jsx";
 import { CompanyManagementClient } from "./components/CompanyManagementClient.jsx";
+import { ManpowerManagementHR2 } from "./components/ManpowerManagementHR2.jsx";
 
 const AppContent = () => {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -182,8 +183,10 @@ const AppContent = () => {
         return <CompanyManagement isArabic={isArabic} />;
       case "client":
         return <CompanyManagementClient isArabic={isArabic} />;
-      case "manpower":
+      case "employeeManagement":
         return <ManpowerManagementHR isArabic={isArabic} />;
+      case "attendanceTracking":
+        return <ManpowerManagementHR2 isArabic={isArabic} />;
       case "manpower-1":
         return <ManpowerManagement isArabic={isArabic} />;
       case "fleet":

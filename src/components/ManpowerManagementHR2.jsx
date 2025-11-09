@@ -18,14 +18,16 @@ import { EmployeeManagement } from "./EmployeeManagement";
 import { NavigationTabsHR } from "./NavigationTabsHR";
 import { HeaderHR } from "./HeaderHR";
 import Department from "./Department";
+import { NavigationTabsHR2 } from "./NavigationTabsHR2";
+import { HeaderHR2 } from "./HeaderHR2";
 
-export const ManpowerManagementHR = ({ isArabic }) => {
+export const ManpowerManagementHR2 = ({ isArabic }) => {
   // State for projects, attendance, clients, and UI controls
   const [projects, setProjects] = useState([]);
   const [attendance, setAttendance] = useState([]);
   const [clients, setClients] = useState([]);
   const [clientSearchQuery, setClientSearchQuery] = useState("");
-  const [activeView, setActiveView] = useState("employees");
+  const [activeView, setActiveView] = useState("attendance");
   const [selectedProject, setSelectedProject] = useState("all");
   const [showAddProject, setShowAddProject] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -451,7 +453,7 @@ export const ManpowerManagementHR = ({ isArabic }) => {
         )}
 
         {/* Header component */}
-        <HeaderHR
+        <HeaderHR2
           isArabic={isArabic}
           onRefresh={refreshData}
           onExport={() => {}}
@@ -459,7 +461,7 @@ export const ManpowerManagementHR = ({ isArabic }) => {
         />
 
         {/* Navigation tabs */}
-        <NavigationTabsHR
+        <NavigationTabsHR2
           activeView={activeView}
           setActiveView={setActiveView}
           isArabic={isArabic}

@@ -324,9 +324,7 @@ export const AttendanceTracking = ({ isArabic }) => {
       if (res?.status === 200) {
         fetchLeaves();
       }
-      alert(
-        isArabic ? "تم حذف العميل المحتمل بنجاح!" : "Lead deleted successfully!"
-      );
+      alert(isArabic ? "تم حذف الإجازة بنجاح!" : "Leave deleted successfully!");
     }
   };
 

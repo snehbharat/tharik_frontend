@@ -1069,7 +1069,7 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "نوع الفاتورة" : "Invoice Type"}
+                    {isArabic ? "نوع الفاتورة" : "Invoice Type"} *
                   </label>
                   <select
                     value={newInvoice.invoiceType}
@@ -1090,7 +1090,7 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "العملة" : "Currency"}
+                    {isArabic ? "العملة" : "Currency"} *
                   </label>
                   <select
                     value={newInvoice.currency}
@@ -1106,7 +1106,7 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "شروط الدفع" : "Payment Terms"}
+                    {isArabic ? "شروط الدفع" : "Payment Terms"} *
                   </label>
                   <select
                     value={newInvoice.paymentTerms}
@@ -1129,7 +1129,7 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
                 {/* Status */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "حالة" : "Status"}
+                    {isArabic ? "حالة" : "Status"} *
                   </label>
                   <select
                     value={newInvoice.status}
@@ -1228,7 +1228,8 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       {isArabic
                         ? "اسم البائع (إنجليزي)"
-                        : "Seller Name (English)"}
+                        : "Seller Name (English)"}{" "}
+                      *
                     </label>
                     <input
                       type="text"
@@ -1296,7 +1297,7 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "البريد الإلكتروني" : "Email"}
+                      {isArabic ? "البريد الإلكتروني" : "Email"} *
                     </label>
                     <input
                       type="email"
@@ -1315,7 +1316,7 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "رقم الهاتف" : "Phone"}
+                      {isArabic ? "رقم الهاتف" : "Phone"} *
                     </label>
                     <input
                       type="tel"
@@ -1355,7 +1356,7 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "عنوان (بالإنجليزية)" : "Address (English)"}
+                      {isArabic ? "عنوان (بالإنجليزية)" : "Address (English)"} *
                     </label>
                     <input
                       type="text"
@@ -1393,7 +1394,7 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "مدينة" : "City"}
+                      {isArabic ? "مدينة" : "City"} *
                     </label>
                     <input
                       type="text"
@@ -1414,7 +1415,7 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "دولة" : "Country"}
+                      {isArabic ? "دولة" : "Country"} *
                     </label>
                     <input
                       type="text"
@@ -1433,7 +1434,7 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "الرمز البريدي" : "Postal Code"}
+                      {isArabic ? "الرمز البريدي" : "Postal Code"} *
                     </label>
                     <input
                       type="text"
@@ -1452,7 +1453,7 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "رقم الحساب المصرفي الدولي" : "IBAN"}
+                      {isArabic ? "رقم الحساب المصرفي الدولي" : "IBAN"} *
                     </label>
                     <input
                       type="text"
@@ -1471,7 +1472,7 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "اسم البنك" : "Bank Name"}
+                      {isArabic ? "اسم البنك" : "Bank Name"} *
                     </label>
                     <input
                       type="text"
@@ -2154,7 +2155,7 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "نوع الفاتورة" : "Invoice Type"}
+                    {isArabic ? "نوع الفاتورة" : "Invoice Type"} *
                   </label>
                   <select
                     value={editingInvoice.invoiceType}
@@ -2175,7 +2176,7 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "العملة" : "Currency"}
+                    {isArabic ? "العملة" : "Currency"} *
                   </label>
                   <select
                     value={editingInvoice.currency}
@@ -2194,7 +2195,7 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "شروط الدفع" : "Payment Terms"}
+                    {isArabic ? "شروط الدفع" : "Payment Terms"} *
                   </label>
                   <select
                     value={editingInvoice.paymentTerms}
@@ -2217,7 +2218,7 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
                 {/* Status */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "حالة" : "Status"}
+                    {isArabic ? "حالة" : "Status"} *
                   </label>
                   <select
                     value={editingInvoice.status}
@@ -2384,7 +2385,7 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "البريد الإلكتروني" : "Email"}
+                      {isArabic ? "البريد الإلكتروني" : "Email"} *
                     </label>
                     <input
                       type="email"
@@ -2403,7 +2404,7 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "رقم الهاتف" : "Phone"}
+                      {isArabic ? "رقم الهاتف" : "Phone"} *
                     </label>
                     <input
                       type="tel"
@@ -2443,7 +2444,7 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "عنوان (بالإنجليزية)" : "Address (English)"}
+                      {isArabic ? "عنوان (بالإنجليزية)" : "Address (English)"} *
                     </label>
                     <input
                       type="text"
@@ -2481,7 +2482,7 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "مدينة" : "City"}
+                      {isArabic ? "مدينة" : "City"} *
                     </label>
                     <input
                       type="text"
@@ -2502,7 +2503,7 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "دولة" : "Country"}
+                      {isArabic ? "دولة" : "Country"} *
                     </label>
                     <input
                       type="text"
@@ -2521,7 +2522,7 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "الرمز البريدي" : "Postal Code"}
+                      {isArabic ? "الرمز البريدي" : "Postal Code"} *
                     </label>
                     <input
                       type="text"
@@ -2540,7 +2541,7 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "رقم الحساب المصرفي الدولي" : "IBAN"}
+                      {isArabic ? "رقم الحساب المصرفي الدولي" : "IBAN"} *
                     </label>
                     <input
                       type="text"
@@ -2559,7 +2560,7 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "اسم البنك" : "Bank Name"}
+                      {isArabic ? "اسم البنك" : "Bank Name"} *
                     </label>
                     <input
                       type="text"

@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Download, Search, Filter, Users, Shield, X, CheckCircle, XCircle, Loader2 } from "lucide-react";
+import {
+  Download,
+  Search,
+  Filter,
+  Users,
+  Shield,
+  X,
+  CheckCircle,
+  XCircle,
+  Loader2,
+} from "lucide-react";
 import { apiClient } from "../services/ApiClient";
 
 export default function PermissionsPage({ isArabic }) {
@@ -21,7 +31,9 @@ export default function PermissionsPage({ isArabic }) {
       const perms = Array.isArray(permsData.data) ? permsData.data : [];
       setAllPermissions(perms);
 
-      const userResponse = await apiClient.getCC("/user/permission/getUserWithPermission");
+      const userResponse = await apiClient.getCC(
+        "/user/permission/getUserWithPermission"
+      );
       const userData = userResponse;
       const apiData = userData.data || [];
 
@@ -44,12 +56,16 @@ export default function PermissionsPage({ isArabic }) {
   const exportToExcel = async () => {
     setIsExporting(true);
     try {
-      const response = await apiClient.getExport('/permission/export/user/permission', {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        },
-      });
+      const response = await apiClient.getExport(
+        "/permission/export/user/permission",
+        {
+          method: "GET",
+          headers: {
+            Accept:
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          },
+        }
+      );
 
       // if (!response.ok) {
       //   throw new Error('Export failed');
@@ -57,10 +73,10 @@ export default function PermissionsPage({ isArabic }) {
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
+      const a = document.createElement("a");
+      a.style.display = "none";
       a.href = url;
-      a.download = 'user-permissions.xlsx';
+      a.download = "user-permissions.xlsx";
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -81,7 +97,7 @@ export default function PermissionsPage({ isArabic }) {
 
   const filteredUsers = users.filter((user) => {
     const matchesPermission = filterPermission
-      ? user.permissions.some(p => p.name.includes(filterPermission))
+      ? user.permissions.some((p) => p.name.includes(filterPermission))
       : true;
     const matchesSearch = searchQuery
       ? user.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -116,9 +132,7 @@ export default function PermissionsPage({ isArabic }) {
     const requestUser = JSON.parse(localStorage.getItem("amoagc_user") || "{}");
     const requestUserId = requestUser?.id;
 
-    const permObj = allPermissions.find(
-      (p) => p.permission_name === permName
-    );
+    const permObj = allPermissions.find((p) => p.permission_name === permName);
 
     const permid = users
       .find((u) => u.id === userId)
@@ -141,18 +155,17 @@ export default function PermissionsPage({ isArabic }) {
           permissionId: permObj._id,
           requestUserId,
         });
-
       }
 
       setUsers((prevUsers) =>
         prevUsers.map((u) =>
           u.id === userId
             ? {
-              ...u,
-              permissions: hasPerm
-                ? u.permissions.filter((p) => p.name !== permName)
-                : [...u.permissions, { name: permName, id: permid || null }],
-            }
+                ...u,
+                permissions: hasPerm
+                  ? u.permissions.filter((p) => p.name !== permName)
+                  : [...u.permissions, { name: permName, id: permid || null }],
+              }
             : u
         )
       );
@@ -204,7 +217,7 @@ export default function PermissionsPage({ isArabic }) {
                 )}
               </button>
 
-              <button
+              {/* <button
                 onClick={exportToExcel}
                 disabled={isExporting}
                 className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
@@ -215,7 +228,7 @@ export default function PermissionsPage({ isArabic }) {
                   <Download className="w-4 h-4" />
                 )}
                 {isExporting ? "Exporting..." : "Export Excel"}
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
@@ -225,8 +238,12 @@ export default function PermissionsPage({ isArabic }) {
           <div className="bg-white rounded-xl p-6 shadow-md border border-slate-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-slate-600 text-sm font-medium">Total Users</p>
-                <p className="text-2xl font-bold text-slate-800">{users.length}</p>
+                <p className="text-slate-600 text-sm font-medium">
+                  Total Users
+                </p>
+                <p className="text-2xl font-bold text-slate-800">
+                  {users.length}
+                </p>
               </div>
               <div className="p-3 bg-blue-100 rounded-lg">
                 <Users className="w-6 h-6 text-blue-600" />
@@ -237,8 +254,12 @@ export default function PermissionsPage({ isArabic }) {
           <div className="bg-white rounded-xl p-6 shadow-md border border-slate-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-slate-600 text-sm font-medium">Total Permissions</p>
-                <p className="text-2xl font-bold text-slate-800">{allPermissions.length}</p>
+                <p className="text-slate-600 text-sm font-medium">
+                  Total Permissions
+                </p>
+                <p className="text-2xl font-bold text-slate-800">
+                  {allPermissions.length}
+                </p>
               </div>
               <div className="p-3 bg-green-100 rounded-lg">
                 <Shield className="w-6 h-6 text-green-600" />
@@ -249,8 +270,12 @@ export default function PermissionsPage({ isArabic }) {
           <div className="bg-white rounded-xl p-6 shadow-md border border-slate-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-slate-600 text-sm font-medium">Unique Roles</p>
-                <p className="text-2xl font-bold text-slate-800">{uniqueRoles.length}</p>
+                <p className="text-slate-600 text-sm font-medium">
+                  Unique Roles
+                </p>
+                <p className="text-2xl font-bold text-slate-800">
+                  {uniqueRoles.length}
+                </p>
               </div>
               <div className="p-3 bg-purple-100 rounded-lg">
                 <Filter className="w-6 h-6 text-purple-600" />
@@ -330,15 +355,18 @@ export default function PermissionsPage({ isArabic }) {
                 {currentUsers.map((user, index) => (
                   <tr
                     key={user.id}
-                    className={`hover:bg-blue-50 transition-colors duration-200 ${index % 2 === 0 ? 'bg-white' : 'bg-slate-50'
-                      }`}
+                    className={`hover:bg-blue-50 transition-colors duration-200 ${
+                      index % 2 === 0 ? "bg-white" : "bg-slate-50"
+                    }`}
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center">
                         <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm mr-3">
                           {user.name.charAt(0).toUpperCase()}
                         </div>
-                        <span className="font-medium text-slate-800">{user.name}</span>
+                        <span className="font-medium text-slate-800">
+                          {user.name}
+                        </span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -369,7 +397,9 @@ export default function PermissionsPage({ isArabic }) {
           <div className="bg-slate-50 px-6 py-4 border-t border-slate-200">
             <div className="flex items-center justify-between">
               <div className="text-sm text-slate-600">
-                Showing {indexOfFirstUser + 1} to {Math.min(indexOfLastUser, filteredUsers.length)} of {filteredUsers.length} users
+                Showing {indexOfFirstUser + 1} to{" "}
+                {Math.min(indexOfLastUser, filteredUsers.length)} of{" "}
+                {filteredUsers.length} users
               </div>
               <div className="flex items-center gap-2">
                 <button
@@ -398,7 +428,10 @@ export default function PermissionsPage({ isArabic }) {
         {selectedUser && (
           <div className="fixed inset-0 z-50 overflow-y-auto">
             <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-              <div className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" onClick={() => setSelectedUser(null)}></div>
+              <div
+                className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
+                onClick={() => setSelectedUser(null)}
+              ></div>
 
               <div className="inline-block w-full max-w-6xl p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
                 <div className="flex items-center justify-between mb-6">
@@ -410,7 +443,9 @@ export default function PermissionsPage({ isArabic }) {
                       <h3 className="text-xl font-bold text-slate-800">
                         Permissions for {selectedUser.name}
                       </h3>
-                      <p className="text-slate-600">Role: {selectedUser.role}</p>
+                      <p className="text-slate-600">
+                        Role: {selectedUser.role}
+                      </p>
                     </div>
                   </div>
                   <button
@@ -439,54 +474,61 @@ export default function PermissionsPage({ isArabic }) {
                       </tr>
                     </thead>
                     <tbody>
-                      {Object.entries(groupedPermissions).map(([resource, actions], index) => (
-                        <tr
-                          key={resource}
-                          className={`hover:bg-slate-50 transition-colors duration-200 ${index % 2 === 0 ? 'bg-white' : 'bg-slate-50'
+                      {Object.entries(groupedPermissions).map(
+                        ([resource, actions], index) => (
+                          <tr
+                            key={resource}
+                            className={`hover:bg-slate-50 transition-colors duration-200 ${
+                              index % 2 === 0 ? "bg-white" : "bg-slate-50"
                             }`}
-                        >
-                          <td className="p-4 font-medium text-slate-800 capitalize border-r border-slate-300">
-                            {resource}
-                          </td>
-                          {allActions.map((action) => {
-                            const permName = actions[action];
-                            const hasPerm = permName && selectedUser.permissions.some(p => p.name === permName);
+                          >
+                            <td className="p-4 font-medium text-slate-800 capitalize border-r border-slate-300">
+                              {resource}
+                            </td>
+                            {allActions.map((action) => {
+                              const permName = actions[action];
+                              const hasPerm =
+                                permName &&
+                                selectedUser.permissions.some(
+                                  (p) => p.name === permName
+                                );
 
-                            return (
-                              <td
-                                key={action}
-                                className="p-4 text-center border-r border-slate-300"
-                              >
-                                {permName ? (
-                                  <label className="inline-flex items-center cursor-pointer">
-                                    <input
-                                      type="checkbox"
-                                      checked={hasPerm}
-                                      onChange={() =>
-                                        handlePermissionToggle(
-                                          permName,
-                                          selectedUser.id,
-                                          hasPerm
-                                        )
-                                      }
-                                      className="sr-only"
-                                    />
-                                    <div className="relative">
-                                      {hasPerm ? (
-                                        <CheckCircle className="w-6 h-6 text-green-500 hover:text-green-600 transition-colors duration-200" />
-                                      ) : (
-                                        <XCircle className="w-6 h-6 text-slate-300 hover:text-slate-400 transition-colors duration-200" />
-                                      )}
-                                    </div>
-                                  </label>
-                                ) : (
-                                  <span className="text-slate-400">-</span>
-                                )}
-                              </td>
-                            );
-                          })}
-                        </tr>
-                      ))}
+                              return (
+                                <td
+                                  key={action}
+                                  className="p-4 text-center border-r border-slate-300"
+                                >
+                                  {permName ? (
+                                    <label className="inline-flex items-center cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={hasPerm}
+                                        onChange={() =>
+                                          handlePermissionToggle(
+                                            permName,
+                                            selectedUser.id,
+                                            hasPerm
+                                          )
+                                        }
+                                        className="sr-only"
+                                      />
+                                      <div className="relative">
+                                        {hasPerm ? (
+                                          <CheckCircle className="w-6 h-6 text-green-500 hover:text-green-600 transition-colors duration-200" />
+                                        ) : (
+                                          <XCircle className="w-6 h-6 text-slate-300 hover:text-slate-400 transition-colors duration-200" />
+                                        )}
+                                      </div>
+                                    </label>
+                                  ) : (
+                                    <span className="text-slate-400">-</span>
+                                  )}
+                                </td>
+                              );
+                            })}
+                          </tr>
+                        )
+                      )}
                     </tbody>
                   </table>
                 </div>

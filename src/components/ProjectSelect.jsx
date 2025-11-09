@@ -26,7 +26,7 @@ const ProjectSelect = ({
   return (
     <div className="relative w-full" ref={dropdownRef}>
       <label className="block text-sm font-medium text-gray-700 mb-2">
-        {isArabic ? "مشروع" : "Project"}
+        {isArabic ? "مشروع" : "Project"} *
       </label>
 
       <div

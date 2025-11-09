@@ -69,6 +69,7 @@ export const OperationsDepartment = ({ isArabic }) => {
   const [editingTeam, setEditingTeam] = useState(null);
   const [editingSchedule, setEditingSchedule] = useState(null);
   const [viewSchedule, setViewSchedule] = useState(null);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({
@@ -84,6 +85,20 @@ export const OperationsDepartment = ({ isArabic }) => {
     totalPages: 1,
   });
   console.log("sup", supervisors);
+
+  const fetchUsers = async () => {
+    try {
+      const { data } = await UserService.getAllUsers();
+
+      setUsers(data || []);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
+  console.log("user", users);
+  useEffect(() => {
+    setSupervisors(users.filter((u) => u.role === "Project Supervisor"));
+  }, [users]);
 
   const fetchEmployees = async () => {
     try {
@@ -144,6 +159,7 @@ export const OperationsDepartment = ({ isArabic }) => {
       setLoading(false);
     }
   };
+  console.log("schedules", schedules);
 
   const fetchVehicles = async (page = 1) => {
     try {
@@ -222,32 +238,33 @@ export const OperationsDepartment = ({ isArabic }) => {
     }
   };
 
-  const fetchSupervisor = async (page = 1) => {
-    try {
-      setLoading(true);
-      const res = await employeeService.getAllEmployees();
+  // const fetchSupervisor = async (page = 1) => {
+  //   try {
+  //     setLoading(true);
+  //     const res = await employeeService.getAllEmployees();
 
-      // Filter only active projects
-      const supervisors =
-        res?.data?.employees?.filter(
-          (employee) => employee?.professionalInfo?.jobTitle === "Supervisor"
-        ) || [];
-      setSupervisors(supervisors);
-    } catch (err) {
-      console.error("Error fetching employees:", err.message);
-      setError("Failed to load employees");
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     // Filter only active projects
+  //     const supervisors =
+  //       res?.data?.employees?.filter(
+  //         (employee) => employee?.professionalInfo?.jobTitle === "Supervisor"
+  //       ) || [];
+  //     setSupervisors(supervisors);
+  //   } catch (err) {
+  //     console.error("Error fetching employees:", err.message);
+  //     setError("Failed to load employees");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   useEffect(() => {
     fetchVehicles();
     fetchProjects();
     fetchTeams();
-    fetchSupervisor();
+    // fetchSupervisor();
     fetchSchedules();
     fetchEmployees();
+    fetchUsers();
   }, []);
   // console.log("activeProject", activeProjects);
   // console.log("teams", teams);
@@ -255,91 +272,7 @@ export const OperationsDepartment = ({ isArabic }) => {
   // console.log("viewSchedule", viewSchedule);
   // console.log("employees", activeEmployees);
   // console.log("vehicles", vehicles);
-
-  // Enhanced project data with additional metrics
-  // const activeProjects = [
-  //   {
-  //     id: 1,
-  //     name: "Aramco Facility Maintenance",
-  //     nameAr: "صيانة منشآت أرامكو",
-  //     client: "Saudi Aramco",
-  //     location: "Dhahran Industrial Complex",
-  //     startDate: "2024-01-15",
-  //     endDate: "2025-01-14",
-  //     progress: 75,
-  //     assignedWorkers: 45,
-  //     assignedVehicles: 12,
-  //     status: "On Track",
-  //     budget: 1200000,
-  //     spent: 900000,
-  //     efficiency: 94.2,
-  //     safetyScore: 98,
-  //     qualityIndex: 96.5,
-  //     customerSatisfaction: 4.8,
-  //     riskLevel: "low",
-  //     lastUpdate: new Date("2024-12-15"),
-  //     nextMilestone: "2024-12-20",
-  //     criticalPath: [
-  //       "Equipment Installation",
-  //       "Safety Inspection",
-  //       "Quality Testing",
-  //     ],
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "SABIC Construction Support",
-  //     nameAr: "دعم إنشاءات سابك",
-  //     client: "SABIC Industries",
-  //     location: "Jubail Industrial City",
-  //     startDate: "2024-03-01",
-  //     endDate: "2024-12-31",
-  //     progress: 60,
-  //     assignedWorkers: 32,
-  //     assignedVehicles: 8,
-  //     status: "On Track",
-  //     budget: 850000,
-  //     spent: 510000,
-  //     efficiency: 87.5,
-  //     safetyScore: 96,
-  //     qualityIndex: 89.2,
-  //     customerSatisfaction: 4.5,
-  //     riskLevel: "medium",
-  //     lastUpdate: new Date("2024-12-14"),
-  //     nextMilestone: "2024-12-22",
-  //     criticalPath: [
-  //       "Foundation Work",
-  //       "Structural Assembly",
-  //       "Systems Integration",
-  //     ],
-  //   },
-  //   {
-  //     id: 3,
-  //     name: "NEOM Infrastructure Development",
-  //     nameAr: "تطوير البنية التحتية لنيوم",
-  //     client: "NEOM Development",
-  //     location: "NEOM - Tabuk Province",
-  //     startDate: "2024-06-01",
-  //     endDate: "2025-05-31",
-  //     progress: 35,
-  //     assignedWorkers: 78,
-  //     assignedVehicles: 20,
-  //     status: "Behind Schedule",
-  //     budget: 2100000,
-  //     spent: 735000,
-  //     efficiency: 82.1,
-  //     safetyScore: 94,
-  //     qualityIndex: 91.8,
-  //     customerSatisfaction: 4.2,
-  //     riskLevel: "high",
-  //     lastUpdate: new Date("2024-12-13"),
-  //     nextMilestone: "2024-12-18",
-  //     criticalPath: [
-  //       "Site Preparation",
-  //       "Infrastructure Planning",
-  //       "Environmental Clearance",
-  //     ],
-  //   },
-  // ];
+  console.log("supervisors", supervisors);
 
   // Enhanced operational alerts system
   const [operationalAlerts] = useState([
@@ -1961,10 +1894,7 @@ export const OperationsDepartment = ({ isArabic }) => {
                           <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
                             <div className="flex items-center gap-1">
                               <Users className="w-4 h-4" />
-                              <span>
-                                {schedule?.supervisor?.first_name +
-                                  schedule?.supervisor?.last_name}
-                              </span>
+                              <span>{schedule?.supervisor?.nameEn}</span>
                             </div>
                             <div className="flex items-center gap-1">
                               <Calendar className="w-4 h-4" />
@@ -2465,7 +2395,7 @@ export const OperationsDepartment = ({ isArabic }) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "المشرف" : "Supervisor"}
+                    {isArabic ? "المشرف" : "Supervisor"} *
                   </label>
                   <select
                     value={newSchedule.supervisor}
@@ -2482,9 +2412,7 @@ export const OperationsDepartment = ({ isArabic }) => {
                     </option>
                     {supervisors.map((s) => (
                       <option key={s.id} value={s._id}>
-                        {isArabic
-                          ? s.personalInfo.fullNameAr
-                          : s.personalInfo.fullName}
+                        {isArabic ? s.nameAr : s.nameEn}
                       </option>
                     ))}
                   </select>
@@ -2514,7 +2442,7 @@ export const OperationsDepartment = ({ isArabic }) => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "وقت البداية" : "Start Time"}
+                    {isArabic ? "وقت البداية" : "Start Time"} *
                   </label>
                   <input
                     type="time"
@@ -2530,7 +2458,7 @@ export const OperationsDepartment = ({ isArabic }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "وقت الانتهاء" : "End Time"}
+                    {isArabic ? "وقت الانتهاء" : "End Time"} *
                   </label>
                   <input
                     type="time"
@@ -2546,7 +2474,7 @@ export const OperationsDepartment = ({ isArabic }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "الأولوية" : "Priority"}
+                    {isArabic ? "الأولوية" : "Priority"} *
                   </label>
                   <select
                     value={newSchedule.priority}
@@ -2832,7 +2760,7 @@ export const OperationsDepartment = ({ isArabic }) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "المشرف" : "Supervisor"}
+                    {isArabic ? "المشرف" : "Supervisor"} *
                   </label>
                   <select
                     value={editingSchedule.supervisor}
@@ -2849,9 +2777,7 @@ export const OperationsDepartment = ({ isArabic }) => {
                     </option>
                     {supervisors.map((s) => (
                       <option key={s.id} value={s._id}>
-                        {isArabic
-                          ? s.personalInfo.fullNameAr
-                          : s.personalInfo.fullName}
+                        {isArabic ? s.nameAr : s.nameEn}
                       </option>
                     ))}
                   </select>
@@ -2884,7 +2810,7 @@ export const OperationsDepartment = ({ isArabic }) => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "وقت البداية" : "Start Time"}
+                    {isArabic ? "وقت البداية" : "Start Time"} *
                   </label>
                   <input
                     type="time"
@@ -2900,7 +2826,7 @@ export const OperationsDepartment = ({ isArabic }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "وقت الانتهاء" : "End Time"}
+                    {isArabic ? "وقت الانتهاء" : "End Time"} *
                   </label>
                   <input
                     type="time"
@@ -3365,9 +3291,7 @@ export const OperationsDepartment = ({ isArabic }) => {
                 },
                 {
                   label: isArabic ? "المشرف" : "Supervisor",
-                  value:
-                    viewSchedule.supervisor.first_name +
-                    viewSchedule.supervisor.last_name,
+                  value: viewSchedule?.supervisor?.nameEn,
                 },
                 {
                   label: isArabic ? "تاريخ المجدول" : "Scheduled Date",

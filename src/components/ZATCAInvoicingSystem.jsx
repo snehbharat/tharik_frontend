@@ -1705,7 +1705,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "نوع الفاتورة" : "Invoice Type"}
+                    {isArabic ? "نوع الفاتورة" : "Invoice Type"} *
                   </label>
                   <select
                     value={newInvoice.invoiceType}
@@ -1725,7 +1725,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "العملة" : "Currency"}
+                    {isArabic ? "العملة" : "Currency"} *
                   </label>
                   <select
                     value={newInvoice.currency}
@@ -1741,7 +1741,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "شروط الدفع" : "Payment Terms"}
+                    {isArabic ? "شروط الدفع" : "Payment Terms"} *
                   </label>
                   <select
                     value={newInvoice.paymentTerms}
@@ -1764,7 +1764,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                 {/* Status */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "حالة" : "Status"}
+                    {isArabic ? "حالة" : "Status"} *
                   </label>
                   <select
                     value={newInvoice.status}
@@ -1862,7 +1862,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "نوع العميل" : "Customer Type"}
+                      {isArabic ? "نوع العميل" : "Customer Type"} *
                     </label>
                     <select
                       value={newInvoice.buyer?.type || "B2B"}
@@ -1914,7 +1914,8 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       {isArabic
                         ? "اسم العميل (إنجليزي)"
-                        : "Customer Name (English)"}
+                        : "Customer Name (English)"}{" "}
+                      *
                     </label>
                     <input
                       type="text"
@@ -1957,7 +1958,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "البريد الإلكتروني" : "Email"}
+                      {isArabic ? "البريد الإلكتروني" : "Email"} *
                     </label>
                     <input
                       type="email"
@@ -1976,7 +1977,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "رقم الهاتف" : "Phone"}
+                      {isArabic ? "رقم الهاتف" : "Phone"} *
                     </label>
                     <input
                       type="tel"
@@ -2014,7 +2015,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "دولة" : "Country"}
+                      {isArabic ? "دولة" : "Country"} *
                     </label>
                     <input
                       type="text"
@@ -2035,7 +2036,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "عنوان (بالإنجليزية)" : "Address (English)"}
+                      {isArabic ? "عنوان (بالإنجليزية)" : "Address (English)"} *
                     </label>
                     <input
                       type="text"
@@ -2073,7 +2074,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "مدينة" : "City"}
+                      {isArabic ? "مدينة" : "City"} *
                     </label>
                     <input
                       type="text"
@@ -2092,7 +2093,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "الرمز البريدي" : "Postal Code"}
+                      {isArabic ? "الرمز البريدي" : "Postal Code"} *
                     </label>
                     <input
                       type="text"
@@ -2689,7 +2690,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "نوع الفاتورة" : "Invoice Type"}
+                    {isArabic ? "نوع الفاتورة" : "Invoice Type"} *
                   </label>
                   <select
                     value={editingInvoice.invoiceType}
@@ -2709,7 +2710,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "العملة" : "Currency"}
+                    {isArabic ? "العملة" : "Currency"} *
                   </label>
                   <select
                     value={editingInvoice.currency}
@@ -2728,7 +2729,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "شروط الدفع" : "Payment Terms"}
+                    {isArabic ? "شروط الدفع" : "Payment Terms"} *
                   </label>
                   <select
                     value={editingInvoice.paymentTerms}
@@ -2751,7 +2752,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                 {/* Status */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "حالة" : "Status"}
+                    {isArabic ? "حالة" : "Status"} *
                   </label>
                   <select
                     value={editingInvoice.status}
@@ -2849,7 +2850,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "نوع العميل" : "Customer Type"}
+                      {isArabic ? "نوع العميل" : "Customer Type"} *
                     </label>
                     <select
                       value={editingInvoice.buyer?.type || "B2B"}
@@ -2901,7 +2902,8 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       {isArabic
                         ? "اسم العميل (إنجليزي)"
-                        : "Customer Name (English)"}
+                        : "Customer Name (English)"}{" "}
+                      *
                     </label>
                     <input
                       type="text"
@@ -2944,7 +2946,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "البريد الإلكتروني" : "Email"}
+                      {isArabic ? "البريد الإلكتروني" : "Email"} *
                     </label>
                     <input
                       type="email"
@@ -2963,7 +2965,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isArabic ? "رقم الهاتف" : "Phone"}
+                      {isArabic ? "رقم الهاتف" : "Phone"} *
                     </label>
                     <input
                       type="tel"

@@ -5,11 +5,12 @@ import {
   Calendar,
   PieChart,
   TrendingUp,
+  Building,
   Users,
 } from "lucide-react";
 import { formatCurrency } from "../utils/financialCalculations";
 
-export const NavigationTabs = ({
+export const NavigationTabsHR2 = ({
   activeView,
   setActiveView,
   isArabic,
@@ -27,21 +28,26 @@ export const NavigationTabs = ({
             //   icon: Users,
             //   label: isArabic ? "إدارة الموظفين" : "Employee Management",
             // },
-            {
-              view: "projects",
-              icon: Briefcase,
-              label: isArabic ? "إدارة المشاريع" : "Project Management",
-            },
             // {
-            //   view: "attendance",
-            //   icon: Calendar,
-            //   label: isArabic ? "تتبع الحضور" : "Attendance Tracking",
+            //   view: "projects",
+            //   icon: Briefcase,
+            //   label: isArabic ? "إدارة المشاريع" : "Project Management",
             // },
             {
-              view: "analytics",
-              icon: PieChart,
-              label: isArabic ? "التحليلات المتقدمة" : "Advanced Analytics",
+              view: "attendance",
+              icon: Calendar,
+              label: isArabic ? "تتبع الحضور" : "Attendance Tracking",
             },
+            // {
+            //   view: "department",
+            //   icon: Building,
+            //   label: isArabic ? "قسم" : "Department",
+            // },
+            // {
+            //   view: "analytics",
+            //   icon: PieChart,
+            //   label: isArabic ? "التحليلات المتقدمة" : "Advanced Analytics",
+            // },
             // {
             //   view: "reports",
             //   icon: TrendingUp,

@@ -431,6 +431,8 @@ export const ManpowerManagement = ({ isArabic }) => {
     }
   };
 
+  console.log(projects);
+
   return (
     <>
       <div className="p-6 space-y-6">
