@@ -1384,10 +1384,17 @@ export const FinanceDepartment = ({ isArabic }) => {
                                   </div>
                                 </td>
                                 <td className="px-4 py-4">
-                                  <div className="font-medium text-gray-900">
+                                  {/* <div className="font-medium text-gray-900">
                                     {isArabic
                                       ? invoice.buyer.nameAr
                                       : invoice.buyer.nameEn}
+                                  </div> */}
+                                  <div className="font-medium text-gray-900">
+                                    {isArabic
+                                      ? invoice.buyer.nameAr
+                                      : clients.find(
+                                          (c) => c._id === invoice.buyer.nameEn
+                                        )?.client_name_eng}
                                   </div>
                                   <div className="text-sm text-gray-500">
                                     {invoice.buyer.type} •{" "}
@@ -2221,10 +2228,17 @@ export const FinanceDepartment = ({ isArabic }) => {
                     <h3 className="font-semibold text-gray-900 mb-2">
                       {isArabic ? "معلومات العميل" : "Customer Information"}
                     </h3>
+                    {/* <p className="font-medium">
+                      {isArabic
+                        ? viewInvoice.buyer.nameAr
+                        :  viewInvoice.buyer.nameEn}
+                    </p> */}
                     <p className="font-medium">
                       {isArabic
                         ? viewInvoice.buyer.nameAr
-                        : viewInvoice.buyer.nameEn}
+                        : clients.find(
+                            (c) => c._id === viewInvoice.buyer.nameEn
+                          )?.client_name_eng}
                     </p>
                     <p className="text-sm text-gray-600">
                       {isArabic
