@@ -51,6 +51,8 @@ const EmployeeForm = ({
 }) => {
   const isEditing = Boolean(employee);
 
+  console.log("employee", employee);
+
   // Use custom hooks for data fetching and actions
   const {
     departments,

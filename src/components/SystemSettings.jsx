@@ -104,12 +104,6 @@ export const SystemSettings = ({ isArabic }) => {
     try {
       setUploading(true);
 
-      console.log("=== SAVING COMPANY DETAILS ===");
-      console.log("Has image file:", !!imageFile);
-      console.log("Image file details:", imageFile);
-      console.log("Company data keys:", Object.keys(sellerInfo));
-      console.log("================================");
-
       await updateCompany(sellerInfo, imageFile);
       alert(
         isArabic ? "تم حفظ الإعدادات بنجاح" : "Settings saved successfully"
@@ -141,8 +135,6 @@ export const SystemSettings = ({ isArabic }) => {
       </div>
     );
   }
-
-  console.log("imagePreview", imagePreview);
 
   return (
     <div className="p-6 space-y-6">

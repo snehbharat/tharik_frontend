@@ -195,8 +195,6 @@ export const FinanceDepartmentDashboard = ({ isArabic }) => {
     fetchPayableInvoices();
   }, []);
 
-  console.log(summary);
-
   const financialOverview = {
     totalRevenue: 8400000,
     totalExpenses: 6420000,

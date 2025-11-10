@@ -85,7 +85,6 @@ export const FleetManagement = ({ isArabic }) => {
     "Forklift",
   ];
 
-  console.log("vehicles", vehicles);
 
   const vehicleStatus = ["Active", "Inactive", "Maintenance"];
 
@@ -823,8 +822,6 @@ export const FleetManagement = ({ isArabic }) => {
         return 0;
       });
   }, [vehicles, searchTerm, selectedProject, filters]);
-  // console.log("active", activeVehicles);
-  // console.log("inactive", inActiveVehicles);
 
   return (
     <div className="p-6 space-y-6">

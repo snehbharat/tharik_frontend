@@ -60,7 +60,6 @@ const AppContent = () => {
   const [isArabic, setIsArabic] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  console.log(user);
 
   const [projects, setProjects] = useState([]);
   const [attendance, setAttendance] = useState([]);
@@ -164,7 +163,6 @@ const AppContent = () => {
     switch (activeModule) {
       case "dashboard":
         const isAdmin = user?.role === "admin" || user?.role === "HR Manager";
-        console.log(isAdmin);
 
         if (isAdmin) {
           // return <ComprehensiveAdminDashboard isArabic={isArabic} />;

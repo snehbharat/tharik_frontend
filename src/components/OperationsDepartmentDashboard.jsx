@@ -81,7 +81,6 @@ export const OperationsDepartmentDashboard = ({ isArabic }) => {
     limit: 10,
     totalPages: 1,
   });
-  console.log("sup", supervisors);
 
   const fetchEmployees = async () => {
     try {
@@ -198,7 +197,6 @@ export const OperationsDepartmentDashboard = ({ isArabic }) => {
         page,
         projectPagination.limit
       );
-      console.log("res", res.data.projects);
 
       // Filter only active projects
       const activeProjects =
@@ -431,8 +429,6 @@ export const OperationsDepartmentDashboard = ({ isArabic }) => {
       status: "Scheduled",
     };
 
-    console.log("newS", newSchedule);
-
     const payload = {
       project: newSchedule.project,
     };
@@ -442,7 +438,6 @@ export const OperationsDepartmentDashboard = ({ isArabic }) => {
     try {
       const res = await ScheduleTaskService.createScheduleTask(schedulePayload);
       const res1 = await TeamService.updateTeam(newSchedule.team, payload);
-      console.log("New schedule saved:", res.data);
 
       setLastSync(new Date());
       setShowNewSchedule(false);
@@ -890,7 +885,6 @@ export const OperationsDepartmentDashboard = ({ isArabic }) => {
                   const projectVehicles = getVehiclesForProject(project._id);
                   const { schedules: projectSchedule, totalWorkers } =
                     getWorkersForProject(project._id);
-                  console.log("...", projectSchedule);
 
                   return (
                     <div
@@ -1245,14 +1239,12 @@ export const OperationsDepartmentDashboard = ({ isArabic }) => {
 
               <div className="grid gap-6">
                 {schedules.map((schedule) => {
-                  console.log("jsjs", schedule.project);
 
                   const scheduleVehicles = getVehiclesForProject(
                     schedule.project
                   );
                   const { schedules: projectSchedule, totalWorkers } =
                     getWorkersForProject(schedule.project);
-                  console.log("...", projectSchedule);
                   return (
                     <div
                       key={schedule._id}

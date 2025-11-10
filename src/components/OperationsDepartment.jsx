@@ -84,7 +84,6 @@ export const OperationsDepartment = ({ isArabic }) => {
     limit: 10,
     totalPages: 1,
   });
-  console.log("sup", supervisors);
 
   const fetchUsers = async () => {
     try {
@@ -95,7 +94,6 @@ export const OperationsDepartment = ({ isArabic }) => {
       console.error("Error fetching users:", error);
     }
   };
-  console.log("user", users);
   useEffect(() => {
     setSupervisors(users.filter((u) => u.role === "Project Supervisor"));
   }, [users]);
@@ -159,7 +157,6 @@ export const OperationsDepartment = ({ isArabic }) => {
       setLoading(false);
     }
   };
-  console.log("schedules", schedules);
 
   const fetchVehicles = async (page = 1) => {
     try {
@@ -216,7 +213,6 @@ export const OperationsDepartment = ({ isArabic }) => {
         page,
         projectPagination.limit
       );
-      console.log("res", res.data.projects);
 
       // Filter only active projects
       const activeProjects =
@@ -266,13 +262,6 @@ export const OperationsDepartment = ({ isArabic }) => {
     fetchEmployees();
     fetchUsers();
   }, []);
-  // console.log("activeProject", activeProjects);
-  // console.log("teams", teams);
-  // console.log("schedules", schedules);
-  // console.log("viewSchedule", viewSchedule);
-  // console.log("employees", activeEmployees);
-  // console.log("vehicles", vehicles);
-  console.log("supervisors", supervisors);
 
   // Enhanced operational alerts system
   const [operationalAlerts] = useState([
@@ -511,8 +500,6 @@ export const OperationsDepartment = ({ isArabic }) => {
       status: "Scheduled",
     };
 
-    console.log("newS", newSchedule);
-
     const payload = {
       project: newSchedule.project,
     };
@@ -522,7 +509,6 @@ export const OperationsDepartment = ({ isArabic }) => {
     try {
       const res = await ScheduleTaskService.createScheduleTask(schedulePayload);
       const res1 = await TeamService.updateTeam(newSchedule.team, payload);
-      console.log("New schedule saved:", res.data);
 
       setLastSync(new Date());
       setShowNewSchedule(false);
@@ -1400,7 +1386,6 @@ export const OperationsDepartment = ({ isArabic }) => {
                   const projectVehicles = getVehiclesForProject(project._id);
                   const { schedules: projectSchedule, totalWorkers } =
                     getWorkersForProject(project._id);
-                  console.log("...", projectSchedule);
 
                   return (
                     <div
@@ -1863,14 +1848,12 @@ export const OperationsDepartment = ({ isArabic }) => {
 
               <div className="grid gap-6">
                 {schedules.map((schedule) => {
-                  console.log("jsjs", schedule.project);
 
                   const scheduleVehicles = getVehiclesForProject(
                     schedule.project
                   );
                   const { schedules: projectSchedule, totalWorkers } =
                     getWorkersForProject(schedule.project);
-                  console.log("...", projectSchedule);
                   return (
                     <div
                       key={schedule._id}
