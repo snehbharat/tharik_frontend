@@ -42,12 +42,10 @@ import InvoiceService from "../services/InvoiceService";
 import { QRCodeCanvas } from "qrcode.react";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import ClientService from "../services/ClientService";
 
-export const ZATCAInvoicingSystem = ({ isArabic }) => {
+export const ZATCAInvoicingSystemORG = ({ isArabic }) => {
   const invoiceRef = useRef();
   const [activeTab, setActiveTab] = useState("invoices");
-  const [clients, setClients] = useState([]);
   const [invoices, setInvoices] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -81,26 +79,6 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
 
     fetchData();
   }, []);
-
-  useEffect(() => {
-    const fetchClients = async (page = 1) => {
-      try {
-        setLoading(true);
-        const res = await ClientService.getAllClients();
-
-        setClients(res?.data?.data || []);
-      } catch (err) {
-        console.error("Error fetching clients:", err.message);
-        setError("Failed to load clients");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchClients();
-  }, []);
-
-  console.log(clients);
 
   const handlePrint = useReactToPrint({
     contentRef: invoiceRef,
@@ -287,8 +265,6 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
   useEffect(() => {
     fetchInvoices();
   }, []);
-
-  console.log("inv", invoices);
 
   // Helper functions for ZATCA compliance
   function generateQRCodeData(invoiceNumber, vatNumber, total, vatAmount) {
@@ -1169,10 +1145,8 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                         <td className="px-4 py-4">
                           <div className="font-medium text-gray-900">
                             {isArabic
-                              ? invoice.buyer?.nameAr
-                              : clients.find(
-                                  (c) => c._id === invoice.buyer?.nameEn
-                                )?.client_name_eng || ""}
+                              ? invoice.buyer.nameAr
+                              : invoice.buyer.nameEn}
                           </div>
                           <div className="text-sm text-gray-500">
                             {invoice.buyer.type} •{" "}
@@ -1943,7 +1917,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                         : "Customer Name (English)"}{" "}
                       *
                     </label>
-                    {/* <input
+                    <input
                       type="text"
                       value={newInvoice.buyer?.nameEn || ""}
                       onChange={(e) =>
@@ -1956,29 +1930,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                         })
                       }
                       className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                    /> */}
-
-                    {/*  */}
-                    <select
-                      value={newInvoice.buyer?.nameEn || ""}
-                      onChange={(e) => {
-                        setNewInvoice({
-                          ...newInvoice,
-                          buyer: {
-                            ...(newInvoice.buyer || {}),
-                            nameEn: e.target.value,
-                          },
-                        });
-                      }}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                    >
-                      <option value="">Select a customer</option>
-                      {clients.map((client) => (
-                        <option key={client._id} value={client._id}>
-                          {client.client_name_eng}
-                        </option>
-                      ))}
-                    </select>
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -2515,18 +2467,10 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                     <h3 className="font-semibold text-gray-900 mb-2 ">
                       {isArabic ? "معلومات العميل" : "Customer Information"}
                     </h3>
-                    {/* <p className="font-medium">
+                    <p className="font-medium">
                       {isArabic
                         ? selectedInvoice.buyer.nameAr
                         : selectedInvoice.buyer.nameEn}
-                    </p> */}
-
-                    <p className="font-medium">
-                      {isArabic
-                        ? selectedInvoice.buyer?.nameAr
-                        : clients.find(
-                            (c) => c._id === selectedInvoice.buyer?.nameEn
-                          )?.client_name_eng || ""}
                     </p>
                     <p className="text-sm text-gray-600">
                       {isArabic
@@ -2961,7 +2905,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                         : "Customer Name (English)"}{" "}
                       *
                     </label>
-                    {/* <input
+                    <input
                       type="text"
                       value={editingInvoice.buyer?.nameEn || ""}
                       onChange={(e) =>
@@ -2974,67 +2918,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                         })
                       }
                       className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                    /> */}
-                    {/*  */}
-                    {/* <select
-                      value={editingInvoice.buyer?.nameEn || ""}
-                      onChange={(e) => {
-                        setEditingInvoice({
-                          ...editingInvoice,
-                          buyer: {
-                            ...(editingInvoice.buyer || {}),
-                            nameEn: e.target.value,
-                          },
-                        });
-                      }}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                    >
-                      <option value={editingInvoice.buyer.nameEn}>
-                        {clients.find(
-                          (c) => c._id === editingInvoice.buyer.nameEn
-                        )?.client_name_eng || ""}
-                      </option>
-                      {clients.map((client) => (
-                        <option key={client._id} value={client._id}>
-                          {client.client_name_eng}
-                        </option>
-                      ))}
-                    </select> */}
-                    {/*  */}
-                    <select
-                      value={editingInvoice.buyer?.nameEn || ""}
-                      onChange={(e) => {
-                        setEditingInvoice({
-                          ...editingInvoice,
-                          buyer: {
-                            ...(editingInvoice.buyer || {}),
-                            nameEn: e.target.value,
-                          },
-                        });
-                      }}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                    >
-                      {/* Default option showing the current client */}
-                      {editingInvoice.buyer?.nameEn && (
-                        <option value={editingInvoice.buyer.nameEn}>
-                          {clients.find(
-                            (c) => c._id === editingInvoice.buyer.nameEn
-                          )?.client_name_eng || ""}
-                        </option>
-                      )}
-
-                      {/* Other clients, excluding the currently selected one */}
-                      {clients
-                        .filter(
-                          (client) =>
-                            client._id !== editingInvoice.buyer?.nameEn
-                        )
-                        .map((client) => (
-                          <option key={client._id} value={client._id}>
-                            {client.client_name_eng}
-                          </option>
-                        ))}
-                    </select>
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -3465,7 +3349,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                   className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg flex items-center gap-2"
                 >
                   <Save className="w-4 h-4" />
-                  {isArabic ? "إنشاء الفاتورة" : "Update Invoice"}
+                  {isArabic ? "إنشاء الفاتورة" : "Create Invoice"}
                 </button>
                 <button
                   onClick={() => setEditingInvoice(null)}
