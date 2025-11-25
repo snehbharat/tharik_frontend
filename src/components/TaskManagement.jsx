@@ -71,8 +71,6 @@ export const TaskManagement = ({ isArabic, currentUser }) => {
     },
   });
 
-  console.log(newTask);
-
   // Load tasks on component mount and tab change
   useEffect(() => {
     loadTasks();

@@ -254,6 +254,11 @@ class EmployeeService {
     }
   }
 
+
+  async getAllAttendance(start_date, end_date) {
+      return await apiClient.get(`/attendance/range?start_date=${start_date}&end_date=${end_date}`);
+  }
+
   async getEmployeeRoles() {
     return await apiClient.get(`/enum/getEmployeeRole`);
   }

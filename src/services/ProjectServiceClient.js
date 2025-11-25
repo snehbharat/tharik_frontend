@@ -9,6 +9,10 @@ class ProjectServiceClient {
     return apiClient.get("/project/all", { page, limit });
   }
 
+  getAllProjectsForEmployee() {
+    return apiClient.get("/project/all/employee");
+  }
+
   searchProjects(query) {
     return apiClient.get("/project/search", { query });
   }

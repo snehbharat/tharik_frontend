@@ -30,6 +30,8 @@ export const EmployeeProfileManager = ({ employee, onClose, isArabic }) => {
   const [activeTab, setActiveTab] = useState("personal");
   const [isEditing, setIsEditing] = useState(false);
 
+  console.log("employee", employee);
+
   const formatCurrency = (amount, currency = "SAR") => {
     // Handle MongoDB Decimal128 object or normal number
     const numericAmount =

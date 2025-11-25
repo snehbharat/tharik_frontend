@@ -467,7 +467,6 @@ const EmployeeManagementContent = ({ isArabic }) => {
                 </tr>
               ) : (
                 filteredEmployees.map((employee) => {
-                  console.log("employeeee", employee);
 
                   const project = getProjectForEmployee(employee);
                   const departmentName = getDepartmentName(

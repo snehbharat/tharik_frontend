@@ -40,7 +40,6 @@ export const Sidebar = ({
     roleAr: "مدير النظام",
     isSignedIn: true,
   });
-  console.log(language, isRTL, t());
 
   const handleSignOut = () => {
     if (

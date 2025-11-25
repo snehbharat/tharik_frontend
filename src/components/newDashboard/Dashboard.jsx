@@ -42,7 +42,6 @@ import { EnhancedAttendanceTrackerDashboard } from "./EnhancedAttendanceTrackerD
 
 export const Dashboard = ({ isArabic, projects }) => {
   const { user } = useAuth();
-  console.log("user", user.role);
 
   const { getDashboardMetrics, getProjectMetrics, generateInsights } =
     useWorkforceData();

@@ -81,7 +81,6 @@ export const OperationsDepartment = ({ isArabic }) => {
     limit: 10,
     totalPages: 1,
   });
-  console.log("sup", schedules);
 
   const fetchEmployees = async () => {
     try {
@@ -127,7 +126,6 @@ export const OperationsDepartment = ({ isArabic }) => {
         page,
         pagination.limit
       );
-      console.log("ssss", res);
 
       setSchedules(res?.data?.data || []);
       setPagination({
@@ -199,7 +197,6 @@ export const OperationsDepartment = ({ isArabic }) => {
         page,
         projectPagination.limit
       );
-      console.log("res", res.data.projects);
 
       // Filter only active projects
       const activeProjects =
@@ -228,7 +225,6 @@ export const OperationsDepartment = ({ isArabic }) => {
       // Fetch employees and users
       const res = await employeeService.getAllEmployees();
       const res2 = await UserService.getAllUsers();
-      console.log(res2.data, "res2");
 
       // Filter employees with jobTitle "Supervisor"
       const supervisorsFromEmployees =
@@ -268,12 +264,6 @@ export const OperationsDepartment = ({ isArabic }) => {
     fetchSchedules();
     fetchEmployees();
   }, []);
-  // console.log("activeProject", activeProjects);
-  // console.log("teams", teams);
-  // console.log("schedules", schedules);
-  // console.log("viewSchedule", viewSchedule);
-  // console.log("employees", activeEmployees);
-  // console.log("vehicles", vehicles);
 
   // Enhanced project data with additional metrics
   // const activeProjects = [
@@ -599,8 +589,6 @@ export const OperationsDepartment = ({ isArabic }) => {
       status: "Scheduled",
     };
 
-    console.log("newS", schedulePayload);
-
     const payload = {
       project: newSchedule.project,
     };
@@ -610,7 +598,6 @@ export const OperationsDepartment = ({ isArabic }) => {
     try {
       const res = await ScheduleTaskService.createScheduleTask(schedulePayload);
       const res1 = await TeamService.updateTeam(newSchedule.team, payload);
-      console.log("New schedule saved:", res.data);
 
       setLastSync(new Date());
       setShowNewSchedule(false);
@@ -1489,7 +1476,6 @@ export const OperationsDepartment = ({ isArabic }) => {
                   const projectVehicles = getVehiclesForProject(project._id);
                   const { schedules: projectSchedule, totalWorkers } =
                     getWorkersForProject(project._id);
-                  console.log("...", projectSchedule);
 
                   return (
                     <div
@@ -1952,14 +1938,12 @@ export const OperationsDepartment = ({ isArabic }) => {
 
               <div className="grid gap-6">
                 {schedules.map((schedule) => {
-                  console.log("jsjs", schedule.project);
 
                   const scheduleVehicles = getVehiclesForProject(
                     schedule.project
                   );
                   const { schedules: projectSchedule, totalWorkers } =
                     getWorkersForProject(schedule.project);
-                  console.log("...", projectSchedule);
                   return (
                     <div
                       key={schedule._id}

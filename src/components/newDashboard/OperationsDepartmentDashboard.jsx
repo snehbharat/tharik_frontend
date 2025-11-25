@@ -81,7 +81,6 @@ export const OperationsDepartmentDashboard = ({ isArabic }) => {
     limit: 10,
     totalPages: 1,
   });
-  console.log("sup", supervisors);
 
   const fetchEmployees = async () => {
     try {
@@ -198,7 +197,6 @@ export const OperationsDepartmentDashboard = ({ isArabic }) => {
         page,
         projectPagination.limit
       );
-      console.log("res", res.data.projects);
 
       // Filter only active projects
       const activeProjects =
@@ -431,8 +429,6 @@ export const OperationsDepartmentDashboard = ({ isArabic }) => {
       status: "Scheduled",
     };
 
-    console.log("newS", newSchedule);
-
     const payload = {
       project: newSchedule.project,
     };
@@ -442,7 +438,6 @@ export const OperationsDepartmentDashboard = ({ isArabic }) => {
     try {
       const res = await ScheduleTaskService.createScheduleTask(schedulePayload);
       const res1 = await TeamService.updateTeam(newSchedule.team, payload);
-      console.log("New schedule saved:", res.data);
 
       setLastSync(new Date());
       setShowNewSchedule(false);

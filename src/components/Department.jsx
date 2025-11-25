@@ -67,8 +67,6 @@ const DepartmentContent = ({ isArabic }) => {
   useEffect(() => {
     fetchDepartments();
   }, []);
-  console.log("departments", departments);
-  console.log("employees", employeesData);
 
   const handleCreateUser = async () => {
     // Simple validation checks
@@ -92,7 +90,6 @@ const DepartmentContent = ({ isArabic }) => {
       alert("Location is required");
       return;
     }
-    console.log("formdata", formData);
 
     try {
       await DepartmentService.createDepartment(formData);
@@ -144,8 +141,6 @@ const DepartmentContent = ({ isArabic }) => {
       await DepartmentService.updateDepartment(id, { is_active: false });
 
       fetchDepartments();
-
-      console.log("Department deactivated successfully");
     } catch (error) {
       console.error("Error deactivating department:", error);
     }

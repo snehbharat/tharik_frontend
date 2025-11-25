@@ -123,7 +123,6 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
 
     fetchData();
   }, []);
-  console.log(invoices);
 
   // New invoice form state
   const [newInvoice, setNewInvoice] = useState({
@@ -201,8 +200,6 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
   useEffect(() => {
     fetchInvoices();
   }, []);
-
-  console.log(invoices);
 
   function validateInvoice(invoice) {
     const errors = [];
@@ -609,7 +606,6 @@ export const PaybleInvoicingSystem = ({ isArabic }) => {
         })),
       };
 
-      console.log(payload);
 
       const res = await PaybleInvoiceService.updateInvoice(
         editingInvoice._id,

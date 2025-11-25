@@ -64,7 +64,6 @@ export const EnhancedBilingualSidebar = ({
       "administration",
     ])
   );
-  console.log(user);
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [focusedItem, setFocusedItem] = useState("");
@@ -94,7 +93,6 @@ export const EnhancedBilingualSidebar = ({
   }, []);
 
   const matchedUser = users.find((u) => u.email === user.email);
-  console.log("companyInfo:", matchedUser);
 
   const menuSections = [
     {
@@ -413,8 +411,6 @@ export const EnhancedBilingualSidebar = ({
     const isVisible = isMenuItemVisible(item);
 
     if (!isVisible) return null;
-
-    // console.log(language, isRTL);
 
     return (
       <li key={item.id}>
