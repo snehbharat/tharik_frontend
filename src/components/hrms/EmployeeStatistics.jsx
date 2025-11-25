@@ -157,7 +157,7 @@ const EmployeeStatistics = ({ employees, isArabic, loading }) => {
       )}
 
       {/* Quick Insights */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+      {/* <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           {isArabic ? "نظرة سريعة" : "Quick Insights"}
         </h3>
@@ -193,7 +193,7 @@ const EmployeeStatistics = ({ employees, isArabic, loading }) => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

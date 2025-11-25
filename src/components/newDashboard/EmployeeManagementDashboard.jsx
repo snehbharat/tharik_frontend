@@ -13,13 +13,13 @@ import {
   Upload,
   X,
 } from "lucide-react";
-import { MetricCard } from "./MetricCard.jsx";
+import { MetricCard } from "../MetricCard.jsx";
 import {
   EmployeeProvider,
   useEmployeeManagement,
-} from "../context/EmployeeContext.jsx";
-import EmployeeForm from "./hrms/EmployeeForm.jsx";
-import { EmployeeProfileManager } from "./hrms/EmployeeProfileManager.jsx";
+} from "../../context/EmployeeContext.jsx";
+import EmployeeForm from "../hrms/EmployeeForm.jsx";
+import { EmployeeProfileManager } from "../hrms/EmployeeProfileManager.jsx";
 
 const filterEmployees = (employees, searchTerm, filters) => {
   return employees.filter((emp) => {
