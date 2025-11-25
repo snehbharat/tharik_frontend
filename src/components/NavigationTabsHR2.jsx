@@ -71,7 +71,7 @@ export const NavigationTabsHR2 = ({
           ))}
         </nav>
         {/* Payroll summary display */}
-        <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 border border-yellow-200 shadow-lg">
+        {/* <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 border border-yellow-200 shadow-lg">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-12 h-12 bg-yellow-600 rounded-lg flex items-center justify-center shadow-md">
               <Briefcase className="w-6 h-6 text-white" />
@@ -90,7 +90,7 @@ export const NavigationTabsHR2 = ({
           <div className="text-xs text-yellow-600">
             {payrollSummary.projectCount} {isArabic ? "مشروع" : "projects"}
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

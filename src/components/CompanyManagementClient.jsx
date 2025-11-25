@@ -134,6 +134,12 @@ export const CompanyManagementClient = ({ isArabic }) => {
     nameAr: "",
     type: "Corporate",
     contractValue: "",
+    vat_number: "",
+    client_country: "",
+    address_eng: "",
+    address_arb: "",
+    client_city: "",
+    postal_code: "",
     status: "Active",
     expiryDate: "",
     manpower: 0,
@@ -169,6 +175,12 @@ export const CompanyManagementClient = ({ isArabic }) => {
         newClient.contractValue?.$numberDecimal || newClient.contractValue
       ),
       contract_expiery_date: newClient.expiryDate,
+      vat_number: newClient.vat_number,
+      client_country: newClient.client_country,
+      address_eng: newClient.address_eng,
+      address_arb: newClient.address_arb,
+      client_city: newClient.client_city,
+      postal_code: newClient.postal_code,
       status: newClient.status.toLowerCase(),
       manpower_count: Number(newClient.manpower),
       vehicle_count: Number(newClient.vehicles),
@@ -187,6 +199,12 @@ export const CompanyManagementClient = ({ isArabic }) => {
           nameAr: "",
           type: "Corporate",
           contractValue: "",
+          vat_number: "",
+          client_country: "",
+          address_eng: "",
+          address_arb: "",
+          client_city: "",
+          postal_code: "",
           status: "Active",
           expiryDate: "",
           manpower: 0,
@@ -226,6 +244,12 @@ export const CompanyManagementClient = ({ isArabic }) => {
             editingClient.contract_value
         ),
         contract_expiery_date: editingClient.contract_expiery_date,
+        vat_number: editingClient.vat_number,
+        client_country: editingClient.client_country,
+        address_eng: editingClient.address_eng,
+        address_arb: editingClient.address_arb,
+        client_city: editingClient.client_city,
+        postal_code: editingClient.postal_code,
         status: editingClient.status.toLowerCase(),
         manpower_count: Number(editingClient.manpower_count),
         vehicle_count: Number(editingClient.vehicle_count),
@@ -1582,6 +1606,42 @@ export const CompanyManagementClient = ({ isArabic }) => {
                   />
                 </div>
               </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "العنوان (بالإنجليزية)" : "Address (English)"} *
+                  </label>
+                  <input
+                    type="text"
+                    value={editingClient.address_eng}
+                    onChange={(e) =>
+                      setEditingClient({
+                        ...editingClient,
+                        address_eng: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "العنوان (باللغة العربية)" : "Address (Arabic)"}
+                    *
+                  </label>
+                  <input
+                    type="text"
+                    value={editingClient.address_arb}
+                    onChange={(e) =>
+                      setEditingClient({
+                        ...editingClient,
+                        address_arb: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  />
+                </div>
+              </div>
 
               {/* Type & Contract Value */}
               <div className="grid grid-cols-2 gap-4">
@@ -1603,6 +1663,120 @@ export const CompanyManagementClient = ({ isArabic }) => {
                     <option value="government">Government</option>
                   </select>
                 </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "رقم ضريبة القيمة المضافة" : "Vat Number"}*
+                  </label>
+                  <input
+                    type="text"
+                    value={editingClient.vat_number || ""}
+                    onChange={(e) =>
+                      setEditingClient({
+                        ...editingClient,
+                        vat_number: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Email & Phone */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "البريد الإلكتروني" : "Email"} *
+                  </label>
+                  <input
+                    type="email"
+                    value={editingClient.client_email || ""}
+                    onChange={(e) =>
+                      setEditingClient({
+                        ...editingClient,
+                        client_email: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "رقم الهاتف" : "Phone Number"} *
+                  </label>
+                  <input
+                    type="number"
+                    value={editingClient.client_mobile_number || ""}
+                    onChange={(e) =>
+                      setEditingClient({
+                        ...editingClient,
+                        client_mobile_number: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    required
+                  />
+                </div>
+              </div>
+              {/*  */}
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "بلد" : "Country"} *
+                  </label>
+                  <input
+                    type="email"
+                    value={editingClient.client_country || ""}
+                    onChange={(e) =>
+                      setEditingClient({
+                        ...editingClient,
+                        client_country: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "مدينة" : "City"} *
+                  </label>
+                  <input
+                    type="text"
+                    value={editingClient.client_city || ""}
+                    onChange={(e) =>
+                      setEditingClient({
+                        ...editingClient,
+                        client_city: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "الرمز البريدي" : "Postal Code"} *
+                  </label>
+                  <input
+                    type="text"
+                    value={editingClient.postal_code || ""}
+                    onChange={(e) =>
+                      setEditingClient({
+                        ...editingClient,
+                        postal_code: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Expiry Date & Status */}
+              <div className="grid grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {isArabic ? "قيمة العقد" : "Contract Value"} *
@@ -1624,10 +1798,6 @@ export const CompanyManagementClient = ({ isArabic }) => {
                     required
                   />
                 </div>
-              </div>
-
-              {/* Expiry Date & Status */}
-              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {isArabic ? "تاريخ انتهاء العقد" : "Contract Expiry Date"}
@@ -1719,44 +1889,6 @@ export const CompanyManagementClient = ({ isArabic }) => {
                 </div>
               </div>
 
-              {/* Email & Phone */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "البريد الإلكتروني" : "Email"} *
-                  </label>
-                  <input
-                    type="email"
-                    value={editingClient.client_email || ""}
-                    onChange={(e) =>
-                      setEditingClient({
-                        ...editingClient,
-                        client_email: e.target.value,
-                      })
-                    }
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "رقم الهاتف" : "Phone Number"} *
-                  </label>
-                  <input
-                    type="number"
-                    value={editingClient.client_mobile_number || ""}
-                    onChange={(e) =>
-                      setEditingClient({
-                        ...editingClient,
-                        client_mobile_number: e.target.value,
-                      })
-                    }
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                    required
-                  />
-                </div>
-              </div>
-
               {/* Save & Cancel Buttons */}
               <div className="flex items-center gap-3 pt-4">
                 <button
@@ -1815,13 +1947,49 @@ export const CompanyManagementClient = ({ isArabic }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "اسم الشركة (عربي)" : "Company Name (Arabic)"}
+                    {isArabic ? "اسم الشركة (عربي)" : "Company Name (Arabic)"}*
                   </label>
                   <input
                     type="text"
                     value={newClient.nameAr}
                     onChange={(e) =>
                       setNewClient({ ...newClient, nameAr: e.target.value })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "العنوان (بالإنجليزية)" : "Address (English)"} *
+                  </label>
+                  <input
+                    type="text"
+                    value={newClient.address_eng}
+                    onChange={(e) =>
+                      setNewClient({
+                        ...newClient,
+                        address_eng: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "العنوان (باللغة العربية)" : "Address (Arabic)"}
+                    *
+                  </label>
+                  <input
+                    type="text"
+                    value={newClient.address_arb}
+                    onChange={(e) =>
+                      setNewClient({
+                        ...newClient,
+                        address_arb: e.target.value,
+                      })
                     }
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
                   />
@@ -1846,6 +2014,106 @@ export const CompanyManagementClient = ({ isArabic }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "رقم ضريبة القيمة المضافة" : "Vat Number"}*
+                  </label>
+                  <input
+                    type="text"
+                    value={newClient.vat_number}
+                    onChange={(e) =>
+                      setNewClient({ ...newClient, vat_number: e.target.value })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "البريد الإلكتروني" : "Email"} *
+                  </label>
+                  <input
+                    type="email"
+                    value={newClient.email}
+                    onChange={(e) =>
+                      setNewClient({ ...newClient, email: e.target.value })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "رقم الهاتف" : "Phone Number"} *
+                  </label>
+                  <input
+                    type="number"
+                    value={newClient.phone}
+                    onChange={(e) =>
+                      setNewClient({ ...newClient, phone: e.target.value })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "بلد" : "Country"} *
+                  </label>
+                  <input
+                    type="text"
+                    value={newClient.client_country}
+                    onChange={(e) =>
+                      setNewClient({
+                        ...newClient,
+                        client_country: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "مدينة" : "City"} *
+                  </label>
+                  <input
+                    type="text"
+                    value={newClient.client_city}
+                    onChange={(e) =>
+                      setNewClient({
+                        ...newClient,
+                        client_city: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "الرمز البريدي" : "Postal Code"} *
+                  </label>
+                  <input
+                    type="text"
+                    value={newClient.postal_code}
+                    onChange={(e) =>
+                      setNewClient({
+                        ...newClient,
+                        postal_code: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     {isArabic ? "قيمة العقد" : "Contract Value"} *
                   </label>
                   <input
@@ -1862,9 +2130,6 @@ export const CompanyManagementClient = ({ isArabic }) => {
                     required
                   />
                 </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {isArabic ? "تاريخ انتهاء العقد" : "Contract Expiry Date"} *
@@ -1943,37 +2208,6 @@ export const CompanyManagementClient = ({ isArabic }) => {
                       })
                     }
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "البريد الإلكتروني" : "Email"} *
-                  </label>
-                  <input
-                    type="email"
-                    value={newClient.email}
-                    onChange={(e) =>
-                      setNewClient({ ...newClient, email: e.target.value })
-                    }
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? "رقم الهاتف" : "Phone Number"} *
-                  </label>
-                  <input
-                    type="number"
-                    value={newClient.phone}
-                    onChange={(e) =>
-                      setNewClient({ ...newClient, phone: e.target.value })
-                    }
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                    required
                   />
                 </div>
               </div>

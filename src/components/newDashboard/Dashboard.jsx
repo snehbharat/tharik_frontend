@@ -19,21 +19,26 @@ import {
   Phone,
   Mail,
 } from "lucide-react";
-import { useWorkforceData } from "../hooks/useWorkforceData";
-import { MetricCard } from "./MetricCard";
-import { ProjectInfo } from "./ProjectInfo";
-import { ActionableInsights } from "./ActionableInsights";
+import { useWorkforceData } from "../../hooks/useWorkforceData";
+import { MetricCard } from "../MetricCard";
+import { ProjectInfo } from "../ProjectInfo";
+import { ActionableInsights } from "../ActionableInsights";
 import {
   formatCurrency,
   formatPercentage,
-} from "../utils/financialCalculations";
-import { generateSampleDataApi } from "../data/sampleData";
+} from "../../utils/financialCalculations";
+import { generateSampleDataApi } from "../../data/sampleData";
 import { FinanceDepartmentDashboard } from "./FinanceDepartmentDashboard";
 import { EmployeeManagementDashboard } from "./EmployeeManagementDashboard";
 import { TaskManagementDashboard } from "./TaskManagementDashboard";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "../../hooks/useAuth";
 import { OperationsDepartmentDashboard } from "./OperationsDepartmentDashboard";
-import EmployeeManagementHubDashboard from "./hrms/EmployeeManagementHubDashboar";
+import EmployeeManagementHubDashboard from "./EmployeeManagementHubDashboar";
+import { ZATCAInvoicingSystemDashboard } from "./ZATCAInvoicingSystemDashboard";
+import { PaybleInvoicingSystemDashboard } from "./PaybleInvoicingSystemDashboard";
+import { PayrollManagementDashboard } from "./PayrollManagementDashboard";
+import { FleetManagementDashboard } from "./FleetManagementDashboard";
+import { EnhancedAttendanceTrackerDashboard } from "./EnhancedAttendanceTrackerDashboard";
 
 export const Dashboard = ({ isArabic, projects }) => {
   const { user } = useAuth();
@@ -226,6 +231,9 @@ export const Dashboard = ({ isArabic, projects }) => {
       {(user?.role === "admin" || user?.role === "Finance Clerk") && (
         <div>
           <FinanceDepartmentDashboard />
+          <ZATCAInvoicingSystemDashboard />
+          <PaybleInvoicingSystemDashboard />
+          <PayrollManagementDashboard />
         </div>
       )}
 
@@ -238,79 +246,42 @@ export const Dashboard = ({ isArabic, projects }) => {
           </div>
 
           {/* Key Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-            <MetricCard
-              title={isArabic ? "إجمالي القوى العاملة" : "Total Workforce"}
-              value={employees.length}
-              subtitle={`${
-                employees.filter((emp) => emp.status === "active").length
-              } ${isArabic ? "نشط" : "active"}`}
-              icon={Users}
-              gradient="from-blue-50 to-blue-100"
-              borderColor="border-blue-200"
-            />
+          <div className="grid grid-cols-1   gap-6">
+            <div className="grid grid-cols-2 gap-6">
+              <MetricCard
+                title={isArabic ? "إجمالي القوى العاملة" : "Total Workforce"}
+                value={employees.length}
+                subtitle={`${
+                  employees.filter((emp) => emp.status === "active").length
+                } ${isArabic ? "نشط" : "active"}`}
+                icon={Users}
+                gradient="from-blue-50 to-blue-100"
+                borderColor="border-blue-200"
+              />
 
-            <MetricCard
-              title={isArabic ? "المشاريع النشطة" : "Active Projects"}
-              value={projects.length}
-              subtitle={`${projects?.length} ${isArabic ? "إجمالي" : "total"}`}
-              icon={Building2}
-              gradient="from-green-50 to-green-100"
-              borderColor="border-green-200"
-            />
-          </div>
-
-          {/* Projects Overview */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">
-                {isArabic ? "نظرة عامة على المشاريع" : "Projects Overview"}
-              </h2>
-              <select
-                value={selectedProject}
-                onChange={(e) => {
-                  setSelectedProject(e.target.value);
-                }}
-                className="border border-gray-300 rounded-lg px-3 py-2"
-              >
-                <option value="">
-                  {isArabic ? "جميع المشاريع" : "All Projects"}
-                </option>
-                {projects?.map((project) => (
-                  <option key={project._id} value={project._id}>
-                    {project.name}
-                  </option>
-                ))}
-              </select>
+              <MetricCard
+                title={isArabic ? "المشاريع النشطة" : "Active Projects"}
+                value={projects.length}
+                subtitle={`${projects?.length} ${
+                  isArabic ? "إجمالي" : "total"
+                }`}
+                icon={Building2}
+                gradient="from-green-50 to-green-100"
+                borderColor="border-green-200"
+              />
             </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-14">
-              {projects
-                ?.filter(
-                  (project) =>
-                    !selectedProject || project._id === selectedProject
-                )
-                .map((project) => (
-                  <ProjectInfo
-                    key={project._id}
-                    project={project}
-                    metrics={getProjectMetrics(project._id)}
-                    isArabic={isArabic}
-                    onSelect={() => {
-                      setSelectedProject(project._id);
-                    }}
-                  />
-                ))}
-            </div>
-
-            <EmployeeManagementDashboard />
+            <FleetManagementDashboard />
             <TaskManagementDashboard isArabic={isArabic} currentUser={user} />
             <OperationsDepartmentDashboard />
           </div>
         </>
       )}
       {(user?.role === "admin" || user?.role === "HR Manager") && (
-        <EmployeeManagementHubDashboard />
+        <>
+          <EmployeeManagementHubDashboard />
+          <EmployeeManagementDashboard />
+          <EnhancedAttendanceTrackerDashboard />
+        </>
       )}
     </div>
   );

@@ -276,7 +276,7 @@ export const FinanceDepartment = ({ isArabic }) => {
     fetchPayableInvoices();
   }, []);
 
-  console.log(summary);
+  console.log("s", summary);
 
   const financialOverview = {
     totalRevenue: 8400000,
@@ -711,6 +711,20 @@ export const FinanceDepartment = ({ isArabic }) => {
     return matchesSearch && matchesStatus;
   });
 
+  const formatCurrency = (value) => {
+    if (!value) return "0";
+
+    const absValue = Math.abs(value);
+
+    if (absValue >= 1000000) {
+      return `${(value / 1000000).toFixed(1)}M`;
+    } else if (absValue >= 1000) {
+      return `${(value / 1000).toFixed(1)}K`;
+    } else {
+      return value.toFixed(0);
+    }
+  };
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -729,7 +743,7 @@ export const FinanceDepartment = ({ isArabic }) => {
             </div>
             <div>
               <div className="text-2xl font-bold text-green-900">
-                {(summary?.totalReceivables / 1000000).toFixed(1)}M
+                {formatCurrency(summary?.totalReceivables)}
               </div>
               <div className="text-sm text-green-700">
                 {isArabic ? "إجمالي الإيرادات" : "Total Revenue"}
@@ -745,11 +759,9 @@ export const FinanceDepartment = ({ isArabic }) => {
             </div>
             <div>
               <div className="text-2xl font-bold text-blue-900">
-                {(
-                  (summary?.totalReceivables - summary?.totalPayables) /
-                  1000000
-                ).toFixed(1)}
-                M
+                {formatCurrency(
+                  summary?.totalReceivables - summary?.totalPayables
+                )}
               </div>
               <div className="text-sm text-blue-700">
                 {isArabic ? "صافي الربح" : "Net Profit"}
@@ -775,7 +787,7 @@ export const FinanceDepartment = ({ isArabic }) => {
             </div>
             <div>
               <div className="text-2xl font-bold text-purple-900">
-                {(summary?.totalReceivables / 1000000).toFixed(1)}M
+                {formatCurrency(summary?.totalReceivables)}
               </div>
               <div className="text-sm text-purple-700">
                 {isArabic ? "المستحقات" : "Receivables"}
@@ -795,7 +807,7 @@ export const FinanceDepartment = ({ isArabic }) => {
             </div>
             <div>
               <div className="text-2xl font-bold text-yellow-900">
-                {(summary?.totalPayables / 1000000).toFixed(1)}M
+                {formatCurrency(summary?.totalPayables)}
               </div>
               <div className="text-sm text-yellow-700">
                 {isArabic ? "المستحقات" : "Payables"}
