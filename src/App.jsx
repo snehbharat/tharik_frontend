@@ -16,7 +16,7 @@ import { EnhancedBilingualSidebar } from "./components/EnhancedBilingualSidebar"
 import { EnhancedBilingualDashboard } from "./components/EnhancedBilingualDashboard";
 import { ConnectionStatusBanner } from "./components/common/ConnectionStatusBanner";
 import { Sidebar } from "./components/Sidebar";
-import { Dashboard } from "./components/Dashboard";
+import { Dashboard } from "./components/newDashboard/Dashboard.jsx";
 import { CompanyManagement } from "./components/CompanyManagement";
 import { ManpowerManagement } from "./components/ManpowerManagement";
 import { FleetManagement } from "./components/FleetManagement";

@@ -19,14 +19,14 @@ import {
   EmployeeProvider,
   useEmployeeManagement,
 } from "../../context/EmployeeContext.jsx";
-import EmployeeList from "./EmployeeList.jsx";
-import EmployeeStatistics from "./EmployeeStatistics.jsx";
-import EmployeeForm from "./EmployeeForm.jsx";
-import { EmployeeProfileManager } from "./EmployeeProfileManager.jsx";
-import { OrganizationalChart } from "./OrganizationalChart.jsx";
-import { PerformanceManagement } from "./PerformanceManagement.jsx";
-import { DocumentManagement } from "./DocumentManagement.jsx";
-import { EmployeeAnalytics } from "./EmployeeAnalytics.jsx";
+import EmployeeList from "../hrms/EmployeeList.jsx";
+import EmployeeStatistics from "../hrms/EmployeeStatistics.jsx";
+import EmployeeForm from "../hrms/EmployeeForm.jsx";
+import { EmployeeProfileManager } from "../hrms/EmployeeProfileManager.jsx";
+import { OrganizationalChart } from "../hrms/OrganizationalChart.jsx";
+import { PerformanceManagement } from "../hrms/PerformanceManagement.jsx";
+import { DocumentManagement } from "../hrms/DocumentManagement.jsx";
+import { EmployeeAnalytics } from "../hrms/EmployeeAnalytics.jsx";
 
 // Loading Component
 const LoadingSpinner = ({ isArabic }) => (
@@ -415,84 +415,6 @@ const EmployeeManagementHubContent = ({ isArabic = false }) => {
         isArabic={isArabic}
         loading={loading}
       />
-
-      {/* Module Navigation and Content */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-        <ModuleNavigation
-          activeModule={activeModule}
-          setActiveModule={setActiveModule}
-          isArabic={isArabic}
-        />
-
-        <div className="p-6">
-          {activeModule === "profiles" && (
-            <EmployeeList
-              employees={employees?.employees || []}
-              departments={departments}
-              isArabic={isArabic}
-              loading={loading}
-              error={error}
-              onViewEmployee={handleViewEmployee}
-              onEditEmployee={handleEditEmployee}
-              onViewDocuments={handleViewDocuments}
-            />
-          )}
-
-          {activeModule === "organization" && (
-            <OrganizationalChart
-              departments={departments}
-              employees={employees?.employees || []}
-              isArabic={isArabic}
-            />
-          )}
-
-          {activeModule === "documents" && (
-            <DocumentManagement
-              employees={employees?.employees || []}
-              selectedEmployee={selectedEmployee}
-              isArabic={isArabic}
-            />
-          )}
-
-          {activeModule === "lifecycle" && (
-            <LifecycleManagement
-              isArabic={isArabic}
-              employees={employees?.employees || []}
-            />
-          )}
-
-          {activeModule === "analytics" && (
-            <EmployeeAnalytics
-              employees={employees?.employees || []}
-              departments={departments}
-              isArabic={isArabic}
-            />
-          )}
-        </div>
-      </div>
-
-      {/* Employee Profile Modal */}
-      {selectedEmployee && (
-        <EmployeeProfileManager
-          employee={selectedEmployee}
-          onClose={() => setSelectedEmployee(null)}
-          onEdit={() => handleEditEmployee(selectedEmployee)}
-          onDelete={() => handleDeleteEmployee(selectedEmployee.id)}
-          isArabic={isArabic}
-        />
-      )}
-
-      {/* Employee Form Modal */}
-      {showEmployeeForm && (
-        <EmployeeForm
-          employee={editingEmployee}
-          departments={departments}
-          onSave={handleSaveEmployee}
-          onClose={handleCloseEmployeeForm}
-          isArabic={isArabic}
-          loading={loading}
-        />
-      )}
     </div>
   );
 };

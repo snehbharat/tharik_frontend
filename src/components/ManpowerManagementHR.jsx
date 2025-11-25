@@ -8,7 +8,7 @@ import {
 } from "../utils/financialCalculations";
 import { Header } from "./Header";
 import { NavigationTabs } from "./NavigationTabs";
-import { Dashboard } from "./Dashboard";
+import { Dashboard } from "./newDashboard/Dashboard";
 import { ProjectList } from "./ProjectList";
 import { Analytics } from "./Analytics";
 import { Reports } from "./Reports";

@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { Plus, MapPin, RefreshCw } from "lucide-react";
-import ApiService from "../services/TaskApiService.js";
+import ApiService from "../../services/TaskApiService.js";
 
 // Import all components
-import TaskStatistics from "./task/TaskStatistics.jsx";
-import UpdatesBanner from "./task/UpdatesBanner.jsx";
-import TabNavigation from "./task/TabNavigation.jsx";
-import TaskCard from "./task/TaskCard.jsx";
-import PhotoModal from "./task/PhotoModal.jsx";
-import UpdateModal from "./task/UpdateModal.jsx";
-import SMSModal from "./task/SMSModal.jsx";
-import NewTaskModal from "./task/NewTaskModal.jsx";
-import TaskRequirementsFields from "./task/TaskRequirementsFields.jsx";
+import TaskStatistics from "../task/TaskStatistics.jsx";
+import UpdatesBanner from "../task/UpdatesBanner.jsx";
+import TabNavigation from "../task/TabNavigation.jsx";
+import TaskCard from "../task/TaskCard.jsx";
+import PhotoModal from "../task/PhotoModal.jsx";
+import UpdateModal from "../task/UpdateModal.jsx";
+import SMSModal from "../task/SMSModal.jsx";
+import NewTaskModal from "../task/NewTaskModal.jsx";
+import TaskRequirementsFields from "../task/TaskRequirementsFields.jsx";
 
 // Import utilities
 import {
@@ -20,7 +20,7 @@ import {
   getTypeIcon,
   filterTasks,
   taskTypes,
-} from "./task/taskUtils.jsx";
+} from "../task/taskUtils.jsx";
 
 export const TaskManagementDashboard = ({ isArabic, currentUser }) => {
   const [activeTab, setActiveTab] = useState("active");

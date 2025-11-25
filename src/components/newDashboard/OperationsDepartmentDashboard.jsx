@@ -36,15 +36,15 @@ import {
   WifiOff,
   Trash2,
 } from "lucide-react";
-import TeamService from "../services/TeamService";
-import VehicleService from "../services/VehicleService";
-import ProjectServiceClient from "../services/ProjectServiceClient";
+import TeamService from "../../services/TeamService";
+import VehicleService from "../../services/VehicleService";
+import ProjectServiceClient from "../../services/ProjectServiceClient";
 import EmployeeService, {
   employeeService,
   getEmployees,
-} from "../services/EmployeeService";
-import ScheduleTaskService from "../services/ScheduleTaskService";
-import UserService from "../services/UserService";
+} from "../../services/EmployeeService";
+import ScheduleTaskService from "../../services/ScheduleTaskService";
+import UserService from "../../services/UserService";
 
 export const OperationsDepartmentDashboard = ({ isArabic }) => {
   const [activeTab, setActiveTab] = useState("schedule");
