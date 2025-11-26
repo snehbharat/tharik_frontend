@@ -21,6 +21,7 @@ import {
 import { apiClient } from "../../services/ApiClient";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import AttendanceReportGenerator from "./AttendanceReportGenerator";
 
 export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
   const [selectedDate, setSelectedDate] = useState(
@@ -35,6 +36,7 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showExcelReport, setShowExcelReport] = useState(false);
 
   // Fetch all employees
   const fetchEmployees = async () => {
@@ -236,9 +238,9 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
           "Margin (%)":
             financials.revenueGenerated > 0
               ? (
-                  (financials.dailyProfit / financials.revenueGenerated) *
-                  100
-                ).toFixed(1)
+                (financials.dailyProfit / financials.revenueGenerated) *
+                100
+              ).toFixed(1)
               : 0,
         };
       });
@@ -260,9 +262,9 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
         "Margin (%)":
           dailyTotals.totalRevenue > 0
             ? (
-                (dailyTotals.totalProfit / dailyTotals.totalRevenue) *
-                100
-              ).toFixed(1)
+              (dailyTotals.totalProfit / dailyTotals.totalRevenue) *
+              100
+            ).toFixed(1)
             : 0,
       });
 
@@ -697,11 +699,10 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
             </div>
             <div>
               <div
-                className={`text-xl font-bold ${
-                  dailyTotals.totalProfit >= 0
-                    ? "text-green-900"
-                    : "text-red-900"
-                }`}
+                className={`text-xl font-bold ${dailyTotals.totalProfit >= 0
+                  ? "text-green-900"
+                  : "text-red-900"
+                  }`}
               >
                 {formatSAR(dailyTotals.totalProfit).replace("SAR", "").trim()}
               </div>
@@ -719,11 +720,10 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
           <nav className="flex">
             <button
               onClick={() => setActiveView("timesheet")}
-              className={`px-6 py-4 font-medium transition-colors ${
-                activeView === "timesheet"
-                  ? "text-green-600 border-b-2 border-green-600"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
+              className={`px-6 py-4 font-medium transition-colors ${activeView === "timesheet"
+                ? "text-green-600 border-b-2 border-green-600"
+                : "text-gray-500 hover:text-gray-700"
+                }`}
             >
               <div className="flex items-center gap-2">
                 <FileText className="w-4 h-4" />
@@ -732,11 +732,10 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
             </button>
             <button
               onClick={() => setActiveView("reports")}
-              className={`px-6 py-4 font-medium transition-colors ${
-                activeView === "reports"
-                  ? "text-green-600 border-b-2 border-green-600"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
+              className={`px-6 py-4 font-medium transition-colors ${activeView === "reports"
+                ? "text-green-600 border-b-2 border-green-600"
+                : "text-gray-500 hover:text-gray-700"
+                }`}
             >
               <div className="flex items-center gap-2">
                 <Download className="w-4 h-4" />
@@ -745,11 +744,10 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
             </button>
             <button
               onClick={() => setActiveView("analytics")}
-              className={`px-6 py-4 font-medium transition-colors ${
-                activeView === "analytics"
-                  ? "text-green-600 border-b-2 border-green-600"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
+              className={`px-6 py-4 font-medium transition-colors ${activeView === "analytics"
+                ? "text-green-600 border-b-2 border-green-600"
+                : "text-gray-500 hover:text-gray-700"
+                }`}
             >
               <div className="flex items-center gap-2">
                 <TrendingUp className="w-4 h-4" />
@@ -886,9 +884,8 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                           return (
                             <tr
                               key={employee.id}
-                              className={`hover:bg-gray-50 transition-colors ${
-                                index % 2 === 0 ? "bg-gray-25" : "bg-white"
-                              }`}
+                              className={`hover:bg-gray-50 transition-colors ${index % 2 === 0 ? "bg-gray-25" : "bg-white"
+                                }`}
                             >
                               <td className="px-6 py-4">
                                 <div className="flex items-center gap-3">
@@ -977,21 +974,20 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                               </td>
                               <td className="px-6 py-4 text-center">
                                 <div
-                                  className={`text-lg font-bold ${
-                                    financials.dailyProfit >= 0
-                                      ? "text-green-600"
-                                      : "text-red-600"
-                                  }`}
+                                  className={`text-lg font-bold ${financials.dailyProfit >= 0
+                                    ? "text-green-600"
+                                    : "text-red-600"
+                                    }`}
                                 >
                                   {formatSAR(financials.dailyProfit)}
                                 </div>
                                 <div className="text-xs text-gray-500">
                                   {Number(financials.revenueGenerated) > 0
                                     ? `${(
-                                        (Number(financials.dailyProfit || 0) /
-                                          Number(financials.revenueGenerated)) *
-                                        100
-                                      ).toFixed(1)}% margin`
+                                      (Number(financials.dailyProfit || 0) /
+                                        Number(financials.revenueGenerated)) *
+                                      100
+                                    ).toFixed(1)}% margin`
                                     : "0% margin"}
                                 </div>
                               </td>
@@ -1064,11 +1060,10 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                           </td>
                           <td className="px-6 py-4 text-center">
                             <div
-                              className={`text-lg font-bold ${
-                                dailyTotals.totalProfit >= 0
-                                  ? "text-green-600"
-                                  : "text-red-600"
-                              }`}
+                              className={`text-lg font-bold ${dailyTotals.totalProfit >= 0
+                                ? "text-green-600"
+                                : "text-red-600"
+                                }`}
                             >
                               {formatSAR(dailyTotals.totalProfit)}
                             </div>
@@ -1094,11 +1089,11 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                       <p className="text-sm text-red-700">
                         {isArabic
                           ? `الخسارة اليومية: ${formatSAR(
-                              Math.abs(dailyTotals.totalProfit)
-                            )} - يرجى مراجعة الأسعار أو الساعات`
+                            Math.abs(dailyTotals.totalProfit)
+                          )} - يرجى مراجعة الأسعار أو الساعات`
                           : `Daily loss: ${formatSAR(
-                              Math.abs(dailyTotals.totalProfit)
-                            )} - Please review rates or hours`}
+                            Math.abs(dailyTotals.totalProfit)
+                          )} - Please review rates or hours`}
                       </p>
                     </div>
                   </div>
@@ -1112,24 +1107,24 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                   (r.hoursWorked || 0) + (r.overtimeHours || 0) === 0
                 );
               }).length > 0 && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                  <div className="flex items-center gap-3">
-                    <AlertTriangle className="w-6 h-6 text-yellow-600" />
-                    <div>
-                      <h3 className="font-semibold text-yellow-800">
-                        {isArabic
-                          ? "تنبيه: سجلات فارغة"
-                          : "Notice: Empty Records"}
-                      </h3>
-                      <p className="text-sm text-yellow-700">
-                        {isArabic
-                          ? "يوجد موظفون بدون ساعات عمل مسجلة"
-                          : "Some employees have no recorded working hours"}
-                      </p>
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <div className="flex items-center gap-3">
+                      <AlertTriangle className="w-6 h-6 text-yellow-600" />
+                      <div>
+                        <h3 className="font-semibold text-yellow-800">
+                          {isArabic
+                            ? "تنبيه: سجلات فارغة"
+                            : "Notice: Empty Records"}
+                        </h3>
+                        <p className="text-sm text-yellow-700">
+                          {isArabic
+                            ? "يوجد موظفون بدون ساعات عمل مسجلة"
+                            : "Some employees have no recorded working hours"}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
           )}
 
@@ -1198,32 +1193,27 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                       </span>
                     )}
                   </p>
-                  <div className="space-y-2 mb-4">
-                    <input
-                      type="date"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                      placeholder={isArabic ? "تاريخ البداية" : "Start Date"}
-                    />
-                    <input
-                      type="date"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                      placeholder={isArabic ? "تاريخ النهاية" : "End Date"}
-                    />
-                  </div>
+
+                  {/* Excel open button */}
                   <button
-                    onClick={() => {
-                      // Implement period report generation
-                      alert(
-                        isArabic
-                          ? "سيتم تطوير هذه الميزة قريباً"
-                          : "This feature will be implemented soon"
-                      );
-                    }}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
+                    onClick={() => setShowExcelReport(true)}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
                   >
-                    {isArabic ? "إنشاء التقرير" : "Generate Report"}
+                    Generate Excel Report
                   </button>
+
+                  {/* Close button with gap */}
+                  <button
+                    onClick={() => setShowExcelReport(false)}
+                    className="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+                  >
+                    Close Excel Report
+                  </button>
+
+                  {/* Component Render on Click */}
+                  {showExcelReport && <AttendanceReportGenerator />}
                 </div>
+
 
                 <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
                   <div className="flex items-center gap-3 mb-4">
@@ -1336,11 +1326,10 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                             </span>
                             <div className="text-right">
                               <div
-                                className={`font-bold ${
-                                  tradeProfit >= 0
-                                    ? "text-green-600"
-                                    : "text-red-600"
-                                }`}
+                                className={`font-bold ${tradeProfit >= 0
+                                  ? "text-green-600"
+                                  : "text-red-600"
+                                  }`}
                               >
                                 {formatSAR(tradeProfit)}
                               </div>
@@ -1379,23 +1368,22 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                         {isArabic ? "هامش الربح:" : "Profit Margin:"}
                       </span>
                       <span
-                        className={`font-semibold ${
-                          dailyTotals.totalRevenue > 0
-                            ? (dailyTotals.totalProfit /
-                                dailyTotals.totalRevenue) *
-                                100 >=
-                              0
-                              ? "text-green-600"
-                              : "text-red-600"
-                            : "text-gray-600"
-                        }`}
+                        className={`font-semibold ${dailyTotals.totalRevenue > 0
+                          ? (dailyTotals.totalProfit /
+                            dailyTotals.totalRevenue) *
+                            100 >=
+                            0
+                            ? "text-green-600"
+                            : "text-red-600"
+                          : "text-gray-600"
+                          }`}
                       >
                         {dailyTotals.totalRevenue > 0
                           ? `${(
-                              (dailyTotals.totalProfit /
-                                dailyTotals.totalRevenue) *
-                              100
-                            ).toFixed(1)}%`
+                            (dailyTotals.totalProfit /
+                              dailyTotals.totalRevenue) *
+                            100
+                          ).toFixed(1)}%`
                           : "0%"}
                       </span>
                     </div>
@@ -1406,8 +1394,8 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                       <span className="font-semibold text-blue-600">
                         {dailyTotals.totalHours > 0
                           ? formatSAR(
-                              dailyTotals.totalRevenue / dailyTotals.totalHours
-                            ) + "/hr"
+                            dailyTotals.totalRevenue / dailyTotals.totalHours
+                          ) + "/hr"
                           : formatSAR(0) + "/hr"}
                       </span>
                     </div>
@@ -1502,8 +1490,8 @@ export const EnhancedAttendanceTracker = ({ isArabic = false }) => {
                               <span className="font-medium">
                                 {tradeEmployees.length > 0
                                   ? (
-                                      tradeHours / tradeEmployees.length
-                                    ).toFixed(1)
+                                    tradeHours / tradeEmployees.length
+                                  ).toFixed(1)
                                   : "0"}
                                 h
                               </span>
