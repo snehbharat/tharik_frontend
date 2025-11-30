@@ -81,11 +81,11 @@ const ModuleNavigation = ({ activeModule, setActiveModule, isArabic }) => {
       icon: Building2,
       label: isArabic ? "الأقسام" : "Departments",
     },
-    {
-      id: "analytics",
-      icon: BarChart3,
-      label: isArabic ? "التحليلات" : "Analytics",
-    },
+    // {
+    //   id: "analytics",
+    //   icon: BarChart3,
+    //   label: isArabic ? "التحليلات" : "Analytics",
+    // },
   ];
 
   return (
@@ -177,7 +177,7 @@ const DepartmentManagement = ({ isArabic, departments, employees }) => {
                   </span>
                 </div>
               </div>
-
+              {/* 
               <div className="mt-4 pt-4 border-t border-gray-200 flex gap-2">
                 <button className="flex-1 text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
                   {isArabic ? "عرض" : "View"}
@@ -185,7 +185,7 @@ const DepartmentManagement = ({ isArabic, departments, employees }) => {
                 <button className="flex-1 text-green-600 hover:bg-green-50 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
                   {isArabic ? "تعديل" : "Edit"}
                 </button>
-              </div>
+              </div> */}
             </div>
           );
         })}
