@@ -38,11 +38,11 @@ export const NavigationTabsHR = ({
             //   icon: Calendar,
             //   label: isArabic ? "تتبع الحضور" : "Attendance Tracking",
             // },
-            {
-              view: "department",
-              icon: Building,
-              label: isArabic ? "قسم" : "Department",
-            },
+            // {
+            //   view: "department",
+            //   icon: Building,
+            //   label: isArabic ? "قسم" : "Department",
+            // },
             // {
             //   view: "analytics",
             //   icon: PieChart,
