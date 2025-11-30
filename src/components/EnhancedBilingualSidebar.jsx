@@ -259,7 +259,7 @@ export const EnhancedBilingualSidebar = ({
           {
             id: "hr",
             icon: UserCheck,
-            nameEn: "Human Resources",
+            nameEn: "Department",
             nameAr: "الموارد البشرية",
           },
         ],
