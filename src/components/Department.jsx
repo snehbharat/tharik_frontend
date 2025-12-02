@@ -815,6 +815,10 @@ const DepartmentContent = ({ isArabic }) => {
   );
 };
 
+export const DepartmentModule = ({ isArabic = false }) => {
+  return <DepartmentContent isArabic={isArabic} />;
+};
+
 export const Department = ({ isArabic = false }) => {
   return (
     <EmployeeProvider>

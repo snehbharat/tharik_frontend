@@ -150,6 +150,8 @@ const EmployeeForm = ({
 
     // pass team Id
     teamId: employee?.team_id,
+    employeeId: employee?.employee_id || "",
+    deduction: employee?.deduction || 0,
     projectId: employee?.project_id?._id,
   });
 
@@ -177,6 +179,7 @@ const EmployeeForm = ({
       "departmentId",
       "hireDate",
       "workEmail",
+      "employeeId"
     ];
 
     requiredFields.forEach((field) => {
@@ -253,10 +256,10 @@ const EmployeeForm = ({
           workEmail: formData.workEmail,
           workPhone: formData.workPhone,
           salaryInfo: {
-            baseSalary: parseFloat(formData.baseSalary) || 0,
-            hourly_rate: parseFloat(formData?.hourly_rate) || 0,
-            actual_rate: parseFloat(formData?.actual_rate) || 0,
-            overtimeMultiplier: parseFloat(formData?.overtimeMultiplier) || 0,
+            baseSalary: decimalToNumber(formData.baseSalary) || 0,
+            hourly_rate: decimalToNumber(formData?.hourly_rate) || 0,
+            actual_rate: decimalToNumber(formData?.actual_rate) || 0,
+            overtimeMultiplier: decimalToNumber(formData?.overtimeMultiplier) || 0,
             currency: formData.currency,
           },
         },
@@ -273,6 +276,8 @@ const EmployeeForm = ({
           : [],
         status: formData.status,
         teamId: formData.teamId, // Include teamId
+        employeeId: formData?.employeeId || "",
+        deduction: formData?.deduction || 0,
         projectId: formData.projectId,
       };
       console.log("employeeData", employeeData);
@@ -347,6 +352,20 @@ const EmployeeForm = ({
             isArabic={isArabic}
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                label={isArabic ? "رقم الموظف" : "Employee ID"}
+                required
+                error={errors.employeeId}
+                isArabic={isArabic}
+              >
+                <input
+                  type="text"
+                  value={formData.employeeId || ""}
+                  onChange={(e) => handleInputChange("employeeId", e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder={isArabic ? "أدخل رقم الموظف" : "Enter employee ID"}
+                />
+              </FormField>
               <FormField
                 label={isArabic ? "الاسم الأول" : "First Name"}
                 required
@@ -829,6 +848,22 @@ const EmployeeForm = ({
                   </option>
                 </select>
               </FormField>
+              <FormField
+                label={isArabic ? "الاستقطاع" : "Deduction"}
+                error={errors.deduction}
+                isArabic={isArabic}
+              >
+                <input
+                  type="number"
+                  value={decimalToNumber(formData.deduction)}
+                  onChange={(e) => handleInputChange("deduction", e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="0"
+                  min="0"
+                  step="0.01"
+                />
+              </FormField>
+
             </div>
           </FormSection>
 
