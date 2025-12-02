@@ -23,6 +23,7 @@ import { OrganizationalChart } from "./OrganizationalChart";
 import { PerformanceManagement } from "./PerformanceManagement";
 import { DocumentManagement } from "./DocumentManagement";
 import { EmployeeAnalytics } from "./EmployeeAnalytics";
+import { DepartmentModule } from "../Department.jsx";
 
 // Loading Component
 const LoadingSpinner = ({ isArabic }) => (
@@ -95,11 +96,10 @@ const ModuleNavigation = ({ activeModule, setActiveModule, isArabic }) => {
           <button
             key={id}
             onClick={() => setActiveModule(id)}
-            className={`px-6 py-4 font-medium transition-colors whitespace-nowrap ${
-              activeModule === id
+            className={`px-6 py-4 font-medium transition-colors whitespace-nowrap ${activeModule === id
                 ? "text-green-600 border-b-2 border-green-600"
                 : "text-gray-500 hover:text-gray-700"
-            }`}
+              }`}
           >
             <div className="flex items-center gap-2">
               <Icon className="w-4 h-4" />
@@ -305,12 +305,16 @@ const EmployeeManagementHubContent = ({ isArabic = false }) => {
             />
           )}
 
-          {activeModule === "departments" && (
+          {/* {activeModule === "departments" && (
             <DepartmentManagement
               isArabic={isArabic}
               departments={departments}
               employees={employees?.employees || []}
             />
+          )} */}
+
+          {activeModule === "departments" && (
+            <DepartmentModule isArabic={isArabic} />
           )}
 
           {activeModule === "analytics" && (

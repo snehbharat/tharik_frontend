@@ -153,6 +153,8 @@ export const PayrollManagement = ({ isArabic }) => {
     const allEmployeePayrolls = [];
     const projectGroups = new Map();
 
+    console.log("employees", employees);
+
     employees.forEach((employee) => {
       const employeeAttendance = monthAttendance.filter(
         (record) => record.employeeId === employee.employeeId
@@ -177,10 +179,16 @@ export const PayrollManagement = ({ isArabic }) => {
         employee.actualRate
       );
 
+      console.log(financials);
+
       const grossPay = financials.laborCost;
       const gosiContribution = grossPay * 0.11;
-      const deductions = grossPay * 0.02;
-      const netPay = grossPay - gosiContribution - deductions;
+      // const deductions = grossPay * 0.02;
+      const deductions = employee?.deduction || 0;
+      // const netPay = grossPay - gosiContribution - deductions;
+      const netPay = grossPay - deductions;
+
+      console.log({netPay, grossPay, gosiContribution, deductions});
 
       const payrollCalc = {
         employeeId: employee.id,
