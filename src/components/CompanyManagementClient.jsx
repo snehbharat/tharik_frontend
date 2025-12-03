@@ -49,6 +49,9 @@ export const CompanyManagementClient = ({ isArabic }) => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [errors, setErrors] = useState({});
+
+  console.log("clients", clients);
 
   const fetchClientCount = async () => {
     try {
@@ -130,6 +133,7 @@ export const CompanyManagementClient = ({ isArabic }) => {
   };
 
   const [newClient, setNewClient] = useState({
+    unique_id: "",
     nameEn: "",
     nameAr: "",
     type: "Corporate",
@@ -166,6 +170,7 @@ export const CompanyManagementClient = ({ isArabic }) => {
 
   const handleAddClient = async () => {
     const payload = {
+      unique_id: newClient.unique_id,
       client_email: newClient.email,
       client_mobile_number: newClient.phone,
       client_name_eng: newClient.nameEn,
@@ -195,6 +200,7 @@ export const CompanyManagementClient = ({ isArabic }) => {
         fetchClientCount();
         setShowAddClient(false);
         setNewClient({
+          unique_id: "",
           nameEn: "",
           nameAr: "",
           type: "Corporate",
@@ -214,9 +220,17 @@ export const CompanyManagementClient = ({ isArabic }) => {
           phone: "",
         });
       }
-    } catch (err) {
-      setError("Failed to Add client");
-      console.error("Error adding client:", err.message);
+    } catch (error) {
+      console.log(error);
+
+      if (error.response?.data?.error === "unique_id already exists") {
+        setErrors({
+          unique_id: isArabic
+            ? "المعرّف مستخدم بالفعل"
+            : "Unique ID already exists",
+        });
+        return;
+      }
     }
   };
 
@@ -754,6 +768,12 @@ export const CompanyManagementClient = ({ isArabic }) => {
                           className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                           scope="col"
                         >
+                          {isArabic ? "النوع" : "Unique ID"}
+                        </th>
+                        <th
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          scope="col"
+                        >
                           {isArabic ? "النوع" : "Type"}
                         </th>
                         <th
@@ -806,6 +826,12 @@ export const CompanyManagementClient = ({ isArabic }) => {
                                 {client.client_mobile_number}
                               </div>
                             </div>
+                          </td>
+                          <td
+                            className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
+                            role="cell"
+                          >
+                            {client.unique_id ? client.unique_id : "NA"}
                           </td>
                           <td
                             className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
@@ -1002,6 +1028,12 @@ export const CompanyManagementClient = ({ isArabic }) => {
                           className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                           scope="col"
                         >
+                          {isArabic ? "النوع" : "Unique ID"}
+                        </th>
+                        <th
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          scope="col"
+                        >
                           {isArabic ? "النوع" : "Type"}
                         </th>
                         <th
@@ -1056,6 +1088,12 @@ export const CompanyManagementClient = ({ isArabic }) => {
                                   {client.client_mobile_number}
                                 </div>
                               </div>
+                            </td>
+                            <td
+                              className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
+                              role="cell"
+                            >
+                              {client.unique_id ? client.unique_id : "NA"}
                             </td>
                             <td
                               className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
@@ -1255,6 +1293,12 @@ export const CompanyManagementClient = ({ isArabic }) => {
                           className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                           scope="col"
                         >
+                          {isArabic ? "النوع" : "Unique ID"}
+                        </th>
+                        <th
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          scope="col"
+                        >
                           {isArabic ? "النوع" : "Type"}
                         </th>
                         <th
@@ -1309,6 +1353,12 @@ export const CompanyManagementClient = ({ isArabic }) => {
                                   {client.client_mobile_number}
                                 </div>
                               </div>
+                            </td>
+                            <td
+                              className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
+                              role="cell"
+                            >
+                              {client.unique_id ? client.unique_id : "NA"}
                             </td>
                             <td
                               className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
@@ -1996,7 +2046,45 @@ export const CompanyManagementClient = ({ isArabic }) => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "المعرّف الفريد" : "Unique ID"} *
+                  </label>
+                  <input
+                    placeholder="CLI-"
+                    type="text"
+                    value={newClient.unique_id}
+                    onChange={(e) => {
+                      const value = e.target.value;
+
+                      setNewClient({ ...newClient, unique_id: value });
+
+                      const exists = clients.some((c) => c.unique_id === value);
+
+                      if (exists) {
+                        setErrors({
+                          ...errors,
+                          unique_id: isArabic
+                            ? "المعرّف مستخدم بالفعل"
+                            : "Unique ID already exists",
+                        });
+                      } else {
+                        setErrors({
+                          ...errors,
+                          unique_id: "",
+                        });
+                      }
+                    }}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    required
+                  />
+                  {errors.unique_id && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.unique_id}
+                    </p>
+                  )}
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {isArabic ? "نوع العميل" : "Client Type"} *

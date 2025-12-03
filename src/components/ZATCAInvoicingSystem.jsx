@@ -57,6 +57,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
   const [sellerInfo, setSellerInfo] = useState(null);
   const [editingInvoice, setEditingInvoice] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [errors, setErrors] = useState({});
   const [pagination, setPagination] = useState({
     total: 0,
     page: 1,
@@ -228,6 +229,7 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
 
   // New invoice form state
   const [newInvoice, setNewInvoice] = useState({
+    unique_id: "",
     invoiceNumber: "",
     invoiceType: "Standard",
     currency: "SAR",
@@ -525,13 +527,20 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
         isArabic ? "تم إنشاء الفاتورة بنجاح!" : "Invoice created successfully!"
       );
     } catch (error) {
-      console.error("Create invoice error:", error);
-      alert(isArabic ? "فشل إنشاء الفاتورة" : "Failed to create invoice");
+      if (error.response?.data?.error === "unique_id already exists") {
+        setErrors({
+          unique_id: isArabic
+            ? "المعرّف مستخدم بالفعل"
+            : "Unique ID already exists",
+        });
+        return;
+      }
     }
   };
 
   const resetNewInvoice = () => {
     setNewInvoice({
+      unique_id: "",
       invoiceNumber: "",
       invoiceType: "Standard",
       currency: "SAR",
@@ -1206,6 +1215,9 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                         {isArabic ? "رقم الفاتورة" : "Invoice Number"}
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "رقم الفاتورة" : "Unique ID"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                         {isArabic ? "العميل" : "Customer"}
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
@@ -1234,6 +1246,11 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
                           </div>
                           <div className="text-sm text-gray-500">
                             {invoice.invoiceType}
+                          </div>
+                        </td>
+                        <td className="px-4 py-4">
+                          <div className="font-medium text-gray-900">
+                            {invoice.unique_id ? invoice.unique_id : "NA"}
                           </div>
                         </td>
                         <td className="px-4 py-4">
@@ -1798,7 +1815,49 @@ export const ZATCAInvoicingSystem = ({ isArabic }) => {
 
             <div className="space-y-6">
               {/* Invoice Type and Basic Info */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "المعرّف الفريد" : "Unique ID"} *
+                  </label>
+
+                  <input
+                    placeholder="INV-"
+                    type="text"
+                    value={newInvoice.unique_id}
+                    onChange={(e) => {
+                      const value = e.target.value;
+
+                      setNewInvoice({ ...newInvoice, unique_id: value });
+
+                      const exists = invoices.some(
+                        (c) => c.unique_id === value
+                      );
+
+                      if (exists) {
+                        setErrors({
+                          ...errors,
+                          unique_id: isArabic
+                            ? "المعرّف مستخدم بالفعل"
+                            : "Unique ID already exists",
+                        });
+                      } else {
+                        setErrors({
+                          ...errors,
+                          unique_id: "",
+                        });
+                      }
+                    }}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    required
+                  />
+
+                  {errors.unique_id && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.unique_id}
+                    </p>
+                  )}
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {isArabic ? "نوع الفاتورة" : "Invoice Type"} *
