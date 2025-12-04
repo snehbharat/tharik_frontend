@@ -72,6 +72,7 @@ export const OperationsDepartment = ({ isArabic }) => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [errors, setErrors] = useState({});
   const [pagination, setPagination] = useState({
     total: 0,
     page: 1,
@@ -430,6 +431,7 @@ export const OperationsDepartment = ({ isArabic }) => {
   ];
 
   const [newSchedule, setNewSchedule] = useState({
+    unique_id: "",
     project: "",
     team: "",
     supervisor: "",
@@ -444,6 +446,7 @@ export const OperationsDepartment = ({ isArabic }) => {
     notes: "",
   });
   const [newTeam, setNewTeam] = useState({
+    unique_id: "",
     nameEn: "",
     nameAr: "",
     status: "active",
@@ -519,6 +522,7 @@ export const OperationsDepartment = ({ isArabic }) => {
 
       // Reset form
       setNewSchedule({
+        unique_id: "",
         project: "",
         team: "",
         supervisor: "",
@@ -535,9 +539,15 @@ export const OperationsDepartment = ({ isArabic }) => {
 
       setActiveTab("schedule");
       fetchSchedules();
-    } catch (err) {
-      console.error("Error creating schedule:", err);
-      alert(isArabic ? "فشل في إنشاء الجدولة" : "Failed to create schedule");
+    } catch (error) {
+      if (error.response?.data?.error === "unique_id already exists") {
+        setErrors({
+          unique_id: isArabic
+            ? "المعرّف مستخدم بالفعل"
+            : "Unique ID already exists",
+        });
+        return;
+      }
     }
   };
 
@@ -610,6 +620,7 @@ export const OperationsDepartment = ({ isArabic }) => {
     }
 
     const teamPayload = {
+      unique_id: newTeam.unique_id,
       nameEn: newTeam.nameEn,
       nameAr: newTeam.nameAr,
       status: newTeam.status,
@@ -622,6 +633,7 @@ export const OperationsDepartment = ({ isArabic }) => {
       setTeams([...teams, res.data]);
 
       setNewTeam({
+        unique_id: "",
         nameEn: "",
         nameAr: "",
         status: "active",
@@ -630,9 +642,15 @@ export const OperationsDepartment = ({ isArabic }) => {
       setShowNewTeamModal(false);
       fetchTeams();
       alert(isArabic ? "تم إضافة الفريق بنجاح!" : "Team added successfully!");
-    } catch (err) {
-      console.error("Error adding teams:", err.response?.data || err);
-      alert(isArabic ? "خطأ في إضافة الفرق" : "Error adding teams");
+    } catch (error) {
+      if (error.response?.data?.error === "unique_id already exists") {
+        setErrors({
+          unique_id: isArabic
+            ? "المعرّف مستخدم بالفعل"
+            : "Unique ID already exists",
+        });
+        return;
+      }
     }
   };
 
@@ -1691,6 +1709,9 @@ export const OperationsDepartment = ({ isArabic }) => {
                           : "Team Name (Arabic)"}
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "اسم الفريق (بالعربية)" : "Unique ID"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                         {isArabic ? "مشروع" : "Project"}
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
@@ -1718,6 +1739,11 @@ export const OperationsDepartment = ({ isArabic }) => {
                         <td className="px-4 py-4">
                           <div className="text-sm text-gray-500">
                             {team.nameAr}
+                          </div>
+                        </td>
+                        <td className="px-4 py-4">
+                          <div className="font-medium text-gray-900">
+                            {team.unique_id ? team.unique_id : "NA"}
                           </div>
                         </td>
                         <td className="px-4 py-4">
@@ -1848,7 +1874,6 @@ export const OperationsDepartment = ({ isArabic }) => {
 
               <div className="grid gap-6">
                 {schedules.map((schedule) => {
-
                   const scheduleVehicles = getVehiclesForProject(
                     schedule.project
                   );
@@ -1941,7 +1966,15 @@ export const OperationsDepartment = ({ isArabic }) => {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
+                        <div className="bg-gray-50 rounded-lg p-3">
+                          <div className="text-sm text-gray-600">
+                            {isArabic ? "الموقع" : "Unique ID"}
+                          </div>
+                          <div className="font-semibold text-gray-900">
+                            {schedule.unique_id ? schedule.unique_id : "NA"}
+                          </div>
+                        </div>
                         <div className="bg-gray-50 rounded-lg p-3">
                           <div className="text-sm text-gray-600">
                             {isArabic ? "الموقع" : "Location"}
@@ -2304,7 +2337,49 @@ export const OperationsDepartment = ({ isArabic }) => {
               </div>
 
               {/* Project + Team */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "المعرّف الفريد" : "Unique ID"} *
+                  </label>
+                  <input
+                    placeholder="SHD-"
+                    type="text"
+                    value={newSchedule.unique_id}
+                    onChange={(e) => {
+                      const value = e.target.value;
+
+                      // Update the field
+                      setNewSchedule({ ...newSchedule, unique_id: value });
+
+                      // Frontend validation: check if unique_id already exists in `clients`
+                      const exists = schedules.some(
+                        (c) => c.unique_id === value
+                      );
+
+                      if (exists) {
+                        setErrors({
+                          ...errors,
+                          unique_id: isArabic
+                            ? "المعرّف مستخدم بالفعل"
+                            : "Unique ID already exists",
+                        });
+                      } else {
+                        setErrors({
+                          ...errors,
+                          unique_id: "",
+                        });
+                      }
+                    }}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    required
+                  />
+                  {errors.unique_id && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.unique_id}
+                    </p>
+                  )}
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {isArabic ? "المشروع" : "Project"} *
@@ -3024,7 +3099,47 @@ export const OperationsDepartment = ({ isArabic }) => {
             </div>
 
             <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "المعرّف الفريد" : "Unique ID"} *
+                  </label>
+
+                  <input
+                    placeholder="TM-"
+                    type="text"
+                    value={newTeam.unique_id}
+                    onChange={(e) => {
+                      const value = e.target.value;
+
+                      setNewTeam({ ...newTeam, unique_id: value });
+
+                      const exists = teams.some((c) => c.unique_id === value);
+
+                      if (exists) {
+                        setErrors({
+                          ...errors,
+                          unique_id: isArabic
+                            ? "المعرّف مستخدم بالفعل"
+                            : "Unique ID already exists",
+                        });
+                      } else {
+                        setErrors({
+                          ...errors,
+                          unique_id: "",
+                        });
+                      }
+                    }}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    required
+                  />
+
+                  {errors.unique_id && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.unique_id}
+                    </p>
+                  )}
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {isArabic

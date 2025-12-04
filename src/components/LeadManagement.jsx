@@ -38,6 +38,7 @@ export const LeadManagement = ({ isArabic }) => {
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [errors, setErrors] = useState({});
   const [viewLead, setViewLead] = useState(null);
 
   const [pagination, setPagination] = useState({
@@ -268,6 +269,7 @@ export const LeadManagement = ({ isArabic }) => {
   };
 
   const [newLead, setNewLead] = useState({
+    unique_id: "",
     name: "",
     nameAr: "",
     company: "",
@@ -293,7 +295,8 @@ export const LeadManagement = ({ isArabic }) => {
       return;
     }
 
-    const vehiclePayload = {
+    const leadPayload = {
+      unique_id: newLead.unique_id,
       name: newLead.name,
       name_arb: newLead.nameAr,
       company: newLead.company,
@@ -315,7 +318,7 @@ export const LeadManagement = ({ isArabic }) => {
       const created_date = new Date().toISOString();
 
       await LeadService.createLead({
-        ...vehiclePayload,
+        ...leadPayload,
         created_date,
         last_contact: created_date,
       });
@@ -324,6 +327,7 @@ export const LeadManagement = ({ isArabic }) => {
 
       // reset form
       setNewLead({
+        unique_id: "",
         name: "",
         nameAr: "",
         company: "",
@@ -346,8 +350,14 @@ export const LeadManagement = ({ isArabic }) => {
         isArabic ? "تم إضافة العميل المحتمل بنجاح!" : "Lead added successfully!"
       );
     } catch (error) {
-      console.error("Error creating lead:", error);
-      alert(isArabic ? "فشل في إضافة العميل المحتمل" : "Failed to add lead");
+      if (error.response?.data?.error === "unique_id already exists") {
+        setErrors({
+          unique_id: isArabic
+            ? "المعرّف مستخدم بالفعل"
+            : "Unique ID already exists",
+        });
+        return;
+      }
     }
   };
 
@@ -758,6 +768,9 @@ export const LeadManagement = ({ isArabic }) => {
                         {isArabic ? "العميل المحتمل" : "Lead"}
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "المرحلة" : "Unique ID"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                         {isArabic ? "المرحلة" : "Stage"}
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
@@ -788,6 +801,11 @@ export const LeadManagement = ({ isArabic }) => {
                             <div className="text-sm text-gray-500">
                               {lead.email} • {lead.phone}
                             </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4">
+                          <div className="font-medium text-gray-900">
+                            {lead.unique_id ? lead.unique_id : "NA"}
                           </div>
                         </td>
                         <td className="px-4 py-4">
@@ -1014,7 +1032,45 @@ export const LeadManagement = ({ isArabic }) => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isArabic ? "المعرّف الفريد" : "Unique ID"} *
+                  </label>
+                  <input
+                    placeholder="LD-"
+                    type="text"
+                    value={newLead.unique_id}
+                    onChange={(e) => {
+                      const value = e.target.value;
+
+                      setNewLead({ ...newLead, unique_id: value });
+
+                      const exists = leads.some((c) => c.unique_id === value);
+
+                      if (exists) {
+                        setErrors({
+                          ...errors,
+                          unique_id: isArabic
+                            ? "المعرّف مستخدم بالفعل"
+                            : "Unique ID already exists",
+                        });
+                      } else {
+                        setErrors({
+                          ...errors,
+                          unique_id: "",
+                        });
+                      }
+                    }}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    required
+                  />
+                  {errors.unique_id && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.unique_id}
+                    </p>
+                  )}
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {isArabic ? "البريد الإلكتروني" : "Email"} *

@@ -63,6 +63,7 @@ export const FleetManagement = ({ isArabic }) => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [errors, setErrors] = useState({});
 
   // const projects = [
   //   { id: "all", nameEn: "All Projects", nameAr: "جميع المشاريع" },
@@ -84,7 +85,6 @@ export const FleetManagement = ({ isArabic }) => {
     "Concrete Mixer",
     "Forklift",
   ];
-
 
   const vehicleStatus = ["Active", "Inactive", "Maintenance"];
 
@@ -317,6 +317,7 @@ export const FleetManagement = ({ isArabic }) => {
   }, []);
 
   const [newVehicle, setNewVehicle] = useState({
+    unique_id: "",
     plateNumber: "",
     plateNumberEn: "",
     type: "Pickup Truck",
@@ -390,6 +391,7 @@ export const FleetManagement = ({ isArabic }) => {
     const selectedProject = projects.find((p) => p._id === newVehicle.project);
 
     const vehiclePayload = {
+      unique_id: newVehicle.unique_id,
       plate_number: newVehicle.plateNumber,
       plate_number_en: newVehicle.plateNumberEn,
       type: newVehicle.type,
@@ -423,6 +425,7 @@ export const FleetManagement = ({ isArabic }) => {
       setVehicles([...vehicles, res.data]);
 
       setNewVehicle({
+        unique_id: "",
         plateNumber: "",
         plateNumberEn: "",
         type: "Pickup Truck",
@@ -453,9 +456,15 @@ export const FleetManagement = ({ isArabic }) => {
       alert(
         isArabic ? "تم إضافة المركبة بنجاح!" : "Vehicle added successfully!"
       );
-    } catch (err) {
-      console.error("Error adding vehicle:", err.response?.data || err);
-      alert(isArabic ? "حدث خطأ أثناء إضافة المركبة" : "Error adding vehicle");
+    } catch (error) {
+      if (error.response?.data?.error === "unique_id already exists") {
+        setErrors({
+          unique_id: isArabic
+            ? "المعرّف مستخدم بالفعل"
+            : "Unique ID already exists",
+        });
+        return;
+      }
     }
   };
 
@@ -1172,6 +1181,9 @@ export const FleetManagement = ({ isArabic }) => {
                         {isArabic ? "المركبة" : "Vehicle"}
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "المركبة" : "Unique ID"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                         {isArabic ? "رقم اللوحة" : "Plate Number"}
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
@@ -1208,6 +1220,11 @@ export const FleetManagement = ({ isArabic }) => {
                             <div className="text-sm text-gray-500">
                               {isArabic ? vehicle.colorAr : vehicle.color}
                             </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 text-sm font-mono text-gray-900">
+                          <div className="font-medium text-gray-900">
+                            {vehicle.unique_id ? vehicle.unique_id : "NA"}
                           </div>
                         </td>
                         <td className="px-4 py-4 text-sm font-mono text-gray-900">
@@ -1338,6 +1355,9 @@ export const FleetManagement = ({ isArabic }) => {
                         {isArabic ? "المركبة" : "Vehicle"}
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "المركبة" : "Unique ID"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                         {isArabic ? "رقم اللوحة" : "Plate Number"}
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
@@ -1374,6 +1394,11 @@ export const FleetManagement = ({ isArabic }) => {
                             <div className="text-sm text-gray-500">
                               {isArabic ? vehicle.colorAr : vehicle.color}
                             </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 text-sm font-mono text-gray-900">
+                          <div className="font-medium text-gray-900">
+                            {vehicle.unique_id ? vehicle.unique_id : "NA"}
                           </div>
                         </td>
                         <td className="px-4 py-4 text-sm font-mono text-gray-900">
@@ -1504,6 +1529,9 @@ export const FleetManagement = ({ isArabic }) => {
                         {isArabic ? "المركبة" : "Vehicle"}
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        {isArabic ? "المركبة" : "Unique ID"}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                         {isArabic ? "رقم اللوحة" : "Plate Number"}
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
@@ -1540,6 +1568,11 @@ export const FleetManagement = ({ isArabic }) => {
                             <div className="text-sm text-gray-500">
                               {isArabic ? vehicle.colorAr : vehicle.color}
                             </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 text-sm font-mono text-gray-900">
+                          <div className="font-medium text-gray-900">
+                            {vehicle.unique_id ? vehicle.unique_id : "NA"}
                           </div>
                         </td>
                         <td className="px-4 py-4 text-sm font-mono text-gray-900">
@@ -2059,7 +2092,47 @@ export const FleetManagement = ({ isArabic }) => {
                 <h4 className="font-semibold text-gray-900 mb-4">
                   {isArabic ? "المعلومات الأساسية" : "Basic Information"}
                 </h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {isArabic ? "المعرّف الفريد" : "Unique ID"} *
+                    </label>
+                    <input
+                      placeholder="VCL-"
+                      type="text"
+                      value={newVehicle.unique_id}
+                      onChange={(e) => {
+                        const value = e.target.value;
+
+                        setNewVehicle({ ...newVehicle, unique_id: value });
+
+                        const exists = vehicles.some(
+                          (c) => c.unique_id === value
+                        );
+
+                        if (exists) {
+                          setErrors({
+                            ...errors,
+                            unique_id: isArabic
+                              ? "المعرّف مستخدم بالفعل"
+                              : "Unique ID already exists",
+                          });
+                        } else {
+                          setErrors({
+                            ...errors,
+                            unique_id: "",
+                          });
+                        }
+                      }}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                      required
+                    />
+                    {errors.unique_id && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.unique_id}
+                      </p>
+                    )}
+                  </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       {isArabic ? "رقم اللوحة (عربي)" : "Plate Number (Arabic)"}{" "}
